@@ -1,6 +1,22 @@
 use graphql_client;
 
 
+pub struct WikiJs {
+    url: String,
+    key: String,
+}
+
+
+impl WikiJs {
+    pub fn new(url: String, key: String) -> Self {
+        Self {
+            url,
+            key,
+        }
+    }
+}
+
+
 pub fn add(left: usize, right: usize) -> usize {
     left + right
 }
