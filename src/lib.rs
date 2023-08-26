@@ -13,6 +13,15 @@ pub struct WikiJs {
 }
 
 
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "gql/schema.graphql",
+    query_path = "gql/query/fetch_all_pages.graphql",
+    response_derives = "Debug"
+)]
+pub struct FetchAllPages;
+
+
 impl WikiJs {
     pub fn new(url: String, key: String) -> Self {
         Self {
@@ -34,14 +43,17 @@ impl WikiJs {
         }
     }
 
+    pub fn fetch_all_pages(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let response_body = post_graphql::<FetchAllPages, _>(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            fetch_all_pages::Variables {}
+        )?;
 
-#[derive(GraphQLQuery)]
-#[graphql(
-    schema_path = "gql/schema.graphql",
-    query_path = "gql/query/fetch_all_pages.graphql",
-    response_derives = "Debug"
-)]
-pub struct FetchAllPages;
+        println!("{:#?}", response_body);
+        Ok(())
+    }
+}
 
 
 pub fn add(left: usize, right: usize) -> usize {
