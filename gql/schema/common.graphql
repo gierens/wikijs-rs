@@ -1,0 +1,47 @@
+# ====================== #
+# Wiki.js GraphQL Schema #
+# ====================== #
+
+# DIRECTIVES
+# ----------
+
+directive @auth(requires: [String]) on QUERY | FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+# TYPES
+# -----
+
+# Generic Key Value Pair
+type KeyValuePair {
+  key: String!
+  value: String!
+}
+# General Key Value Pair Input
+input KeyValuePairInput {
+  key: String!
+  value: String!
+}
+
+# Generic Mutation Response
+type DefaultResponse {
+  responseResult: ResponseStatus
+}
+
+# Mutation Status
+type ResponseStatus {
+  succeeded: Boolean!
+  errorCode: Int!
+  slug: String!
+  message: String
+}
+
+# ROOT
+# ----
+
+# Query (Read)
+type Query
+
+# Mutations (Create, Update, Delete)
+type Mutation
+
+# Subscriptions (Push, Real-time)
+type Subscription

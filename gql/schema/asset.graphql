@@ -1,0 +1,79 @@
+# ===============================================
+# ASSETS
+# ===============================================
+
+extend type Query {
+  assets: AssetQuery
+}
+
+extend type Mutation {
+  assets: AssetMutation
+}
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type AssetQuery {
+  list(
+    folderId: Int!
+    kind: AssetKind!
+  ): [AssetItem] @auth(requires: ["manage:system", "read:assets"])
+
+  folders(
+    parentFolderId: Int!
+  ): [AssetFolder] @auth(requires: ["manage:system", "read:assets"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type AssetMutation {
+  createFolder(
+    parentFolderId: Int!
+    slug: String!
+    name: String
+  ): DefaultResponse @auth(requires: ["manage:system", "write:assets"])
+
+  renameAsset(
+    id: Int!
+    filename: String!
+  ): DefaultResponse @auth(requires: ["manage:system", "manage:assets"])
+
+  deleteAsset(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:system", "manage:assets"])
+
+  flushTempUploads: DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type AssetItem {
+  id: Int!
+  filename: String!
+  ext: String!
+  kind: AssetKind!
+  mime: String!
+  fileSize: Int!
+  metadata: String
+  createdAt: Date!
+  updatedAt: Date!
+  folder: AssetFolder
+  author: User
+}
+
+type AssetFolder {
+  id: Int!
+  slug: String!
+  name: String
+}
+
+enum AssetKind {
+  IMAGE
+  BINARY
+  ALL
+}

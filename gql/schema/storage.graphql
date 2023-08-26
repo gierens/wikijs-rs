@@ -1,0 +1,78 @@
+# ===============================================
+# STORAGE
+# ===============================================
+
+extend type Query {
+  storage: StorageQuery
+}
+
+extend type Mutation {
+  storage: StorageMutation
+}
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type StorageQuery {
+  targets: [StorageTarget] @auth(requires: ["manage:system"])
+  status: [StorageStatus] @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type StorageMutation {
+  updateTargets(
+    targets: [StorageTargetInput]!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  executeAction(
+    targetKey: String!
+    handler: String!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type StorageTarget {
+  isAvailable: Boolean!
+  isEnabled: Boolean!
+  key: String!
+  title: String!
+  description: String
+  logo: String
+  website: String
+  supportedModes: [String]
+  mode: String
+  hasSchedule: Boolean!
+  syncInterval: String
+  syncIntervalDefault: String
+  config: [KeyValuePair]
+  actions: [StorageTargetAction]
+}
+
+input StorageTargetInput {
+  isEnabled: Boolean!
+  key: String!
+  mode: String!
+  syncInterval: String
+  config: [KeyValuePairInput]
+}
+
+type StorageStatus {
+  key: String!
+  title: String!
+  status: String!
+  message: String!
+  lastAttempt: String!
+}
+
+type StorageTargetAction {
+  handler: String!
+  label: String!
+  hint: String!
+}
