@@ -1,0 +1,1764 @@
+type Query {
+  analytics: AnalyticsQuery
+  assets: AssetQuery
+  authentication: AuthenticationQuery
+  comments: CommentQuery
+  contribute: ContributeQuery
+  groups: GroupQuery
+  localization: LocalizationQuery
+  logging: LoggingQuery
+  mail: MailQuery
+  navigation: NavigationQuery
+  pages: PageQuery
+  rendering: RenderingQuery
+  search: SearchQuery
+  site: SiteQuery
+  storage: StorageQuery
+  system: SystemQuery
+  theming: ThemingQuery
+  users: UserQuery
+}
+
+type Mutation {
+  analytics: AnalyticsMutation
+  assets: AssetMutation
+  authentication: AuthenticationMutation
+  comments: CommentMutation
+  groups: GroupMutation
+  localization: LocalizationMutation
+  logging: LoggingMutation
+  mail: MailMutation
+  navigation: NavigationMutation
+  pages: PageMutation
+  rendering: RenderingMutation
+  search: SearchMutation
+  site: SiteMutation
+  storage: StorageMutation
+  system: SystemMutation
+  theming: ThemingMutation
+  users: UserMutation
+}
+
+type Subscription {
+  loggingLiveTrail: LoggerTrailLine
+}
+
+# ===============================================
+# ANALYTICS
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+"""
+Queries for Analytics
+"""
+type AnalyticsQuery {
+  """
+  Fetch list of Analytics providers and their configuration
+  """
+  providers(
+    "Return only active providers"
+    isEnabled: Boolean
+  ): [AnalyticsProvider] @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+"""
+Mutations for Analytics
+"""
+type AnalyticsMutation {
+  """
+  Update a list of Analytics providers and their configuration
+  """
+  updateProviders(
+    "List of providers"
+    providers: [AnalyticsProviderInput]!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+"""
+Analytics Provider
+"""
+type AnalyticsProvider {
+  "Is the provider active"
+  isEnabled: Boolean!
+
+  "Unique identifier for this provider"
+  key: String!
+
+  "List of configuration properties, formatted as stringified JSON objects"
+  props: [String]
+
+  "Name of the provider"
+  title: String!
+
+  "Short description of the provider"
+  description: String
+
+  "Is the provider available for use"
+  isAvailable: Boolean
+
+  "Path to the provider logo"
+  logo: String
+
+  "Website of the provider"
+  website: String
+
+  "Configuration values for this provider"
+  config: [KeyValuePair]
+}
+
+"""
+Analytics Configuration Input
+"""
+input AnalyticsProviderInput {
+  "Is the provider active"
+  isEnabled: Boolean!
+
+  "Unique identifier of the provider"
+  key: String!
+
+  "Configuration values for this provider"
+  config: [KeyValuePairInput]
+}
+# ===============================================
+# ASSETS
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type AssetQuery {
+  list(
+    folderId: Int!
+    kind: AssetKind!
+  ): [AssetItem] @auth(requires: ["manage:system", "read:assets"])
+
+  folders(
+    parentFolderId: Int!
+  ): [AssetFolder] @auth(requires: ["manage:system", "read:assets"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type AssetMutation {
+  createFolder(
+    parentFolderId: Int!
+    slug: String!
+    name: String
+  ): DefaultResponse @auth(requires: ["manage:system", "write:assets"])
+
+  renameAsset(
+    id: Int!
+    filename: String!
+  ): DefaultResponse @auth(requires: ["manage:system", "manage:assets"])
+
+  deleteAsset(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:system", "manage:assets"])
+
+  flushTempUploads: DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type AssetItem {
+  id: Int!
+  filename: String!
+  ext: String!
+  kind: AssetKind!
+  mime: String!
+  fileSize: Int!
+  metadata: String
+  createdAt: Date!
+  updatedAt: Date!
+  folder: AssetFolder
+  author: User
+}
+
+type AssetFolder {
+  id: Int!
+  slug: String!
+  name: String
+}
+
+enum AssetKind {
+  IMAGE
+  BINARY
+  ALL
+}
+# ===============================================
+# AUTHENTICATION
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type AuthenticationQuery {
+  apiKeys: [AuthenticationApiKey] @auth(requires: ["manage:system", "manage:api"])
+
+  apiState: Boolean! @auth(requires: ["manage:system", "manage:api"])
+
+  strategies: [AuthenticationStrategy] @auth(requires: ["manage:system"])
+
+  activeStrategies(
+    enabledOnly: Boolean
+  ): [AuthenticationActiveStrategy]
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type AuthenticationMutation {
+  createApiKey(
+    name: String!
+    expiration: String!
+    fullAccess: Boolean!
+    group: Int
+  ): AuthenticationCreateApiKeyResponse @auth(requires: ["manage:system", "manage:api"])
+
+  login(
+    username: String!
+    password: String!
+    strategy: String!
+  ): AuthenticationLoginResponse @rateLimit(limit: 5, duration: 60)
+
+  loginTFA(
+    continuationToken: String!
+    securityCode: String!
+    setup: Boolean
+  ): AuthenticationLoginResponse @rateLimit(limit: 5, duration: 60)
+
+  loginChangePassword(
+    continuationToken: String!
+    newPassword: String!
+  ): AuthenticationLoginResponse @rateLimit(limit: 5, duration: 60)
+
+  forgotPassword(
+    email: String!
+  ): DefaultResponse @rateLimit(limit: 3, duration: 60)
+
+  register(
+    email: String!
+    password: String!
+    name: String!
+  ): AuthenticationRegisterResponse
+
+  revokeApiKey(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:system", "manage:api"])
+
+  setApiState(
+    enabled: Boolean!
+  ): DefaultResponse @auth(requires: ["manage:system", "manage:api"])
+
+  updateStrategies(
+    strategies: [AuthenticationStrategyInput]!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  regenerateCertificates: DefaultResponse @auth(requires: ["manage:system"])
+
+  resetGuestUser: DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type AuthenticationStrategy {
+  key: String!
+  props: [KeyValuePair] @auth(requires: ["manage:system"])
+  title: String!
+  description: String
+  isAvailable: Boolean
+  useForm: Boolean!
+  usernameType: String
+  logo: String
+  color: String
+  website: String
+  icon: String
+}
+
+type AuthenticationActiveStrategy {
+  key: String!
+  strategy: AuthenticationStrategy!
+  displayName: String!
+  order: Int!
+  isEnabled: Boolean!
+  config: [KeyValuePair] @auth(requires: ["manage:system"])
+  selfRegistration: Boolean!
+  domainWhitelist: [String]! @auth(requires: ["manage:system"])
+  autoEnrollGroups: [Int]! @auth(requires: ["manage:system"])
+}
+
+type AuthenticationLoginResponse {
+  responseResult: ResponseStatus
+  jwt: String
+  mustChangePwd: Boolean
+  mustProvideTFA: Boolean
+  mustSetupTFA: Boolean
+  continuationToken: String
+  redirect: String
+  tfaQRImage: String
+}
+
+type AuthenticationRegisterResponse {
+  responseResult: ResponseStatus
+  jwt: String
+}
+
+input AuthenticationStrategyInput {
+  key: String!
+  strategyKey: String!
+  config: [KeyValuePairInput]
+  displayName: String!
+  order: Int!
+  isEnabled: Boolean!
+  selfRegistration: Boolean!
+  domainWhitelist: [String]!
+  autoEnrollGroups: [Int]!
+}
+
+type AuthenticationApiKey {
+  id: Int!
+  name: String!
+  keyShort: String!
+  expiration: Date!
+  createdAt: Date!
+  updatedAt: Date!
+  isRevoked: Boolean!
+}
+
+type AuthenticationCreateApiKeyResponse {
+  responseResult: ResponseStatus
+  key: String
+}
+# ===============================================
+# COMMENT
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type CommentQuery {
+  providers: [CommentProvider] @auth(requires: ["manage:system"])
+
+  list(
+    locale: String!
+    path: String!
+  ): [CommentPost]! @auth(requires: ["read:comments", "manage:system"])
+
+  single(
+    id: Int!
+  ): CommentPost @auth(requires: ["read:comments", "manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type CommentMutation {
+  updateProviders(
+    providers: [CommentProviderInput]
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  create(
+    pageId: Int!
+    replyTo: Int
+    content: String!
+    guestName: String
+    guestEmail: String
+  ): CommentCreateResponse @auth(requires: ["write:comments", "manage:system"]) @rateLimit(limit: 1, duration: 15)
+
+  update(
+    id: Int!
+    content: String!
+  ): CommentUpdateResponse @auth(requires: ["write:comments", "manage:comments", "manage:system"])
+
+  delete(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:comments", "manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type CommentProvider {
+  isEnabled: Boolean!
+  key: String!
+  title: String!
+  description: String
+  logo: String
+  website: String
+  isAvailable: Boolean
+  config: [KeyValuePair]
+}
+
+input CommentProviderInput {
+  isEnabled: Boolean!
+  key: String!
+  config: [KeyValuePairInput]
+}
+
+type CommentPost {
+  id: Int!
+  content: String! @auth(requires: ["write:comments", "manage:comments", "manage:system"])
+  render: String!
+  authorId: Int!
+  authorName: String!
+  authorEmail: String! @auth(requires: ["manage:system"])
+  authorIP: String! @auth(requires: ["manage:system"])
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type CommentCreateResponse {
+  responseResult: ResponseStatus
+  id: Int
+}
+
+type CommentUpdateResponse {
+  responseResult: ResponseStatus
+  render: String
+}
+# ====================== #
+# Wiki.js GraphQL Schema #
+# ====================== #
+
+# DIRECTIVES
+# ----------
+
+directive @auth(requires: [String]) on QUERY | FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+# TYPES
+# -----
+
+# Generic Key Value Pair
+type KeyValuePair {
+  key: String!
+  value: String!
+}
+# General Key Value Pair Input
+input KeyValuePairInput {
+  key: String!
+  value: String!
+}
+
+# Generic Mutation Response
+type DefaultResponse {
+  responseResult: ResponseStatus
+}
+
+# Mutation Status
+type ResponseStatus {
+  succeeded: Boolean!
+  errorCode: Int!
+  slug: String!
+  message: String
+}
+
+# ROOT
+# ----
+
+# Query (Read)
+
+# Subscriptions (Push, Real-time)
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type ContributeQuery {
+  contributors: [ContributeContributor]
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type ContributeContributor {
+  id: String!
+  source: String!
+  name: String!
+  joined: Date!
+  website: String
+  twitter: String
+  avatar: String
+}
+# ===============================================
+# GROUPS
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type GroupQuery {
+  list(
+    filter: String
+    orderBy: String
+  ): [GroupMinimal] @auth(requires: ["write:groups", "manage:groups", "manage:system"])
+
+  single(
+    id: Int!
+  ): Group @auth(requires: ["write:groups", "manage:groups", "manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type GroupMutation {
+  create(
+    name: String!
+  ): GroupResponse @auth(requires: ["write:groups", "manage:groups", "manage:system"])
+
+  update(
+    id: Int!
+    name: String!
+    redirectOnLogin: String!
+    permissions: [String]!
+    pageRules: [PageRuleInput]!
+  ): DefaultResponse @auth(requires: ["write:groups", "manage:groups", "manage:system"])
+
+  delete(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["write:groups", "manage:groups", "manage:system"])
+
+  assignUser(
+    groupId: Int!
+    userId: Int!
+  ): DefaultResponse @auth(requires: ["write:groups", "manage:groups", "manage:system"])
+
+  unassignUser(
+    groupId: Int!
+    userId: Int!
+  ): DefaultResponse @auth(requires: ["write:groups", "manage:groups", "manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type GroupResponse {
+  responseResult: ResponseStatus!
+  group: Group
+}
+
+type GroupMinimal {
+  id: Int!
+  name: String!
+  isSystem: Boolean!
+  userCount: Int
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type Group {
+  id: Int!
+  name: String!
+  isSystem: Boolean!
+  redirectOnLogin: String
+  permissions: [String]!
+  pageRules: [PageRule]
+  users: [UserMinimal]
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type PageRule {
+  id: String!
+  deny: Boolean!
+  match: PageRuleMatch!
+  roles: [String]!
+  path: String!
+  locales: [String]!
+}
+
+input PageRuleInput {
+  id: String!
+  deny: Boolean!
+  match: PageRuleMatch!
+  roles: [String]!
+  path: String!
+  locales: [String]!
+}
+
+enum PageRuleMatch {
+  START
+  EXACT
+  END
+  REGEX
+  TAG
+}
+# ===============================================
+# LOCALIZATION
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type LocalizationQuery {
+  locales: [LocalizationLocale]
+  config: LocalizationConfig
+  translations(locale: String!, namespace: String!): [Translation]
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type LocalizationMutation {
+  downloadLocale(
+    locale: String!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  updateLocale(
+    locale: String!
+    autoUpdate: Boolean!
+    namespacing: Boolean!
+    namespaces: [String]!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type LocalizationLocale {
+  availability: Int!
+  code: String!
+  createdAt: Date!
+  installDate: Date
+  isInstalled: Boolean!
+  isRTL: Boolean!
+  name: String!
+  nativeName: String!
+  updatedAt: Date!
+}
+
+type LocalizationConfig {
+  locale: String!
+  autoUpdate: Boolean!
+  namespacing: Boolean!
+  namespaces: [String]!
+}
+
+type Translation {
+  key: String!
+  value: String!
+}
+# ===============================================
+# LOGGING
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type LoggingQuery {
+  loggers(
+    filter: String
+    orderBy: String
+  ): [Logger] @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type LoggingMutation {
+  updateLoggers(
+    loggers: [LoggerInput]
+  ): DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type Logger {
+  isEnabled: Boolean!
+  key: String!
+  title: String!
+  description: String
+  logo: String
+  website: String
+  level: String
+  config: [KeyValuePair]
+}
+
+input LoggerInput {
+  isEnabled: Boolean!
+  key: String!
+  level: String!
+  config: [KeyValuePairInput]
+}
+
+type LoggerTrailLine {
+  level: String!
+  output: String!
+  timestamp: Date!
+}
+# ===============================================
+# MAIL
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type MailQuery {
+  config: MailConfig @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type MailMutation {
+  sendTest(
+    recipientEmail: String!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  updateConfig(
+    senderName: String!
+    senderEmail: String!
+    host: String!
+    port: Int!
+    secure: Boolean!
+    verifySSL: Boolean!
+    user: String!
+    pass: String!
+    useDKIM: Boolean!
+    dkimDomainName: String!
+    dkimKeySelector: String!
+    dkimPrivateKey: String!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type MailConfig {
+  senderName: String!
+  senderEmail: String!
+  host: String!
+  port: Int!
+  secure: Boolean!
+  verifySSL: Boolean!
+  user: String!
+  pass: String!
+  useDKIM: Boolean!
+  dkimDomainName: String!
+  dkimKeySelector: String!
+  dkimPrivateKey: String!
+}
+# ===============================================
+# NAVIGATION
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type NavigationQuery {
+  tree: [NavigationTree]! @auth(requires: ["manage:navigation", "manage:system"])
+  config: NavigationConfig! @auth(requires: ["manage:navigation", "manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type NavigationMutation {
+  updateTree(
+    tree: [NavigationTreeInput]!
+  ): DefaultResponse @auth(requires: ["manage:navigation", "manage:system"])
+  updateConfig(
+    mode: NavigationMode!
+  ): DefaultResponse @auth(requires: ["manage:navigation", "manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type NavigationTree {
+  locale: String!
+  items: [NavigationItem]!
+}
+
+input NavigationTreeInput {
+  locale: String!
+  items: [NavigationItemInput]!
+}
+
+type NavigationItem {
+  id: String!
+  kind: String!
+  label: String
+  icon: String
+  targetType: String
+  target: String
+  visibilityMode: String
+  visibilityGroups: [Int]
+}
+
+input NavigationItemInput {
+  id: String!
+  kind: String!
+  label: String
+  icon: String
+  targetType: String
+  target: String
+  visibilityMode: String
+  visibilityGroups: [Int]
+}
+
+type NavigationConfig {
+  mode: NavigationMode!
+}
+
+enum NavigationMode {
+  NONE
+  TREE
+  MIXED
+  STATIC
+}
+# ===============================================
+# PAGES
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type PageQuery {
+  history(
+    id: Int!
+    offsetPage: Int
+    offsetSize: Int
+  ): PageHistoryResult @auth(requires: ["manage:system", "read:history"])
+
+  version(
+    pageId: Int!
+    versionId: Int!
+  ): PageVersion @auth(requires: ["manage:system", "read:history"])
+
+  search(
+    query: String!
+    path: String
+    locale: String
+  ): PageSearchResponse! @auth(requires: ["manage:system", "read:pages"])
+
+  list(
+    limit: Int
+    orderBy: PageOrderBy
+    orderByDirection: PageOrderByDirection
+    tags: [String!]
+    locale: String
+    creatorId: Int
+    authorId: Int
+  ): [PageListItem!]! @auth(requires: ["manage:system", "read:pages"])
+
+  single(
+    id: Int!
+  ): Page @auth(requires: ["read:pages", "manage:system"])
+
+  tags: [PageTag]! @auth(requires: ["manage:system", "read:pages"])
+
+  searchTags(
+    query: String!
+  ): [String]! @auth(requires: ["manage:system", "read:pages"])
+
+  tree(
+    path: String
+    parent: Int
+    mode: PageTreeMode!
+    locale: String!
+    includeAncestors: Boolean
+  ): [PageTreeItem] @auth(requires: ["manage:system", "read:pages"])
+
+  links(
+    locale: String!
+  ): [PageLinkItem] @auth(requires: ["manage:system", "read:pages"])
+
+  checkConflicts(
+    id: Int!
+    checkoutDate: Date!
+  ): Boolean! @auth(requires: ["write:pages", "manage:pages", "manage:system"])
+
+  conflictLatest(
+    id: Int!
+  ): PageConflictLatest! @auth(requires: ["write:pages", "manage:pages", "manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type PageMutation {
+  create(
+    content: String!
+    description: String!
+    editor: String!
+    isPublished: Boolean!
+    isPrivate: Boolean!
+    locale: String!
+    path: String!
+    publishEndDate: Date
+    publishStartDate: Date
+    scriptCss: String
+    scriptJs: String
+    tags: [String]!
+    title: String!
+  ): PageResponse @auth(requires: ["write:pages", "manage:pages", "manage:system"])
+
+  update(
+    id: Int!
+    content: String
+    description: String
+    editor: String
+    isPrivate: Boolean
+    isPublished: Boolean
+    locale: String
+    path: String
+    publishEndDate: Date
+    publishStartDate: Date
+    scriptCss: String
+    scriptJs: String
+    tags: [String]
+    title: String
+  ): PageResponse @auth(requires: ["write:pages", "manage:pages", "manage:system"])
+
+  convert(
+    id: Int!
+    editor: String!
+  ): DefaultResponse @auth(requires: ["write:pages", "manage:pages", "manage:system"])
+
+  move(
+    id: Int!
+    destinationPath: String!
+    destinationLocale: String!
+  ): DefaultResponse @auth(requires: ["manage:pages", "manage:system"])
+
+  delete(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["delete:pages", "manage:system"])
+
+  deleteTag(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  updateTag(
+    id: Int!
+    tag: String!
+    title: String!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  flushCache: DefaultResponse @auth(requires: ["manage:system"])
+
+  migrateToLocale(
+    sourceLocale: String!
+    targetLocale: String!
+  ): PageMigrationResponse @auth(requires: ["manage:system"])
+
+  rebuildTree: DefaultResponse @auth(requires: ["manage:system"])
+
+  render(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  restore(
+    pageId: Int!
+    versionId: Int!
+  ): DefaultResponse @auth(requires: ["write:pages", "manage:pages", "manage:system"])
+
+  purgeHistory (
+    olderThan: String!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type PageResponse {
+  responseResult: ResponseStatus!
+  page: Page
+}
+
+type PageMigrationResponse {
+  responseResult: ResponseStatus!
+  count: Int
+}
+
+type Page {
+  id: Int!
+  path: String!
+  hash: String!
+  title: String!
+  description: String!
+  isPrivate: Boolean! @auth(requires: ["write:pages", "manage:system"])
+  isPublished: Boolean! @auth(requires: ["write:pages", "manage:system"])
+  privateNS: String @auth(requires: ["write:pages", "manage:system"])
+  publishStartDate: Date! @auth(requires: ["write:pages", "manage:system"])
+  publishEndDate: Date! @auth(requires: ["write:pages", "manage:system"])
+  tags: [PageTag]!
+  content: String! @auth(requires: ["read:source", "write:pages", "manage:system"])
+  render: String
+  toc: String
+  contentType: String!
+  createdAt: Date!
+  updatedAt: Date!
+  editor: String! @auth(requires: ["write:pages", "manage:system"])
+  locale: String!
+  scriptCss: String
+  scriptJs: String
+  authorId: Int! @auth(requires: ["write:pages", "manage:system"])
+  authorName: String! @auth(requires: ["write:pages", "manage:system"])
+  authorEmail: String! @auth(requires: ["write:pages", "manage:system"])
+  creatorId: Int! @auth(requires: ["write:pages", "manage:system"])
+  creatorName: String! @auth(requires: ["write:pages", "manage:system"])
+  creatorEmail: String! @auth(requires: ["write:pages", "manage:system"])
+}
+
+type PageTag {
+  id: Int!
+  tag: String!
+  title: String
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type PageHistory {
+  versionId: Int!
+  versionDate: Date!
+  authorId: Int!
+  authorName: String!
+  actionType: String!
+  valueBefore: String
+  valueAfter: String
+}
+
+type PageVersion {
+  action: String!
+  authorId: String!
+  authorName: String!
+  content: String!
+  contentType: String!
+  createdAt: Date!
+  versionDate: Date!
+  description: String!
+  editor: String!
+  isPrivate: Boolean!
+  isPublished: Boolean!
+  locale: String!
+  pageId: Int!
+  path: String!
+  publishEndDate: Date!
+  publishStartDate: Date!
+  tags: [String]!
+  title: String!
+  versionId: Int!
+}
+
+type PageHistoryResult {
+  trail: [PageHistory]
+  total: Int!
+}
+
+type PageSearchResponse {
+  results: [PageSearchResult]!
+  suggestions: [String]!
+  totalHits: Int!
+}
+
+type PageSearchResult {
+  id: String!
+  title: String!
+  description: String!
+  path: String!
+  locale: String!
+}
+
+type PageListItem {
+  id: Int!
+  path: String!
+  locale: String!
+  title: String
+  description: String
+  contentType: String!
+  isPublished: Boolean!
+  isPrivate: Boolean!
+  privateNS: String
+  createdAt: Date!
+  updatedAt: Date!
+  tags: [String]
+}
+
+type PageTreeItem {
+  id: Int!
+  path: String!
+  depth: Int!
+  title: String!
+  isPrivate: Boolean!
+  isFolder: Boolean!
+  privateNS: String
+  parent: Int
+  pageId: Int
+  locale: String!
+}
+
+type PageLinkItem {
+  id: Int!
+  path: String!
+  title: String!
+  links: [String]!
+}
+
+type PageConflictLatest {
+  id: Int!
+  authorId: String!
+  authorName: String!
+  content: String!
+  createdAt: Date!
+  description: String!
+  isPublished: Boolean!
+  locale: String!
+  path: String!
+  tags: [String]
+  title: String!
+  updatedAt: Date!
+}
+
+enum PageOrderBy {
+  CREATED
+  ID
+  PATH
+  TITLE
+  UPDATED
+}
+
+enum PageOrderByDirection {
+  ASC
+  DESC
+}
+
+enum PageTreeMode {
+  FOLDERS
+  PAGES
+  ALL
+}
+# ===============================================
+# RENDERING
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type RenderingQuery {
+  renderers(
+    filter: String
+    orderBy: String
+  ): [Renderer] @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type RenderingMutation {
+  updateRenderers(
+    renderers: [RendererInput]
+  ): DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type Renderer {
+  isEnabled: Boolean!
+  key: String!
+  title: String!
+  description: String
+  icon: String
+  dependsOn: String
+  input: String
+  output: String
+  config: [KeyValuePair]
+}
+
+input RendererInput {
+  isEnabled: Boolean!
+  key: String!
+  config: [KeyValuePairInput]
+}
+# SCALARS
+
+scalar Date
+# ===============================================
+# SEARCH
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type SearchQuery {
+  searchEngines(
+    filter: String
+    orderBy: String
+  ): [SearchEngine] @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type SearchMutation {
+  updateSearchEngines(
+    engines: [SearchEngineInput]
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  rebuildIndex: DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type SearchEngine {
+  isEnabled: Boolean!
+  key: String!
+  title: String!
+  description: String
+  logo: String
+  website: String
+  isAvailable: Boolean
+  config: [KeyValuePair]
+}
+
+input SearchEngineInput {
+  isEnabled: Boolean!
+  key: String!
+  config: [KeyValuePairInput]
+}
+# ===============================================
+# SITE
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type SiteQuery {
+  config: SiteConfig @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type SiteMutation {
+  updateConfig(
+    host: String
+    title: String
+    description: String
+    robots: [String]
+    analyticsService: String
+    analyticsId: String
+    company: String
+    contentLicense: String
+    logoUrl: String
+    authAutoLogin: Boolean
+    authEnforce2FA: Boolean
+    authHideLocal: Boolean
+    authLoginBgUrl: String
+    authJwtAudience: String
+    authJwtExpiration: String
+    authJwtRenewablePeriod: String
+    featurePageRatings: Boolean
+    featurePageComments: Boolean
+    featurePersonalWikis: Boolean
+    securityOpenRedirect: Boolean
+    securityIframe: Boolean
+    securityReferrerPolicy: Boolean
+    securityTrustProxy: Boolean
+    securitySRI: Boolean
+    securityHSTS: Boolean
+    securityHSTSDuration: Int
+    securityCSP: Boolean
+    securityCSPDirectives: String
+    uploadMaxFileSize: Int
+    uploadMaxFiles: Int
+    uploadScanSVG: Boolean
+    uploadForceDownload: Boolean
+
+  ): DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type SiteConfig {
+  host: String
+  title: String
+  description: String
+  robots: [String]
+  analyticsService: String
+  analyticsId: String
+  company: String
+  contentLicense: String
+  logoUrl: String
+  authAutoLogin: Boolean
+  authEnforce2FA: Boolean
+  authHideLocal: Boolean
+  authLoginBgUrl: String
+  authJwtAudience: String
+  authJwtExpiration: String
+  authJwtRenewablePeriod: String
+  featurePageRatings: Boolean
+  featurePageComments: Boolean
+  featurePersonalWikis: Boolean
+  securityOpenRedirect: Boolean
+  securityIframe: Boolean
+  securityReferrerPolicy: Boolean
+  securityTrustProxy: Boolean
+  securitySRI: Boolean
+  securityHSTS: Boolean
+  securityHSTSDuration: Int
+  securityCSP: Boolean
+  securityCSPDirectives: String
+  uploadMaxFileSize: Int
+  uploadMaxFiles: Int
+  uploadScanSVG: Boolean
+  uploadForceDownload: Boolean
+}
+# ===============================================
+# STORAGE
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type StorageQuery {
+  targets: [StorageTarget] @auth(requires: ["manage:system"])
+  status: [StorageStatus] @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type StorageMutation {
+  updateTargets(
+    targets: [StorageTargetInput]!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  executeAction(
+    targetKey: String!
+    handler: String!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type StorageTarget {
+  isAvailable: Boolean!
+  isEnabled: Boolean!
+  key: String!
+  title: String!
+  description: String
+  logo: String
+  website: String
+  supportedModes: [String]
+  mode: String
+  hasSchedule: Boolean!
+  syncInterval: String
+  syncIntervalDefault: String
+  config: [KeyValuePair]
+  actions: [StorageTargetAction]
+}
+
+input StorageTargetInput {
+  isEnabled: Boolean!
+  key: String!
+  mode: String!
+  syncInterval: String
+  config: [KeyValuePairInput]
+}
+
+type StorageStatus {
+  key: String!
+  title: String!
+  status: String!
+  message: String!
+  lastAttempt: String!
+}
+
+type StorageTargetAction {
+  handler: String!
+  label: String!
+  hint: String!
+}
+# ===============================================
+# SYSTEM
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type SystemQuery {
+  flags: [SystemFlag] @auth(requires: ["manage:system"])
+  info: SystemInfo
+  extensions: [SystemExtension]! @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type SystemMutation {
+  updateFlags(
+    flags: [SystemFlagInput]!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  resetTelemetryClientId: DefaultResponse @auth(requires: ["manage:system"])
+
+  setTelemetry(
+    enabled: Boolean!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  performUpgrade: DefaultResponse @auth(requires: ["manage:system"])
+
+  importUsersFromV1(
+    mongoDbConnString: String!
+    groupMode: SystemImportUsersGroupMode!
+  ): SystemImportUsersResponse @auth(requires:  ["manage:system"])
+
+  setHTTPSRedirection(
+    enabled: Boolean!
+  ): DefaultResponse @auth(requires: ["manage:system"])
+
+  renewHTTPSCertificate: DefaultResponse @auth(requires: ["manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type SystemFlag {
+  key: String!
+  value: Boolean!
+}
+
+input SystemFlagInput {
+  key: String!
+  value: Boolean!
+}
+
+type SystemInfo {
+  configFile: String @auth(requires: ["manage:system"])
+  cpuCores: Int @auth(requires: ["manage:system"])
+  currentVersion: String @auth(requires: ["manage:system"])
+  dbHost: String @auth(requires: ["manage:system"])
+  dbType: String @auth(requires: ["manage:system"])
+  dbVersion: String @auth(requires: ["manage:system"])
+  groupsTotal: Int @auth(requires: ["manage:system", "manage:navigation", "manage:groups", "write:groups", "manage:users", "write:users"])
+  hostname: String @auth(requires: ["manage:system"])
+  httpPort: Int @auth(requires: ["manage:system"])
+  httpRedirection: Boolean @auth(requires: ["manage:system"])
+  httpsPort: Int @auth(requires: ["manage:system"])
+  latestVersion: String @auth(requires: ["manage:system"])
+  latestVersionReleaseDate: Date @auth(requires: ["manage:system"])
+  nodeVersion: String @auth(requires: ["manage:system"])
+  operatingSystem: String @auth(requires: ["manage:system"])
+  pagesTotal: Int @auth(requires: ["manage:system", "manage:navigation", "manage:pages", "delete:pages"])
+  platform: String @auth(requires: ["manage:system"])
+  ramTotal: String @auth(requires: ["manage:system"])
+  sslDomain: String @auth(requires: ["manage:system"])
+  sslExpirationDate: Date @auth(requires: ["manage:system"])
+  sslProvider: String @auth(requires: ["manage:system"])
+  sslStatus: String @auth(requires: ["manage:system"])
+  sslSubscriberEmail: String @auth(requires: ["manage:system"])
+  tagsTotal: Int @auth(requires: ["manage:system", "manage:navigation", "manage:pages", "delete:pages"])
+  telemetry: Boolean @auth(requires: ["manage:system"])
+  telemetryClientId: String @auth(requires: ["manage:system"])
+  upgradeCapable: Boolean @auth(requires: ["manage:system"])
+  usersTotal: Int @auth(requires: ["manage:system", "manage:navigation", "manage:groups", "write:groups", "manage:users", "write:users"])
+  workingDirectory: String @auth(requires: ["manage:system"])
+}
+
+enum SystemImportUsersGroupMode {
+  MULTI
+  SINGLE
+  NONE
+}
+
+type SystemImportUsersResponse {
+  responseResult: ResponseStatus
+  usersCount: Int
+  groupsCount: Int
+  failed: [SystemImportUsersResponseFailed]
+}
+
+type SystemImportUsersResponseFailed {
+  provider: String
+  email: String
+  error: String
+}
+
+type SystemExtension {
+  key: String!
+  title: String!
+  description: String!
+  isInstalled: Boolean!
+  isCompatible: Boolean!
+}
+# ===============================================
+# THEMES
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type ThemingQuery {
+  themes: [ThemingTheme] @auth(requires: ["manage:theme", "manage:system"])
+  config: ThemingConfig @auth(requires: ["manage:theme", "manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type ThemingMutation {
+  setConfig(
+    theme: String!
+    iconset: String!
+    darkMode: Boolean!
+    injectCSS: String
+    injectHead: String
+    injectBody: String
+  ): DefaultResponse @auth(requires: ["manage:theme", "manage:system"])
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type ThemingConfig {
+  theme: String!
+  iconset: String!
+  darkMode: Boolean!
+  injectCSS: String
+  injectHead: String
+  injectBody: String
+}
+
+type ThemingTheme {
+  key: String
+  title: String
+  author: String
+}
+# ===============================================
+# USERS
+# ===============================================
+
+# -----------------------------------------------
+# QUERIES
+# -----------------------------------------------
+
+type UserQuery {
+  list(
+    filter: String
+    orderBy: String
+  ): [UserMinimal] @auth(requires: ["write:users", "manage:users", "manage:system"])
+
+  search(
+    query: String!
+  ): [UserMinimal] @auth(requires: ["write:groups", "manage:groups", "write:users", "manage:users", "manage:system"])
+
+  single(
+    id: Int!
+  ): User @auth(requires: ["manage:users", "manage:system"])
+
+  profile: UserProfile
+
+  lastLogins: [UserLastLogin] @auth(requires: ["write:groups", "manage:groups", "write:users", "manage:users", "manage:system"])
+}
+
+# -----------------------------------------------
+# MUTATIONS
+# -----------------------------------------------
+
+type UserMutation {
+  create(
+    email: String!
+    name: String!
+    passwordRaw: String
+    providerKey: String!
+    groups: [Int]!
+    mustChangePassword: Boolean
+    sendWelcomeEmail: Boolean
+  ): UserResponse @auth(requires: ["write:users", "manage:users", "manage:system"])
+
+  update(
+    id: Int!
+    email: String
+    name: String
+    newPassword: String
+    groups: [Int]
+    location: String
+    jobTitle: String
+    timezone: String
+    dateFormat: String
+    appearance: String
+  ): DefaultResponse @auth(requires: ["manage:users", "manage:system"])
+
+  delete(
+    id: Int!
+    replaceId: Int!
+  ): DefaultResponse @auth(requires: ["manage:users", "manage:system"])
+
+  verify(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:users", "manage:system"])
+
+  activate(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:users", "manage:system"])
+
+  deactivate(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:users", "manage:system"])
+
+  enableTFA(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:users", "manage:system"])
+
+  disableTFA(
+    id: Int!
+  ): DefaultResponse @auth(requires: ["manage:users", "manage:system"])
+
+  resetPassword(
+    id: Int!
+  ): DefaultResponse
+
+  updateProfile(
+    name: String!
+    location: String!
+    jobTitle: String!
+    timezone: String!
+    dateFormat: String!
+    appearance: String!
+  ): UserTokenResponse
+
+  changePassword(
+    current: String!
+    new: String!
+  ): UserTokenResponse
+}
+
+# -----------------------------------------------
+# TYPES
+# -----------------------------------------------
+
+type UserResponse {
+  responseResult: ResponseStatus!
+  user: User
+}
+
+type UserLastLogin {
+  id: Int!
+  name: String!
+  lastLoginAt: Date!
+}
+
+type UserMinimal {
+  id: Int!
+  name: String!
+  email: String!
+  providerKey: String!
+  isSystem: Boolean!
+  isActive: Boolean!
+  createdAt: Date!
+  lastLoginAt: Date
+}
+
+type User {
+  id: Int!
+  name: String!
+  email: String!
+  providerKey: String!
+  providerName: String
+  providerId: String
+  providerIs2FACapable: Boolean
+  isSystem: Boolean!
+  isActive: Boolean!
+  isVerified: Boolean!
+  location: String!
+  jobTitle: String!
+  timezone: String!
+  dateFormat: String!
+  appearance: String!
+  createdAt: Date!
+  updatedAt: Date!
+  lastLoginAt: Date
+  tfaIsActive: Boolean!
+  groups: [Group]!
+}
+
+type UserProfile {
+  id: Int!
+  name: String!
+  email: String!
+  providerKey: String
+  providerName: String
+  isSystem: Boolean!
+  isVerified: Boolean!
+  location: String!
+  jobTitle: String!
+  timezone: String!
+  dateFormat: String!
+  appearance: String!
+  createdAt: Date!
+  updatedAt: Date!
+  lastLoginAt: Date
+  groups: [String]!
+  pagesTotal: Int!
+}
+
+type UserTokenResponse {
+  responseResult: ResponseStatus!
+  jwt: String
+}
