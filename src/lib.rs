@@ -1,5 +1,5 @@
 use reqwest::blocking::Client;
-use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
+use reqwest::header::{HeaderValue, AUTHORIZATION};
 use graphql_client::{
     GraphQLQuery,
     reqwest::post_graphql_blocking as post_graphql,
