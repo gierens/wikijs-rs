@@ -1,0 +1,9 @@
+query FetchAllPages {
+  pages {
+    list (orderBy: TITLE) {
+      id
+      path
+      title
+    }
+  }
+}

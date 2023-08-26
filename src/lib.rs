@@ -1,4 +1,4 @@
-use graphql_client;
+use graphql_client::GraphQLQuery;
 
 
 pub struct WikiJs {
@@ -15,6 +15,15 @@ impl WikiJs {
         }
     }
 }
+
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "gql/schema.graphql",
+    query_path = "gql/query/fetch_all_pages.graphql",
+    response_derives = "Debug"
+)]
+pub struct FetchAllPages;
 
 
 pub fn add(left: usize, right: usize) -> usize {
