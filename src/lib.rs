@@ -1,9 +1,15 @@
-use graphql_client::GraphQLQuery;
+use reqwest::blocking::Client;
+use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
+use graphql_client::{
+    GraphQLQuery,
+    reqwest::post_graphql_blocking as post_graphql,
+};
 
 
 pub struct WikiJs {
     url: String,
     key: String,
+    client: Client,
 }
 
 
@@ -11,10 +17,22 @@ impl WikiJs {
     pub fn new(url: String, key: String) -> Self {
         Self {
             url,
-            key,
+            key: key.clone(),
+            client:
+                Client::builder()
+                    .user_agent("wikijs-rs/0.1.0")
+                    .default_headers(
+                        std::iter::once((
+                            AUTHORIZATION,
+                            HeaderValue::from_str(&format!("Bearer {}", key))
+                                        .unwrap()
+                            ))
+                        .collect(),
+                     )
+                    .build()
+                    .unwrap(),
         }
     }
-}
 
 
 #[derive(GraphQLQuery)]
