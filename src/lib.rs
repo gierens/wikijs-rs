@@ -6,7 +6,7 @@ use graphql_client::{
 };
 
 
-pub struct WikiJs {
+pub struct Api {
     url: String,
     key: String,
     client: Client,
@@ -22,7 +22,7 @@ pub struct WikiJs {
 pub struct FetchAllPages;
 
 
-impl WikiJs {
+impl Api {
     pub fn new(url: String, key: String) -> Self {
         Self {
             url,
