@@ -16,10 +16,10 @@ pub struct Api {
 #[derive(GraphQLQuery)]
 #[graphql(
     schema_path = "gql/schema.graphql",
-    query_path = "gql/query/fetch_all_pages.graphql",
+    query_path = "gql/query/list_all_pages.graphql",
     response_derives = "Debug"
 )]
-pub struct FetchAllPages;
+pub struct ListAllPages;
 
 
 impl Api {
@@ -43,11 +43,11 @@ impl Api {
         }
     }
 
-    pub fn fetch_all_pages(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let response_body = post_graphql::<FetchAllPages, _>(
+    pub fn list_all_pages(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let response_body = post_graphql::<ListAllPages, _>(
             &self.client,
             &format!("{}/graphql", self.url),
-            fetch_all_pages::Variables {}
+            list_all_pages::Variables {}
         )?;
 
         println!("{:#?}", response_body);

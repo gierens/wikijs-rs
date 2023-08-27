@@ -1,0 +1,9 @@
+query ListAllPages {
+  pages {
+    list (orderBy: TITLE) {
+      id
+      path
+      title
+    }
+  }
+}
