@@ -8,7 +8,7 @@ use graphql_client::{
 
 pub struct Api {
     url: String,
-    key: String,
+    // key: String,
     client: Client,
 }
 
@@ -44,7 +44,7 @@ impl Api {
     pub fn new(url: String, key: String) -> Self {
         Self {
             url,
-            key: key.clone(),
+            // key: key.clone(),
             client:
                 Client::builder()
                     .user_agent("wikijs-rs/0.1.0")
