@@ -9,15 +9,15 @@ query GetPage($id: Int!) {
       isPrivate
       isPublished
       privateNS
-      # publishStartDate
-      # publishEndDate
-      # tags
+      publishStartDate
+      publishEndDate
+      tags
       content
       render
-      # toc
+      toc
       contentType
-      # createdAt
-      # updatedAt
+      createdAt
+      updatedAt
       editor
       locale
       scriptCss
