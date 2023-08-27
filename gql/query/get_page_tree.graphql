@@ -1,0 +1,16 @@
+query GetPageTree($parent: Int!) {
+  pages {
+    tree (parent: $parent, mode: ALL, includeAncestors: true, locale: "en") {
+      id
+      path
+      depth
+      title
+      isPrivate
+      isFolder
+      privateNS
+      parent
+      pageId
+      locale
+    }
+  }
+}
