@@ -1,0 +1,33 @@
+query GetPage($id: Int!) {
+  pages {
+    single (id: $id) {
+      id
+      path
+      hash
+      title
+      description
+      isPrivate
+      isPublished
+      privateNS
+      # publishStartDate
+      # publishEndDate
+      # tags
+      content
+      render
+      # toc
+      contentType
+      # createdAt
+      # updatedAt
+      editor
+      locale
+      scriptCss
+      scriptJs
+      authorId
+      authorName
+      authorEmail
+      creatorId
+      creatorName
+      creatorEmail
+    }
+  }
+}
