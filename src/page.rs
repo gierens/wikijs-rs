@@ -150,7 +150,6 @@ pub fn get_page(client: &Client, url: &str, id: i64) -> Result<Page, Box<dyn std
         variables
     )?;
 
-    println!("{:#?}", response_body);
     Ok(response_body.data.unwrap().pages.unwrap().single.unwrap())
 }
 
