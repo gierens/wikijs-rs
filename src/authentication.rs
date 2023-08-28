@@ -23,6 +23,7 @@ pub struct AuthenticationLoginResponse {
     pub tfa_qr_image: Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Deserialize, Debug)]
 pub struct ResponseStatus {
     succeeded: Boolean,
