@@ -41,7 +41,7 @@ pub(crate) mod login_mod {
     pub const OPERATION_NAME: &str = "Login";
     pub const QUERY : & str = "mutation Login($username: String!, $password: String!, $strategy: String!) {\n  authentication {\n    login(username: $username, password: $password, strategy: $strategy) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      jwt\n      mustChangePwd\n      mustProvideTFA\n      mustSetupTFA\n      continuationToken\n      redirect\n      tfaQRImage\n    }\n  }\n}\n" ;
     
-    #[derive(Serialize)]
+    #[derive(Serialize, Debug)]
     pub struct Variables {
         pub username: String,
         pub password: String,
@@ -50,12 +50,12 @@ pub(crate) mod login_mod {
 
     impl Variables {}
 
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Debug)]
     pub struct ResponseData {
         pub authentication: Option<Authentication>,
     }
 
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Debug)]
     pub struct Authentication {
         pub login: Option<AuthenticationLoginResponse>,
     }
