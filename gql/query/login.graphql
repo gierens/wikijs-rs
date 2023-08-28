@@ -1,0 +1,14 @@
+mutation Login($username: String!, $password: String!, $strategy: String!) {
+  authentication {
+    login(username: $username, password: $password, strategy: $strategy) {
+      responseResult
+      jwt
+      mustChangePwd
+      mustProvideTFA
+      mustSetupTFA
+      continuationToken
+      redirect
+      tfaQRImage
+    }
+  }
+}
