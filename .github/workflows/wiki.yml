@@ -15,3 +15,13 @@ jobs:
         with:
           compose-file: "./docker-compose.yml"
       - uses: cygnetdigital/wait_for_response@v2.0.0
+      - run: |
+          sudo apt update
+          sudo apt install httpie
+          echo '{
+              "adminEmail": "sandro@gierens.de",
+              "adminPassword": "password",
+              "adminPasswordConfirm": "password",
+              "siteUrl": "http://localhost",
+              "telemetry": true
+          }' | http post http://localhost/finalize
