@@ -1,21 +1,44 @@
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 
+mod authentication;
 mod page;
+
+
+pub enum Credentials {
+    Key(String),
+    UsernamePassword(String, String, String),
+}
 
 
 pub struct Api {
     url: String,
-    // key: String,
     client: Client,
 }
 
 
 impl Api {
-    pub fn new(url: String, key: String) -> Self {
+    pub fn new(url: String, credentials: Credentials) -> Self {
+        let key = match credentials {
+            Credentials::Key(key) => key,
+            Credentials::UsernamePassword(username, password, strategy) => {
+                let client =
+                    Client::builder()
+                        .user_agent("wikijs-rs/0.1.0")
+                        .build()
+                        .unwrap();
+                let auth_response = authentication::login(
+                    &client,
+                    &format!("{}/graphql", url),
+                    username,
+                    password,
+                    strategy,
+                ).unwrap();
+                auth_response.jwt.unwrap()
+            }
+        };
         Self {
             url,
-            // key: key.clone(),
             client:
                 Client::builder()
                     .user_agent("wikijs-rs/0.1.0")
