@@ -22,13 +22,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install httpie
-          echo '{
-              "adminEmail": "sandro@gierens.de",
-              "adminPassword": "password",
-              "adminPasswordConfirm": "password",
-              "siteUrl": "http://localhost",
-              "telemetry": true
-          }' | http post http://localhost/finalize
+          scripts/finalize_wiki_setup.sh
       - name: install rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: install rust cache
