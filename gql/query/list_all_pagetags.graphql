@@ -1,0 +1,11 @@
+query ListAllPageTags {
+  pages {
+    tags {
+      id
+      tag
+      title
+      createdAt
+      updatedAt
+    }
+  }
+}

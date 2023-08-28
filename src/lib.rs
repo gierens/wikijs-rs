@@ -5,6 +5,8 @@ use graphql_client::{
     reqwest::post_graphql_blocking as post_graphql,
 };
 
+mod page;
+
 
 pub struct Api {
     url: String,
@@ -20,15 +22,6 @@ pub struct Api {
     response_derives = "Debug"
 )]
 pub struct ListAllPages;
-
-
-#[derive(GraphQLQuery)]
-#[graphql(
-    schema_path = "gql/schema.graphql",
-    query_path = "gql/query/get_page.graphql",
-    response_derives = "Debug"
-)]
-pub struct GetPage;
 
 
 #[derive(GraphQLQuery)]
@@ -72,17 +65,12 @@ impl Api {
         Ok(())
     }
 
-    pub fn get_page(&self, id: i64) -> Result<(), Box<dyn std::error::Error>> {
-        let response_body = post_graphql::<GetPage, _>(
-            &self.client,
-            &format!("{}/graphql", self.url),
-            get_page::Variables {
-                id: id.clone(),
-            }
-        )?;
+    pub fn get_page(&self, id: i64) -> Result<page::Page, Box<dyn std::error::Error>> {
+        page::get_page(&self.client, &format!("{}/graphql", self.url), id)
+    }
 
-        println!("{:#?}", response_body);
-        Ok(())
+    pub fn list_all_page_tags(&self) -> Result<Vec<page::PageTag>, Box<dyn std::error::Error>> {
+        page::list_all_page_tags(&self.client, &format!("{}/graphql", self.url))
     }
 
     pub fn get_page_tree(&self, parent: i64) -> Result<(), Box<dyn std::error::Error>> {
