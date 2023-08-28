@@ -18,15 +18,6 @@ pub struct Api {
 #[derive(GraphQLQuery)]
 #[graphql(
     schema_path = "gql/schema.graphql",
-    query_path = "gql/query/list_all_pages.graphql",
-    response_derives = "Debug"
-)]
-pub struct ListAllPages;
-
-
-#[derive(GraphQLQuery)]
-#[graphql(
-    schema_path = "gql/schema.graphql",
     query_path = "gql/query/get_page_tree.graphql",
     response_derives = "Debug"
 )]
@@ -54,23 +45,16 @@ impl Api {
         }
     }
 
-    pub fn list_all_pages(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let response_body = post_graphql::<ListAllPages, _>(
-            &self.client,
-            &format!("{}/graphql", self.url),
-            list_all_pages::Variables {}
-        )?;
-
-        println!("{:#?}", response_body);
-        Ok(())
-    }
-
     pub fn get_page(&self, id: i64) -> Result<page::Page, Box<dyn std::error::Error>> {
         page::get_page(&self.client, &format!("{}/graphql", self.url), id)
     }
 
     pub fn list_all_page_tags(&self) -> Result<Vec<page::PageTag>, Box<dyn std::error::Error>> {
         page::list_all_page_tags(&self.client, &format!("{}/graphql", self.url))
+    }
+
+    pub fn list_all_pages(&self) -> Result<Vec<page::PageListItem>, Box<dyn std::error::Error>> {
+        page::list_all_pages(&self.client, &format!("{}/graphql", self.url))
     }
 
     pub fn get_page_tree(&self, parent: i64) -> Result<(), Box<dyn std::error::Error>> {

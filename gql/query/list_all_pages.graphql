@@ -3,7 +3,16 @@ query ListAllPages {
     list (orderBy: TITLE) {
       id
       path
+      locale
       title
+      description
+      contentType
+      isPublished
+      isPrivate
+      privateNS
+      createdAt
+      updatedAt
+      tags
     }
   }
 }
