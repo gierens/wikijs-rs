@@ -63,12 +63,12 @@ pub struct PageTag {
     #[serde(rename = "updatedAt")]
     pub updated_at: Date,
 }
-    
+
 pub(crate) mod get_page_mod {
     use super::*;
 
     pub struct GetPage;
-    
+
     pub const OPERATION_NAME: &str = "GetPage";
     pub const QUERY : & str = "query GetPage($id: Int!) {\n  pages {\n    single (id: $id) {\n      id\n      path\n      hash\n      title\n      description\n      isPrivate\n      isPublished\n      privateNS\n      publishStartDate\n      publishEndDate\n      tags {\n        id\n        tag\n        title\n        createdAt\n        updatedAt\n      }\n      content\n      render\n      toc\n      contentType\n      createdAt\n      updatedAt\n      editor\n      locale\n      scriptCss\n      scriptJs\n      authorId\n      authorName\n      authorEmail\n      creatorId\n      creatorName\n      creatorEmail\n    }\n  }\n}\n" ;
 
@@ -76,14 +76,14 @@ pub(crate) mod get_page_mod {
     pub struct Variables {
         pub id: Int,
     }
-    
+
     impl Variables {}
-    
+
     #[derive(Deserialize, Debug)]
     pub struct ResponseData {
         pub pages: Option<Pages>,
     }
-    
+
     #[derive(Deserialize, Debug)]
     pub struct Pages {
         pub single: Option<Page>,
