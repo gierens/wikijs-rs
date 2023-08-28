@@ -5,12 +5,14 @@ mod authentication;
 mod page;
 
 
+#[derive(Debug)]
 pub enum Credentials {
     Key(String),
     UsernamePassword(String, String, String),
 }
 
 
+#[derive(Debug)]
 pub struct Api {
     url: String,
     client: Client,
