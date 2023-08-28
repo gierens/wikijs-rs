@@ -76,6 +76,24 @@ pub struct PageListItem {
 }
 
 #[derive(Deserialize, Debug)]
+pub struct PageTreeItem {
+    pub id: Int,
+    pub path: String,
+    pub depth: Int,
+    pub title: String,
+    #[serde(rename = "isPrivate")]
+    pub is_private: Boolean,
+    #[serde(rename = "isFolder")]
+    pub is_folder: Boolean,
+    #[serde(rename = "privateNS")]
+    pub private_ns: Option<String>,
+    pub parent: Option<Int>,
+    #[serde(rename = "pageId")]
+    pub page_id: Option<Int>,
+    pub locale: String,
+}
+
+#[derive(Deserialize, Debug)]
 pub struct PageTag {
     pub id: Int,
     pub tag: String,
@@ -179,6 +197,55 @@ pub fn list_all_pages(client: &Client, url: &str) -> Result<Vec<PageListItem>, B
     )?;
 
     Ok(response_body.data.unwrap().pages.unwrap().list)
+}
+
+pub(crate) mod get_page_tree_mod {
+    use super::*;
+
+    pub struct GetPageTree;
+
+    pub const OPERATION_NAME: &str = "GetPageTree";
+    pub const QUERY : & str = "query GetPageTree($parent: Int!) {\n  pages {\n    tree (parent: $parent, mode: ALL, includeAncestors: true, locale: \"en\") {\n      id\n      path\n      depth\n      title\n      isPrivate\n      isFolder\n      privateNS\n      parent\n      pageId\n      locale\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub parent: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        pub tree: Option<Vec<Option<PageTreeItem>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for GetPageTree {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn get_page_tree(client: &Client, url: &str, parent: i64) -> Result<Vec<PageTreeItem>, Box<dyn std::error::Error>> {
+    let variables = get_page_tree_mod::Variables { parent };
+    let response_body = post_graphql::<get_page_tree_mod::GetPageTree, _>(
+        client,
+        url,
+        variables
+    )?;
+
+    Ok(response_body.data.unwrap().pages.unwrap().tree.unwrap().into_iter().filter_map(|x| x).collect())
 }
 
 pub(crate) mod list_all_page_tags_mod {

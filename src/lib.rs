@@ -1,9 +1,5 @@
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
-use graphql_client::{
-    GraphQLQuery,
-    reqwest::post_graphql_blocking as post_graphql,
-};
 
 mod page;
 
@@ -13,15 +9,6 @@ pub struct Api {
     // key: String,
     client: Client,
 }
-
-
-#[derive(GraphQLQuery)]
-#[graphql(
-    schema_path = "gql/schema.graphql",
-    query_path = "gql/query/get_page_tree.graphql",
-    response_derives = "Debug"
-)]
-pub struct GetPageTree;
 
 
 impl Api {
@@ -57,17 +44,8 @@ impl Api {
         page::list_all_pages(&self.client, &format!("{}/graphql", self.url))
     }
 
-    pub fn get_page_tree(&self, parent: i64) -> Result<(), Box<dyn std::error::Error>> {
-        let response_body = post_graphql::<GetPageTree, _>(
-            &self.client,
-            &format!("{}/graphql", self.url),
-            get_page_tree::Variables {
-                parent: parent.clone(),
-            }
-        )?;
-
-        println!("{:#?}", response_body);
-        Ok(())
+    pub fn get_page_tree(&self, parent: i64) -> Result<Vec<page::PageTreeItem>, Box<dyn std::error::Error>> {
+        page::get_page_tree(&self.client, &format!("{}/graphql", self.url), parent)
     }
 }
 
