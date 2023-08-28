@@ -1,9 +1,16 @@
-// importing common module.
 mod common;
+use common::API;
+
+use serial_test::serial;
 
 #[test]
-fn test_add() {
-    // using common code.
-    common::setup();
-    assert_eq!(2+3, 5);
+#[serial]
+fn list_all_pages_empty() {
+    assert_eq!(API.list_all_pages().unwrap().len(), 0);
+}
+
+#[test]
+#[serial]
+fn list_all_page_tags_empty() {
+    assert_eq!(API.list_all_page_tags().unwrap().len(), 0);
 }
