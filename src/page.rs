@@ -149,11 +149,11 @@ pub(crate) mod list_all_pages_mod {
 
     #[derive(Deserialize)]
     pub struct ResponseData {
-        pub pages: Option<ListAllPagesPages>,
+        pub pages: Option<Pages>,
     }
 
     #[derive(Deserialize)]
-    pub struct ListAllPagesPages {
+    pub struct Pages {
         pub list: Vec<PageListItem>,
     }
 
