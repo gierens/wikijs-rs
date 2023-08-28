@@ -10,12 +10,16 @@ jobs:
     name: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: isbang/compose-action@v1.5.1
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: start wiki instance
+        uses: isbang/compose-action@v1.5.1
         with:
           compose-file: "./docker-compose.yml"
-      - uses: cygnetdigital/wait_for_response@v2.0.0
-      - run: |
+      - name: wait for wiki to be reachable
+        uses: cygnetdigital/wait_for_response@v2.0.0
+      - name: run initial wiki setup
+        run: |
           sudo apt update
           sudo apt install httpie
           echo '{
@@ -25,7 +29,9 @@ jobs:
               "siteUrl": "http://localhost",
               "telemetry": true
           }' | http post http://localhost/finalize
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - name: Run tests
+      - name: install rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: install rust cache
+        uses: Swatinem/rust-cache@v2
+      - name: run tests
         run: cargo test
