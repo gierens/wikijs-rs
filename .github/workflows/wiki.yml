@@ -14,3 +14,4 @@ jobs:
       - uses: isbang/compose-action@v1.5.1
         with:
           compose-file: "./docker-compose.yml"
+      - uses: cygnetdigital/wait_for_response@v2.0.0
