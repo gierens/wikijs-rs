@@ -1,6 +1,70 @@
 use serde::{Deserialize, Serialize};
 use reqwest::blocking::Client;
 use graphql_client::reqwest::post_graphql_blocking as post_graphql;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum PageError {
+    #[error("No response from server.")]
+    NoResponse,
+    #[error("Empty response from server.")]
+    EmptyResponse,
+    #[error("An unexpected error occured during a page operation.")]
+    PageGenericError,
+    #[error("Cannot create this page because an entry already exists at the same path.")]
+    PageDuplicateCreate,
+    #[error("This page does not exist.")]
+    PageNotFound,
+    #[error("Page content cannot be empty.")]
+    PageEmptyContent,
+    #[error("Page path cannot contains illegal characters.")]
+    PageIllegalPath,
+    #[error("Destination page path already exists.")]
+    PagePathCollision,
+    #[error("You are not authorized to move this page.")]
+    PageMoveForbidden,
+    #[error("You are not authorized to create this page.")]
+    PageCreateForbidden,
+    #[error("You are not authorized to update this page.")]
+    PageUpdateForbidden,
+    #[error("You are not authorized to delete this page.")]
+    PageDeleteForbidden,
+    #[error("You are not authorized to restore this page version.")]
+    PageRestoreForbidden,
+    #[error("You are not authorized to view the history of this page.")]
+    PageHistoryForbidden,
+    #[error("You are not authorized to view this page.")]
+    PageViewForbidden,
+    #[error("Unknown page error: {code}: {message}")]
+    UnknownResponse {
+        code: i64,
+        message: String,
+    },
+}
+
+impl From<i64> for PageError {
+    fn from(code: i64) -> Self {
+        match code {
+            6001 => PageError::PageGenericError,
+            6002 => PageError::PageDuplicateCreate,
+            6003 => PageError::PageNotFound,
+            6004 => PageError::PageEmptyContent,
+            6005 => PageError::PageIllegalPath,
+            6006 => PageError::PagePathCollision,
+            6007 => PageError::PageMoveForbidden,
+            6008 => PageError::PageCreateForbidden,
+            6009 => PageError::PageUpdateForbidden,
+            6010 => PageError::PageDeleteForbidden,
+            6011 => PageError::PageRestoreForbidden,
+            6012 => PageError::PageHistoryForbidden,
+            6013 => PageError::PageViewForbidden,
+            _ => PageError::UnknownResponse {
+                code,
+                message: "Unknown error".to_string(),
+            },
+        }
+    }
+}
 
 pub type Boolean = bool;
 pub type Int = i64;
