@@ -47,6 +47,10 @@ impl Api {
     pub fn get_page_tree(&self, parent: i64) -> Result<Vec<page::PageTreeItem>, Box<dyn std::error::Error>> {
         page::get_page_tree(&self.client, &format!("{}/graphql", self.url), parent)
     }
+
+    pub fn login(&self, username: String, password: String, strategy: String) -> Result<authentication::AuthenticationLoginResponse, Box<dyn std::error::Error>> {
+        authentication::login(&self.client, &format!("{}/graphql", self.url), username, password, strategy)
+    }
 }
 
 
