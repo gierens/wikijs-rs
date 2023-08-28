@@ -25,3 +25,8 @@ jobs:
               "siteUrl": "http://localhost",
               "telemetry": true
           }' | http post http://localhost/finalize
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        run: cargo test
