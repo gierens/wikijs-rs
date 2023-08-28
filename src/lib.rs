@@ -14,8 +14,8 @@ pub enum Credentials {
 
 #[derive(Debug)]
 pub struct Api {
-    url: String,
-    client: Client,
+    pub(crate) url: String,
+    pub(crate) client: Client,
 }
 
 
