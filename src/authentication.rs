@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use reqwest::blocking::Client;
 use graphql_client::reqwest::post_graphql_blocking as post_graphql;
+use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
 
 pub type Boolean = bool;
 pub type Int = i64;
@@ -40,7 +40,7 @@ pub(crate) mod login_mod {
 
     pub const OPERATION_NAME: &str = "Login";
     pub const QUERY : & str = "mutation Login($username: String!, $password: String!, $strategy: String!) {\n  authentication {\n    login(username: $username, password: $password, strategy: $strategy) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      jwt\n      mustChangePwd\n      mustProvideTFA\n      mustSetupTFA\n      continuationToken\n      redirect\n      tfaQRImage\n    }\n  }\n}\n" ;
-    
+
     #[derive(Serialize, Debug)]
     pub struct Variables {
         pub username: String,
@@ -73,13 +73,25 @@ pub(crate) mod login_mod {
     }
 }
 
-pub fn login(client: &Client, url: &str, username: String, password: String, strategy: String) -> Result<AuthenticationLoginResponse, Box<dyn std::error::Error>> {
-    let variables = login_mod::Variables { username, password, strategy };
-    let response_body = post_graphql::<login_mod::Login, _>(
-        client,
-        url,
-        variables
-    )?;
+pub fn login(
+    client: &Client,
+    url: &str,
+    username: String,
+    password: String,
+    strategy: String,
+) -> Result<AuthenticationLoginResponse, Box<dyn std::error::Error>> {
+    let variables = login_mod::Variables {
+        username,
+        password,
+        strategy,
+    };
+    let response_body = post_graphql::<login_mod::Login, _>(client, url, variables)?;
 
-    Ok(response_body.data.unwrap().authentication.unwrap().login.unwrap())
+    Ok(response_body
+        .data
+        .unwrap()
+        .authentication
+        .unwrap()
+        .login
+        .unwrap())
 }

@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
-use reqwest::blocking::Client;
 use graphql_client::reqwest::post_graphql_blocking as post_graphql;
+use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::error::{UnknownError, classify_response_error};
+use crate::error::{classify_response_error, UnknownError};
 
 #[derive(Error, Debug, PartialEq)]
 pub enum PageError {
@@ -34,14 +34,9 @@ pub enum PageError {
     #[error("You are not authorized to view this page.")]
     PageViewForbidden,
     #[error("Unknown response error code: {code}: {message}")]
-    UnknownErrorCode {
-        code: i64,
-        message: String,
-    },
+    UnknownErrorCode { code: i64, message: String },
     #[error("Unknown response error: {message}")]
-    UnknownErrorMessage {
-        message: String,
-    },
+    UnknownErrorMessage { message: String },
     #[error("Unknown response error.")]
     UnknownError,
 }
@@ -224,11 +219,7 @@ pub(crate) mod get_page_mod {
 
 pub fn get_page(client: &Client, url: &str, id: i64) -> Result<Page, PageError> {
     let variables = get_page_mod::Variables { id };
-    let response = post_graphql::<get_page_mod::GetPage, _>(
-        client,
-        url,
-        variables
-    );
+    let response = post_graphql::<get_page_mod::GetPage, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -284,11 +275,7 @@ pub(crate) mod list_all_pages_mod {
 
 pub fn list_all_pages(client: &Client, url: &str) -> Result<Vec<PageListItem>, PageError> {
     let variables = list_all_pages_mod::Variables {};
-    let response = post_graphql::<list_all_pages_mod::ListAllPages, _>(
-        client,
-        url,
-        variables
-    );
+    let response = post_graphql::<list_all_pages_mod::ListAllPages, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -343,13 +330,13 @@ pub(crate) mod get_page_tree_mod {
     }
 }
 
-pub fn get_page_tree(client: &Client, url: &str, parent: i64) -> Result<Vec<PageTreeItem>, PageError> {
+pub fn get_page_tree(
+    client: &Client,
+    url: &str,
+    parent: i64,
+) -> Result<Vec<PageTreeItem>, PageError> {
     let variables = get_page_tree_mod::Variables { parent };
-    let response = post_graphql::<get_page_tree_mod::GetPageTree, _>(
-        client,
-        url,
-        variables
-    );
+    let response = post_graphql::<get_page_tree_mod::GetPageTree, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -402,11 +389,8 @@ pub(crate) mod list_all_page_tags_mod {
 
 pub fn list_all_page_tags(client: &Client, url: &str) -> Result<Vec<PageTag>, PageError> {
     let variables = list_all_page_tags_mod::Variables {};
-    let response = post_graphql::<list_all_page_tags_mod::ListAllPageTags, _>(
-        client,
-        url,
-        variables
-    );
+    let response =
+        post_graphql::<list_all_page_tags_mod::ListAllPageTags, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),

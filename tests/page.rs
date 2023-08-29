@@ -3,7 +3,6 @@ use common::API;
 
 use wikijs::page::PageError;
 
-
 #[test]
 fn get_nonexistent_page() {
     let result = API.get_page(1000000);

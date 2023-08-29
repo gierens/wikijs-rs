@@ -1,5 +1,5 @@
-use wikijs::{Api, Credentials};
 use lazy_static::lazy_static;
+use wikijs::{Api, Credentials};
 
 lazy_static! {
     pub static ref API: Api = Api::new(

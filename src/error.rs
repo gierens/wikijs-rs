@@ -4,7 +4,9 @@ pub(crate) trait UnknownError {
     fn unknown_error() -> Self;
 }
 
-pub(crate) fn classify_response_error<E: UnknownError + From<i64>>(response_errors: Option<Vec<graphql_client::Error>>) -> E {
+pub(crate) fn classify_response_error<E: UnknownError + From<i64>>(
+    response_errors: Option<Vec<graphql_client::Error>>,
+) -> E {
     if response_errors.is_some() {
         let errors = response_errors.unwrap();
         if errors.len() > 0 {
