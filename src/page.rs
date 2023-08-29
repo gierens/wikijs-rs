@@ -5,7 +5,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum PageError {
-    #[error("An unexpected error occured during a page operation.")]
+    #[error("An unexpected error occurred during a page operation.")]
     PageGenericError,
     #[error("Cannot create this page because an entry already exists at the same path.")]
     PageDuplicateCreate,
