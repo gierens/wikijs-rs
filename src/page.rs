@@ -388,13 +388,25 @@ pub(crate) mod list_all_page_tags_mod {
     }
 }
 
-pub fn list_all_page_tags(client: &Client, url: &str) -> Result<Vec<PageTag>, Box<dyn std::error::Error>> {
+pub fn list_all_page_tags(client: &Client, url: &str) -> Result<Vec<PageTag>, PageError> {
     let variables = list_all_page_tags_mod::Variables {};
-    let response_body = post_graphql::<list_all_page_tags_mod::ListAllPageTags, _>(
+    let response = post_graphql::<list_all_page_tags_mod::ListAllPageTags, _>(
         client,
         url,
         variables
-    )?;
-
-    Ok(response_body.data.unwrap().pages.unwrap().tags.into_iter().flatten().collect())
+    );
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if response_body.data.is_some() {
+        let data = response_body.data.unwrap();
+        if data.pages.is_some() {
+            let pages = data.pages.unwrap();
+            return Ok(pages.tags.into_iter().filter_map(|x| x).collect());
+        }
+    }
+    Err(classify_response_error(response_body.errors))
 }
