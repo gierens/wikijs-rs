@@ -208,6 +208,29 @@ pub(crate) mod get_page_mod {
     }
 }
 
+fn classify_response_error(response_errors: Option<Vec<graphql_client::Error>>) -> PageError {
+    if response_errors.is_some() {
+        let errors = response_errors.unwrap();
+        if errors.len() > 0 {
+            let error = errors[0].clone();
+            if error.extensions.is_some() {
+                let extensions = error.extensions.unwrap();
+                if extensions.contains_key("exception") {
+                    let exception = extensions.get("exception").unwrap();
+                    if exception.get("code").is_some() {
+                        let code = exception.get("code").unwrap();
+                        return PageError::from(code.as_i64().unwrap());
+                    }
+                }
+            }
+            return PageError::UnknownErrorMessage {
+                message: error.message,
+            };
+        }
+    }
+    PageError::UnknownError
+}
+
 pub fn get_page(client: &Client, url: &str, id: i64) -> Result<Page, PageError> {
     let variables = get_page_mod::Variables { id };
     let response = post_graphql::<get_page_mod::GetPage, _>(
@@ -231,26 +254,7 @@ pub fn get_page(client: &Client, url: &str, id: i64) -> Result<Page, PageError> 
             }
         }
     }
-    if response_body.errors.is_some() {
-        let errors = response_body.errors.unwrap();
-        if errors.len() > 0 {
-            let error = errors[0].clone();
-            if error.extensions.is_some() {
-                let extensions = error.extensions.unwrap();
-                if extensions.contains_key("exception") {
-                    let exception = extensions.get("exception").unwrap();
-                    if exception.get("code").is_some() {
-                        let code = exception.get("code").unwrap();
-                        return Err(PageError::from(code.as_i64().unwrap()));
-                    }
-                }
-            }
-            return Err(PageError::UnknownErrorMessage {
-                message: error.message,
-            });
-        }
-    }
-    Err(PageError::UnknownError)
+    Err(classify_response_error(response_body.errors))
 }
 
 pub(crate) mod list_all_pages_mod {
