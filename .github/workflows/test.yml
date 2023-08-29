@@ -34,7 +34,7 @@ jobs:
         run: cargo test
 
   coverage:
-    name: test
+    name: coverage
     runs-on: ubuntu-latest
     steps:
       - name: checkout
