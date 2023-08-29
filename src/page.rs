@@ -347,7 +347,7 @@ pub fn get_page_tree(
         let data = response_body.data.unwrap();
         if data.pages.is_some() {
             let pages = data.pages.unwrap();
-            return Ok(pages.tree.unwrap().into_iter().filter_map(|x| x).collect());
+            return Ok(pages.tree.unwrap().into_iter().flatten().collect());
         }
     }
     Err(classify_response_error(response_body.errors))
@@ -401,7 +401,7 @@ pub fn list_all_page_tags(client: &Client, url: &str) -> Result<Vec<PageTag>, Pa
         let data = response_body.data.unwrap();
         if data.pages.is_some() {
             let pages = data.pages.unwrap();
-            return Ok(pages.tags.into_iter().filter_map(|x| x).collect());
+            return Ok(pages.tags.into_iter().flatten().collect());
         }
     }
     Err(classify_response_error(response_body.errors))
