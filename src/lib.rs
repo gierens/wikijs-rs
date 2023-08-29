@@ -66,7 +66,7 @@ impl Api {
         page::list_all_page_tags(&self.client, &format!("{}/graphql", self.url))
     }
 
-    pub fn list_all_pages(&self) -> Result<Vec<page::PageListItem>, Box<dyn std::error::Error>> {
+    pub fn list_all_pages(&self) -> Result<Vec<page::PageListItem>, page::PageError> {
         page::list_all_pages(&self.client, &format!("{}/graphql", self.url))
     }
 

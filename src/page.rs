@@ -282,15 +282,27 @@ pub(crate) mod list_all_pages_mod {
     }
 }
 
-pub fn list_all_pages(client: &Client, url: &str) -> Result<Vec<PageListItem>, Box<dyn std::error::Error>> {
+pub fn list_all_pages(client: &Client, url: &str) -> Result<Vec<PageListItem>, PageError> {
     let variables = list_all_pages_mod::Variables {};
-    let response_body = post_graphql::<list_all_pages_mod::ListAllPages, _>(
+    let response = post_graphql::<list_all_pages_mod::ListAllPages, _>(
         client,
         url,
         variables
-    )?;
-
-    Ok(response_body.data.unwrap().pages.unwrap().list)
+    );
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if response_body.data.is_some() {
+        let data = response_body.data.unwrap();
+        if data.pages.is_some() {
+            let pages = data.pages.unwrap();
+            return Ok(pages.list);
+        }
+    }
+    Err(classify_response_error(response_body.errors))
 }
 
 pub(crate) mod get_page_tree_mod {

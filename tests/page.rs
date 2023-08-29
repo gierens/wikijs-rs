@@ -10,3 +10,10 @@ fn get_nonexistent_page() {
     assert!(result.is_err());
     assert_eq!(result.unwrap_err() == PageError::PageNotFound, true);
 }
+
+#[test]
+fn list_no_pages() {
+    let result = API.list_all_pages();
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap().len(), 0);
+}
