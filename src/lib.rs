@@ -3,6 +3,7 @@ use reqwest::header::{HeaderValue, AUTHORIZATION};
 
 pub mod authentication;
 pub mod page;
+pub(crate) mod error;
 
 
 #[derive(Debug)]
