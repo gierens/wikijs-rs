@@ -3,7 +3,7 @@ use reqwest::blocking::Client;
 use graphql_client::reqwest::post_graphql_blocking as post_graphql;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum PageError {
     #[error("An unexpected error occured during a page operation.")]
     PageGenericError,
