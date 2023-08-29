@@ -1,4 +1,4 @@
-name: rustfmt, clippy
+name: linting
 
 on: [push, pull_request]
 
