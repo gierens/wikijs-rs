@@ -5,10 +5,6 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum PageError {
-    #[error("No response from server.")]
-    NoResponse,
-    #[error("Empty response from server.")]
-    EmptyResponse,
     #[error("An unexpected error occured during a page operation.")]
     PageGenericError,
     #[error("Cannot create this page because an entry already exists at the same path.")]
@@ -35,11 +31,17 @@ pub enum PageError {
     PageHistoryForbidden,
     #[error("You are not authorized to view this page.")]
     PageViewForbidden,
-    #[error("Unknown page error: {code}: {message}")]
-    UnknownResponse {
+    #[error("Unknown response error code: {code}: {message}")]
+    UnknownErrorCode {
         code: i64,
         message: String,
     },
+    #[error("Unknown response error: {message}")]
+    UnknownErrorMessage {
+        message: String,
+    },
+    #[error("Unknown response error.")]
+    UnknownError,
 }
 
 impl From<i64> for PageError {
@@ -58,7 +60,7 @@ impl From<i64> for PageError {
             6011 => PageError::PageRestoreForbidden,
             6012 => PageError::PageHistoryForbidden,
             6013 => PageError::PageViewForbidden,
-            _ => PageError::UnknownResponse {
+            _ => PageError::UnknownErrorCode {
                 code,
                 message: "Unknown error".to_string(),
             },
@@ -206,15 +208,49 @@ pub(crate) mod get_page_mod {
     }
 }
 
-pub fn get_page(client: &Client, url: &str, id: i64) -> Result<Page, Box<dyn std::error::Error>> {
+pub fn get_page(client: &Client, url: &str, id: i64) -> Result<Page, PageError> {
     let variables = get_page_mod::Variables { id };
-    let response_body = post_graphql::<get_page_mod::GetPage, _>(
+    let response = post_graphql::<get_page_mod::GetPage, _>(
         client,
         url,
         variables
-    )?;
-
-    Ok(response_body.data.unwrap().pages.unwrap().single.unwrap())
+    );
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if response_body.data.is_some() {
+        let data = response_body.data.unwrap();
+        if data.pages.is_some() {
+            let pages = data.pages.unwrap();
+            if pages.single.is_some() {
+                let page = pages.single.unwrap();
+                return Ok(page);
+            }
+        }
+    }
+    if response_body.errors.is_some() {
+        let errors = response_body.errors.unwrap();
+        if errors.len() > 0 {
+            let error = errors[0].clone();
+            if error.extensions.is_some() {
+                let extensions = error.extensions.unwrap();
+                if extensions.contains_key("exception") {
+                    let exception = extensions.get("exception").unwrap();
+                    if exception.get("code").is_some() {
+                        let code = exception.get("code").unwrap();
+                        return Err(PageError::from(code.as_i64().unwrap()));
+                    }
+                }
+            }
+            return Err(PageError::UnknownErrorMessage {
+                message: error.message,
+            });
+        }
+    }
+    Err(PageError::UnknownError)
 }
 
 pub(crate) mod list_all_pages_mod {

@@ -57,7 +57,7 @@ impl Api {
         }
     }
 
-    pub fn get_page(&self, id: i64) -> Result<page::Page, Box<dyn std::error::Error>> {
+    pub fn get_page(&self, id: i64) -> Result<page::Page, page::PageError> {
         page::get_page(&self.client, &format!("{}/graphql", self.url), id)
     }
 
