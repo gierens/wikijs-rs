@@ -1,8 +1,8 @@
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 
-mod authentication;
-mod page;
+pub mod authentication;
+pub mod page;
 
 
 #[derive(Debug)]
