@@ -57,4 +57,5 @@ jobs:
       - name: run coverage check
         uses: actions-rs/tarpaulin@v0.1
         with:
-          args: '--workspace --fail-under 65'
+          version: '0.15.0'
+          args: '-- --workspace --fail-under 65'
