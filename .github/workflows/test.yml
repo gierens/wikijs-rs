@@ -1,4 +1,4 @@
-name: test
+name: test, coverage
 
 on: [push, pull_request]
 
@@ -9,6 +9,9 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
+    container:
+      image: xd009642/tarpaulin
+      options: --security-opt seccomp=unconfined
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -29,3 +32,5 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: run tests
         run: cargo test
+      - name: generate code coverage
+        run: cargo tarpaulin --verbose --workspace

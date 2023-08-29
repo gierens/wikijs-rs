@@ -1,4 +1,4 @@
-name: rustfmt, clippy, coverage
+name: rustfmt, clippy
 
 on: [push, pull_request]
 
@@ -28,16 +28,3 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Linting
         run: cargo clippy -- -D warnings
-
-  coverage:
-    name: code coverage
-    runs-on: ubuntu-latest
-    container:
-      image: xd009642/tarpaulin
-      options: --security-opt seccomp=unconfined
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Generate code coverage
-        run: |
-          cargo tarpaulin --verbose --workspace
