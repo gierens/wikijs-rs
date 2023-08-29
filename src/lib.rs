@@ -70,7 +70,7 @@ impl Api {
         page::list_all_pages(&self.client, &format!("{}/graphql", self.url))
     }
 
-    pub fn get_page_tree(&self, parent: i64) -> Result<Vec<page::PageTreeItem>, Box<dyn std::error::Error>> {
+    pub fn get_page_tree(&self, parent: i64) -> Result<Vec<page::PageTreeItem>, page::PageError> {
         page::get_page_tree(&self.client, &format!("{}/graphql", self.url), parent)
     }
 

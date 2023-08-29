@@ -343,15 +343,27 @@ pub(crate) mod get_page_tree_mod {
     }
 }
 
-pub fn get_page_tree(client: &Client, url: &str, parent: i64) -> Result<Vec<PageTreeItem>, Box<dyn std::error::Error>> {
+pub fn get_page_tree(client: &Client, url: &str, parent: i64) -> Result<Vec<PageTreeItem>, PageError> {
     let variables = get_page_tree_mod::Variables { parent };
-    let response_body = post_graphql::<get_page_tree_mod::GetPageTree, _>(
+    let response = post_graphql::<get_page_tree_mod::GetPageTree, _>(
         client,
         url,
         variables
-    )?;
-
-    Ok(response_body.data.unwrap().pages.unwrap().tree.unwrap().into_iter().filter_map(|x| x).collect())
+    );
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if response_body.data.is_some() {
+        let data = response_body.data.unwrap();
+        if data.pages.is_some() {
+            let pages = data.pages.unwrap();
+            return Ok(pages.tree.unwrap().into_iter().filter_map(|x| x).collect());
+        }
+    }
+    Err(classify_response_error(response_body.errors))
 }
 
 pub(crate) mod list_all_page_tags_mod {
