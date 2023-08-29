@@ -17,3 +17,10 @@ fn list_no_pages() {
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 0);
 }
+
+#[test]
+fn list_no_page_tags() {
+    let result = API.list_all_page_tags();
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap().len(), 0);
+}
