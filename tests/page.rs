@@ -24,3 +24,10 @@ fn list_no_page_tags() {
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 0);
 }
+
+#[test]
+fn get_empty_page_tree() {
+    let result = API.get_page_tree(0);
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap().len(), 0);
+}
