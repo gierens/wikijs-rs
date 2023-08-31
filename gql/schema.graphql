@@ -745,6 +745,7 @@ type MailMutation {
     senderEmail: String!
     host: String!
     port: Int!
+    name: String!
     secure: Boolean!
     verifySSL: Boolean!
     user: String!
@@ -761,18 +762,19 @@ type MailMutation {
 # -----------------------------------------------
 
 type MailConfig {
-  senderName: String!
-  senderEmail: String!
-  host: String!
-  port: Int!
-  secure: Boolean!
-  verifySSL: Boolean!
-  user: String!
-  pass: String!
-  useDKIM: Boolean!
-  dkimDomainName: String!
-  dkimKeySelector: String!
-  dkimPrivateKey: String!
+  senderName: String
+  senderEmail: String
+  host: String
+  port: Int
+  name: String
+  secure: Boolean
+  verifySSL: Boolean
+  user: String
+  pass: String
+  useDKIM: Boolean
+  dkimDomainName: String
+  dkimKeySelector: String
+  dkimPrivateKey: String
 }
 # ===============================================
 # NAVIGATION
@@ -884,6 +886,11 @@ type PageQuery {
 
   single(
     id: Int!
+  ): Page @auth(requires: ["read:pages", "manage:system"])
+
+  singleByPath(
+    path: String!
+    locale: String!
   ): Page @auth(requires: ["read:pages", "manage:system"])
 
   tags: [PageTag]! @auth(requires: ["manage:system", "read:pages"])
@@ -1293,7 +1300,9 @@ type SiteMutation {
     analyticsId: String
     company: String
     contentLicense: String
+    footerOverride: String
     logoUrl: String
+    pageExtensions: String
     authAutoLogin: Boolean
     authEnforce2FA: Boolean
     authHideLocal: Boolean
@@ -1301,6 +1310,13 @@ type SiteMutation {
     authJwtAudience: String
     authJwtExpiration: String
     authJwtRenewablePeriod: String
+    editFab: Boolean
+    editMenuBar: Boolean
+    editMenuBtn: Boolean
+    editMenuExternalBtn: Boolean
+    editMenuExternalName: String
+    editMenuExternalIcon: String
+    editMenuExternalUrl: String
     featurePageRatings: Boolean
     featurePageComments: Boolean
     featurePersonalWikis: Boolean
@@ -1334,7 +1350,9 @@ type SiteConfig {
   analyticsId: String
   company: String
   contentLicense: String
+  footerOverride: String
   logoUrl: String
+  pageExtensions: String
   authAutoLogin: Boolean
   authEnforce2FA: Boolean
   authHideLocal: Boolean
@@ -1342,6 +1360,13 @@ type SiteConfig {
   authJwtAudience: String
   authJwtExpiration: String
   authJwtRenewablePeriod: String
+  editFab: Boolean
+  editMenuBar: Boolean
+  editMenuBtn: Boolean
+  editMenuExternalBtn: Boolean
+  editMenuExternalName: String
+  editMenuExternalIcon: String
+  editMenuExternalUrl: String
   featurePageRatings: Boolean
   featurePageComments: Boolean
   featurePersonalWikis: Boolean
@@ -1440,7 +1465,8 @@ type StorageTargetAction {
 type SystemQuery {
   flags: [SystemFlag] @auth(requires: ["manage:system"])
   info: SystemInfo
-  extensions: [SystemExtension]! @auth(requires: ["manage:system"])
+  extensions: [SystemExtension] @auth(requires: ["manage:system"])
+  exportStatus: SystemExportStatus @auth(requires: ["manage:system"])
 }
 
 # -----------------------------------------------
@@ -1470,6 +1496,11 @@ type SystemMutation {
   ): DefaultResponse @auth(requires: ["manage:system"])
 
   renewHTTPSCertificate: DefaultResponse @auth(requires: ["manage:system"])
+
+  export(
+    entities: [String]!
+    path: String!
+  ): DefaultResponse @auth(requires: ["manage:system"])
 }
 
 # -----------------------------------------------
@@ -1544,6 +1575,13 @@ type SystemExtension {
   isInstalled: Boolean!
   isCompatible: Boolean!
 }
+
+type SystemExportStatus {
+  status: String
+  progress: Int
+  message: String
+  startedAt: Date
+}
 # ===============================================
 # THEMES
 # ===============================================
@@ -1566,6 +1604,7 @@ type ThemingMutation {
     theme: String!
     iconset: String!
     darkMode: Boolean!
+    tocPosition: String
     injectCSS: String
     injectHead: String
     injectBody: String
@@ -1580,6 +1619,7 @@ type ThemingConfig {
   theme: String!
   iconset: String!
   darkMode: Boolean!
+  tocPosition: String
   injectCSS: String
   injectHead: String
   injectBody: String
