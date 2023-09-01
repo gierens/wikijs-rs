@@ -21,7 +21,7 @@ required-features = ["cli"]
 
 [features]
 fuse = ["fuser", "clap", "clap-verbosity-flag", "colored", "log", "stderrlog", "libc"]
-cli = ["clap"]
+cli = ["clap", "colored"]
 
 [dependencies]
 # lib
@@ -29,12 +29,14 @@ graphql_client = { version = "0.13", features = ["reqwest-blocking"] }
 serde = "1.0"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 thiserror = "1.0"
+# lib and cli
+tabled = "0.14"
 # cli and fuse
 clap = { version = "4.4", features = ["derive", "env"], optional = true }
+colored = { version = "2.0", optional = true }
 # fuse
 fuser = { version = "0.13", optional = true }
 clap-verbosity-flag = { version = "2.0", optional = true }
-colored = { version = "2.0", optional = true }
 log = { version = "0.4", optional = true }
 stderrlog = { version = "0.5", optional = true }
 libc = { version = "0.2", optional = true }
