@@ -5,6 +5,7 @@ pub mod authentication;
 pub mod common;
 pub mod contribute;
 pub mod page;
+pub mod user;
 
 #[derive(Debug)]
 pub enum Credentials {
