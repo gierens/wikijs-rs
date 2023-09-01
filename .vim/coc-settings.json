@@ -1,7 +1,23 @@
 {
   "cSpell.words": [
+    "Alessio",
+    "EISDIR",
+    "ENOENT",
+    "Gierens",
+    "Mountpoint",
+    "Sandro",
+    "blksize",
     "clippy",
+    "crtime",
+    "fuser",
+    "getattr",
+    "libc",
+    "nlink",
+    "rdev",
+    "readdir",
     "reqwest",
+    "stderrlog",
+    "thiserror",
     "wikijs"
   ]
 }
