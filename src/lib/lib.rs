@@ -4,6 +4,7 @@ use reqwest::header::{HeaderValue, AUTHORIZATION};
 pub mod authentication;
 pub mod common;
 pub mod contribute;
+pub mod group;
 pub mod page;
 pub mod user;
 
