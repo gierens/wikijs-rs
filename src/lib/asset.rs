@@ -1,11 +1,9 @@
-// use graphql_client::reqwest::post_graphql_blocking as post_graphql;
-// use reqwest::blocking::Client;
-// use serde::
-use serde::Deserialize;
+use graphql_client::reqwest::post_graphql_blocking as post_graphql;
+use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::common::{Date, Int, UnknownError};
-use crate::user::User;
+use crate::common::{classify_response_error, Date, Int, UnknownError};
 
 #[derive(Error, Debug, PartialEq)]
 pub enum AssetError {
@@ -17,7 +15,9 @@ pub enum AssetError {
     AssetDeleteForbidden,
     #[error("This asset does not exist or is invalid.")]
     AssetInvalid,
-    #[error("An asset with the same filename in the same folder already exists.")]
+    #[error(
+        "An asset with the same filename in the same folder already exists."
+    )]
     AssetRenameCollision,
     #[error("You are not authorized to rename this asset.")]
     AssetRenameForbidden,
@@ -25,7 +25,9 @@ pub enum AssetError {
     AssetRenameInvalid,
     #[error("The file extension cannot be changed on an existing asset.")]
     AssetRenameInvalidExt,
-    #[error("You are not authorized to rename this asset to the requested name.")]
+    #[error(
+        "You are not authorized to rename this asset to the requested name."
+    )]
     AssetRenameTargetForbidden,
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -82,7 +84,7 @@ pub struct AssetListItem {
     #[serde(rename = "updatedAt")]
     pub updated_at: Date,
     pub folder: Option<AssetFolder>,
-    pub author: Option<User>,
+    pub author: Option<Int>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -92,10 +94,89 @@ pub struct AssetFolder {
     pub name: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum AssetKind {
     IMAGE,
     BINARY,
     ALL,
 }
 
+impl ToString for AssetKind {
+    fn to_string(&self) -> String {
+        match self {
+            AssetKind::IMAGE => "IMAGE".to_string(),
+            AssetKind::BINARY => "BINARY".to_string(),
+            AssetKind::ALL => "ALL".to_string(),
+        }
+    }
+}
+
+pub(crate) mod asset_list {
+    use super::*;
+
+    pub struct AssetList;
+
+    pub const OPERATION_NAME: &str = "AssetList";
+    pub const QUERY : & str = "query AssetList($folderId: Int!, $kind: AssetKind!) {\n  assets {\n    list (folderId: $folderId, kind: $kind) {\n      id\n      filename\n      ext\n      kind\n      mime\n      fileSize\n      metadata\n      createdAt\n      updatedAt\n      folder {\n        id\n        slug\n        name\n      }\n      author {\n        id\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "folderId")]
+        pub folder_id: Int,
+        pub kind: AssetKind,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub assets: Option<Assets>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Assets {
+        pub list: Option<Vec<Option<AssetListItem>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for AssetList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn asset_list(
+    client: &Client,
+    url: &str,
+    folder_id: Int,
+    kind: AssetKind,
+) -> Result<Vec<AssetListItem>, AssetError> {
+    let variables = asset_list::Variables { folder_id, kind };
+    let response =
+        post_graphql::<asset_list::AssetList, _>(client, url, variables);
+    if response.is_err() {
+        return Err(AssetError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(assets) = data.assets {
+            if let Some(list) = assets.list {
+                return Ok(list
+                    .into_iter()
+                    .flatten()
+                    .collect::<Vec<AssetListItem>>());
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
