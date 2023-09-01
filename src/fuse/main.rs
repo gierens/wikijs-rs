@@ -17,11 +17,13 @@ use colored::Colorize;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+#[allow(clippy::large_enum_variant)]
 enum Inode {
     Page(Page),
     Directory(Vec<PageTreeItem>),
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<FileAttr> for Inode {
     fn into(self) -> FileAttr {
         match self {
@@ -43,7 +45,7 @@ impl Into<FileAttr> for Inode {
                 flags: 0,
             },
             Inode::Directory(page_tree) => {
-                let ino = if page_tree.len() > 0 {
+                let ino = if !page_tree.is_empty() {
                     if let Some(id) = page_tree[0].parent {
                         id as u64 + 1
                     } else {
@@ -198,7 +200,7 @@ impl Filesystem for Fs {
             if i + 2 <= offset as usize {
                 continue;
             }
-            let basename = pti.path.split("/").last().unwrap();
+            let basename = pti.path.split('/').last().unwrap();
             if pti.is_folder {
                 if reply.add(
                     pti.id as u64 + 1,
@@ -263,7 +265,7 @@ impl Filesystem for Fs {
         };
 
         for pti in page_tree {
-            if pti.path.split("/").last().unwrap() == name_str {
+            if pti.path.split('/').last().unwrap() == name_str {
                 let ino = if is_dir {
                     pti.id as u64 + 1
                 } else {
@@ -319,13 +321,10 @@ impl Filesystem for Fs {
             ino, fh, offset, size, flags, lock_owner
         );
 
-        match InodeType::from(ino) {
-            InodeType::Directory(_) => {
-                warn!("read: inode {} is a directory", ino);
-                reply.error(EISDIR);
-                return;
-            }
-            _ => {}
+        if let InodeType::Directory(_) = InodeType::from(ino) {
+            warn!("read: inode {} is a directory", ino);
+            reply.error(EISDIR);
+            return;
         }
 
         let page = match self.get_inode(ino) {
