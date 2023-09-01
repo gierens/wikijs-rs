@@ -104,14 +104,14 @@ impl Fs {
         match InodeType::from(ino) {
             InodeType::Page(id) => {
                 debug!("get_inode: page {}", id);
-                match self.api.get_page(id) {
+                match self.api.page_get(id) {
                     Ok(page) => Some(Inode::Page(page)),
                     Err(_) => None,
                 }
             }
             InodeType::Directory(id) => {
                 debug!("get_inode: directory {}", id);
-                match self.api.get_page_tree(id) {
+                match self.api.page_tree(id) {
                     Ok(page_tree) => Some(Inode::Directory(page_tree)),
                     Err(_) => None,
                 }

@@ -2,8 +2,8 @@ mod common;
 use common::API;
 
 #[test]
-fn list_no_contribute_contributors() {
-    let result = API.list_contribute_contributors();
+fn contributors() {
+    let result = API.contributor_list();
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 299);
 }

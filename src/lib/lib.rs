@@ -54,22 +54,24 @@ impl Api {
         }
     }
 
-    pub fn get_page(&self, id: i64) -> Result<page::Page, page::PageError> {
+    // page functions
+    pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {
         page::get_page(&self.client, &format!("{}/graphql", self.url), id)
     }
 
-    pub fn list_all_page_tags(&self) -> Result<Vec<page::PageTag>, page::PageError> {
+    pub fn page_tag_list(&self) -> Result<Vec<page::PageTag>, page::PageError> {
         page::list_all_page_tags(&self.client, &format!("{}/graphql", self.url))
     }
 
-    pub fn list_all_pages(&self) -> Result<Vec<page::PageListItem>, page::PageError> {
+    pub fn page_list(&self) -> Result<Vec<page::PageListItem>, page::PageError> {
         page::list_all_pages(&self.client, &format!("{}/graphql", self.url))
     }
 
-    pub fn get_page_tree(&self, parent: i64) -> Result<Vec<page::PageTreeItem>, page::PageError> {
+    pub fn page_tree(&self, parent: i64) -> Result<Vec<page::PageTreeItem>, page::PageError> {
         page::get_page_tree(&self.client, &format!("{}/graphql", self.url), parent)
     }
 
+    // authentication functions
     pub fn login(
         &self,
         username: String,
@@ -85,7 +87,8 @@ impl Api {
         )
     }
 
-    pub fn list_contribute_contributors(
+    // contribute functions
+    pub fn contributor_list(
         &self,
     ) -> Result<Vec<contribute::ContributeContributor>, contribute::ContributeError> {
         contribute::list_contribute_contributors(&self.client, &format!("{}/graphql", self.url))

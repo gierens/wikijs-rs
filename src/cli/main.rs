@@ -59,7 +59,7 @@ fn main() {
 
     match cli.command {
         Command::Page { command } => match command {
-            PageCommand::Get { id } => match api.get_page(id) {
+            PageCommand::Get { id } => match api.page_get(id) {
                 Ok(page) => {
                     let mut builder = Builder::new();
                     builder.push_record(["key", "value"]);
@@ -98,7 +98,7 @@ fn main() {
                 }
                 Err(e) => eprintln!("{}: {}", "Error".bold().red(), e.to_string()),
             },
-            PageCommand::List {} => match api.list_all_pages() {
+            PageCommand::List {} => match api.page_list() {
                 Ok(pages) => {
                     let mut builder = Builder::new();
                     builder.push_record([
@@ -135,7 +135,7 @@ fn main() {
             },
         },
         Command::Contributor { command } => match command {
-            ContributorCommand::List {} => match api.list_contribute_contributors() {
+            ContributorCommand::List {} => match api.contributor_list() {
                 Ok(contributors) => {
                     let mut builder = Builder::new();
                     for contributor in contributors {
