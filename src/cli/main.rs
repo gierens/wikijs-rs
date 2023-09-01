@@ -64,39 +64,81 @@ fn main() {
                     let mut builder = Builder::new();
                     builder.push_record(["key", "value"]);
                     builder.push_record(["id", page.id.to_string().as_str()]);
-                    builder.push_record(["path", page.path.to_string().as_str()]);
-                    builder.push_record(["hash", page.hash.to_string().as_str()]);
+                    builder
+                        .push_record(["path", page.path.to_string().as_str()]);
+                    builder
+                        .push_record(["hash", page.hash.to_string().as_str()]);
                     builder.push_record(["title", page.title.as_str()]);
                     // TODO description
-                    builder.push_record(["is_private", page.is_private.to_string().as_str()]);
-                    builder.push_record(["is_published", page.is_published.to_string().as_str()]);
+                    builder.push_record([
+                        "is_private",
+                        page.is_private.to_string().as_str(),
+                    ]);
+                    builder.push_record([
+                        "is_published",
+                        page.is_published.to_string().as_str(),
+                    ]);
                     builder.push_record([
                         "private_ns",
                         page.private_ns.unwrap_or("".to_string()).as_str(),
                     ]);
-                    builder
-                        .push_record(["publish_start_date", &page.publish_start_date.to_string()]);
-                    builder.push_record(["publish_end_date", &page.publish_end_date.to_string()]);
+                    builder.push_record([
+                        "publish_start_date",
+                        &page.publish_start_date.to_string(),
+                    ]);
+                    builder.push_record([
+                        "publish_end_date",
+                        &page.publish_end_date.to_string(),
+                    ]);
                     // TODO tags
                     // TODO content
                     // TODO toc
                     // TODO render
-                    builder.push_record(["content_type", page.content_type.as_str()]);
-                    builder.push_record(["created_at", &page.created_at.to_string()]);
-                    builder.push_record(["updated_at", &page.updated_at.to_string()]);
+                    builder.push_record([
+                        "content_type",
+                        page.content_type.as_str(),
+                    ]);
+                    builder.push_record([
+                        "created_at",
+                        &page.created_at.to_string(),
+                    ]);
+                    builder.push_record([
+                        "updated_at",
+                        &page.updated_at.to_string(),
+                    ]);
                     builder.push_record(["editor", page.editor.as_str()]);
                     builder.push_record(["locale", page.locale.as_str()]);
                     // TODO script_css
                     // TODO script_js
-                    builder.push_record(["author_id", page.author_id.to_string().as_str()]);
-                    builder.push_record(["author_name", page.author_name.as_str()]);
-                    builder.push_record(["author_email", page.author_email.as_str()]);
-                    builder.push_record(["creator_id", page.creator_id.to_string().as_str()]);
-                    builder.push_record(["creator_name", page.creator_name.as_str()]);
-                    builder.push_record(["creator_email", page.creator_email.as_str()]);
+                    builder.push_record([
+                        "author_id",
+                        page.author_id.to_string().as_str(),
+                    ]);
+                    builder.push_record([
+                        "author_name",
+                        page.author_name.as_str(),
+                    ]);
+                    builder.push_record([
+                        "author_email",
+                        page.author_email.as_str(),
+                    ]);
+                    builder.push_record([
+                        "creator_id",
+                        page.creator_id.to_string().as_str(),
+                    ]);
+                    builder.push_record([
+                        "creator_name",
+                        page.creator_name.as_str(),
+                    ]);
+                    builder.push_record([
+                        "creator_email",
+                        page.creator_email.as_str(),
+                    ]);
                     println!("{}", builder.build().with(Style::rounded()));
                 }
-                Err(e) => eprintln!("{}: {}", "Error".bold().red(), e.to_string()),
+                Err(e) => {
+                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                }
             },
             PageCommand::List {} => match api.page_list() {
                 Ok(pages) => {
@@ -131,7 +173,9 @@ fn main() {
                     }
                     println!("{}", builder.build().with(Style::rounded()));
                 }
-                Err(e) => eprintln!("{}: {}", "Error".bold().red(), e.to_string()),
+                Err(e) => {
+                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                }
             },
         },
         Command::Contributor { command } => match command {
@@ -151,9 +195,11 @@ fn main() {
                         ]);
                     }
                     println!("{}", builder.build().with(Style::rounded()));
-                },
-                Err(e) => eprintln!("{}: {}", "Error".bold().red(), e.to_string()),
-            }
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                }
+            },
         },
     }
 }

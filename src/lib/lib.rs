@@ -45,7 +45,8 @@ impl Api {
                 .default_headers(
                     std::iter::once((
                         AUTHORIZATION,
-                        HeaderValue::from_str(&format!("Bearer {}", key)).unwrap(),
+                        HeaderValue::from_str(&format!("Bearer {}", key))
+                            .unwrap(),
                     ))
                     .collect(),
                 )
@@ -63,11 +64,16 @@ impl Api {
         page::page_tag_list(&self.client, &format!("{}/graphql", self.url))
     }
 
-    pub fn page_list(&self) -> Result<Vec<page::PageListItem>, page::PageError> {
+    pub fn page_list(
+        &self,
+    ) -> Result<Vec<page::PageListItem>, page::PageError> {
         page::page_list(&self.client, &format!("{}/graphql", self.url))
     }
 
-    pub fn page_tree(&self, parent: i64) -> Result<Vec<page::PageTreeItem>, page::PageError> {
+    pub fn page_tree(
+        &self,
+        parent: i64,
+    ) -> Result<Vec<page::PageTreeItem>, page::PageError> {
         page::page_tree(&self.client, &format!("{}/graphql", self.url), parent)
     }
 
@@ -77,7 +83,10 @@ impl Api {
         username: String,
         password: String,
         strategy: String,
-    ) -> Result<authentication::AuthenticationLoginResponse, Box<dyn std::error::Error>> {
+    ) -> Result<
+        authentication::AuthenticationLoginResponse,
+        Box<dyn std::error::Error>,
+    > {
         authentication::login(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -91,6 +100,9 @@ impl Api {
     pub fn contributor_list(
         &self,
     ) -> Result<Vec<contribute::Contributor>, contribute::ContributeError> {
-        contribute::contributor_list(&self.client, &format!("{}/graphql", self.url))
+        contribute::contributor_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
     }
 }

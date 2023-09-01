@@ -73,7 +73,9 @@ pub mod contributor_list {
     impl graphql_client::GraphQLQuery for ContributorList {
         type Variables = Variables;
         type ResponseData = ResponseData;
-        fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
             graphql_client::QueryBody {
                 variables,
                 query: QUERY,

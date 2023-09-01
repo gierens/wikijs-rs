@@ -207,7 +207,9 @@ pub(crate) mod page_get {
     impl graphql_client::GraphQLQuery for PageGet {
         type Variables = Variables;
         type ResponseData = ResponseData;
-        fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
             graphql_client::QueryBody {
                 variables,
                 query: QUERY,
@@ -217,7 +219,11 @@ pub(crate) mod page_get {
     }
 }
 
-pub fn page_get(client: &Client, url: &str, id: i64) -> Result<Page, PageError> {
+pub fn page_get(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<Page, PageError> {
     let variables = page_get::Variables { id };
     let response = post_graphql::<page_get::PageGet, _>(client, url, variables);
     if response.is_err() {
@@ -263,7 +269,9 @@ pub(crate) mod page_list {
     impl graphql_client::GraphQLQuery for PageList {
         type Variables = Variables;
         type ResponseData = ResponseData;
-        fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
             graphql_client::QueryBody {
                 variables,
                 query: QUERY,
@@ -273,9 +281,13 @@ pub(crate) mod page_list {
     }
 }
 
-pub fn page_list(client: &Client, url: &str) -> Result<Vec<PageListItem>, PageError> {
+pub fn page_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<PageListItem>, PageError> {
     let variables = page_list::Variables {};
-    let response = post_graphql::<page_list::PageList, _>(client, url, variables);
+    let response =
+        post_graphql::<page_list::PageList, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -320,7 +332,9 @@ pub(crate) mod page_tree {
     impl graphql_client::GraphQLQuery for PageTree {
         type Variables = Variables;
         type ResponseData = ResponseData;
-        fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
             graphql_client::QueryBody {
                 variables,
                 query: QUERY,
@@ -336,7 +350,8 @@ pub fn page_tree(
     parent: i64,
 ) -> Result<Vec<PageTreeItem>, PageError> {
     let variables = page_tree::Variables { parent };
-    let response = post_graphql::<page_tree::PageTree, _>(client, url, variables);
+    let response =
+        post_graphql::<page_tree::PageTree, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -377,7 +392,9 @@ pub(crate) mod page_tag_list {
     impl graphql_client::GraphQLQuery for PageTagList {
         type Variables = Variables;
         type ResponseData = ResponseData;
-        fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
             graphql_client::QueryBody {
                 variables,
                 query: QUERY,
@@ -387,7 +404,10 @@ pub(crate) mod page_tag_list {
     }
 }
 
-pub fn page_tag_list(client: &Client, url: &str) -> Result<Vec<PageTag>, PageError> {
+pub fn page_tag_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<PageTag>, PageError> {
     let variables = page_tag_list::Variables {};
     let response =
         post_graphql::<page_tag_list::PageTagList, _>(client, url, variables);

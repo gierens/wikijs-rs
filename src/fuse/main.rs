@@ -1,6 +1,7 @@
 use fuser::MountOption::FSName;
 use fuser::{
-    mount2, FileAttr, Filesystem, ReplyAttr, ReplyData, ReplyDirectory, ReplyEntry, Request,
+    mount2, FileAttr, Filesystem, ReplyAttr, ReplyData, ReplyDirectory,
+    ReplyEntry, Request,
 };
 use libc::{EISDIR, ENOENT};
 use wikijs::page::{Page, PageTreeItem};
@@ -245,7 +246,13 @@ impl Filesystem for Fs {
     //
     // # Returns
     // Nothing.
-    fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
+    fn lookup(
+        &mut self,
+        _req: &Request,
+        parent: u64,
+        name: &OsStr,
+        reply: ReplyEntry,
+    ) {
         let start = SystemTime::now();
         let mut name_str = name.to_str().unwrap();
         let mut is_dir = true;
@@ -392,8 +399,9 @@ fn main() {
     let api = Api::new(cli.url, credentials);
     let fs = Fs::new(api);
 
-    mount2(fs, &cli.mountpoint, &[FSName("wikijs-fuse".to_string())]).unwrap_or_else(|error| {
-        error!("{}", error);
-        exit(1);
-    });
+    mount2(fs, &cli.mountpoint, &[FSName("wikijs-fuse".to_string())])
+        .unwrap_or_else(|error| {
+            error!("{}", error);
+            exit(1);
+        });
 }

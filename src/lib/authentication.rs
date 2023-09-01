@@ -63,7 +63,9 @@ pub(crate) mod login_mod {
     impl graphql_client::GraphQLQuery for Login {
         type Variables = Variables;
         type ResponseData = ResponseData;
-        fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
             graphql_client::QueryBody {
                 variables,
                 query: QUERY,
@@ -85,7 +87,8 @@ pub fn login(
         password,
         strategy,
     };
-    let response_body = post_graphql::<login_mod::Login, _>(client, url, variables)?;
+    let response_body =
+        post_graphql::<login_mod::Login, _>(client, url, variables)?;
 
     Ok(response_body
         .data
