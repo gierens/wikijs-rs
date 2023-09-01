@@ -1,4 +1,4 @@
-query ListContributeContributors {
+query ContributorList {
   contribute {
     contributors {
       id

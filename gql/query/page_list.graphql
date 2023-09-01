@@ -1,4 +1,4 @@
-query ListAllPages {
+query PageList {
   pages {
     list (orderBy: TITLE) {
       id

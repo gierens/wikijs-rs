@@ -1,4 +1,4 @@
-query ListAllPageTags {
+query PageTagList {
   pages {
     tags {
       id

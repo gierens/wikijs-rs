@@ -1,4 +1,4 @@
-query GetPageTree($parent: Int!) {
+query PageTree($parent: Int!) {
   pages {
     tree (parent: $parent, mode: ALL, includeAncestors: true, locale: "en") {
       id

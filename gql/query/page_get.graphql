@@ -1,4 +1,4 @@
-query GetPage($id: Int!) {
+query PageGet($id: Int!) {
   pages {
     single (id: $id) {
       id
