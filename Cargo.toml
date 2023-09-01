@@ -9,13 +9,26 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 path = "src/lib/lib.rs"
 
+[[bin]]
+name = "wikijs-fuse"
+path = "src/fuse/main.rs"
+
 [dependencies]
 # lib
 graphql_client = { version = "0.13", features = ["reqwest-blocking"] }
 serde = "1.0"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 thiserror = "1.0"
+# fuse
+fuser = "0.13"
+clap = { version = "4.4", features = ["derive", "env"] }
+clap-verbosity-flag = "2.0"
+colored = "2.0"
+log = "0.4"
+stderrlog = "0.5"
+libc = "0.2"
 
 [dev-dependencies]
+# lib
 lazy_static = "1.4"
 serial_test = "2.0"
