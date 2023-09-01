@@ -21,11 +21,12 @@ jobs:
           compose-file: "./docker-compose.yml"
       - name: wait for wiki to be reachable
         uses: cygnetdigital/wait_for_response@v2.0.0
-      - name: run initial wiki setup
+      - name: install dependencies
         run: |
           sudo apt update
-          sudo apt install httpie
-          scripts/finalize_wiki_setup.sh
+          sudo apt install fuse httpie
+      - name: run initial wiki setup
+        run: scripts/finalize_wiki_setup.sh
       - name: install rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: install rust cache
@@ -45,11 +46,12 @@ jobs:
           compose-file: "./docker-compose.yml"
       - name: wait for wiki to be reachable
         uses: cygnetdigital/wait_for_response@v2.0.0
-      - name: run initial wiki setup
+      - name: install dependencies
         run: |
           sudo apt update
-          sudo apt install httpie
-          scripts/finalize_wiki_setup.sh
+          sudo apt install fuse httpie
+      - name: run initial wiki setup
+        run: scripts/finalize_wiki_setup.sh
       - name: install rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: install rust cache
