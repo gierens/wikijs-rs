@@ -89,7 +89,18 @@ fn main() {
             PageCommand::List {} => match api.list_all_pages() {
                 Ok(pages) => {
                     let mut builder = Builder::new();
-                    builder.push_record(["id", "locate", "path", "title", "content_type", "is_published", "is_private", "private_ns", "created_at", "updated_at"]);
+                    builder.push_record([
+                        "id",
+                        "locate",
+                        "path",
+                        "title",
+                        "content_type",
+                        "is_published",
+                        "is_private",
+                        "private_ns",
+                        "created_at",
+                        "updated_at",
+                    ]);
                     for page in pages {
                         builder.push_record([
                             page.id.to_string().as_str(),
