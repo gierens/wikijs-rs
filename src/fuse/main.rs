@@ -395,13 +395,11 @@ fn main() {
 
     let credentials = Credentials::Key(cli.key);
     let api = Api::new(cli.url, credentials);
-    // let fs = Fs::new(api);
+    let fs = Fs::new(api);
 
-    // mount2(fs, &cli.mountpoint, &[FSName("wikijs-fuse".to_string()),]
-    // ).unwrap_or_else(|error| {
-    //     error!("{}", error);
-    //     exit(1);
-    // });
-    
-    println!("{:?}", api.list_contribute_contributors().unwrap());
+    mount2(fs, &cli.mountpoint, &[FSName("wikijs-fuse".to_string()),]
+    ).unwrap_or_else(|error| {
+        error!("{}", error);
+        exit(1);
+    });
 }
