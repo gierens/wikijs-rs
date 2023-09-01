@@ -1,6 +1,18 @@
+use serde::Deserialize;
+
 pub type Boolean = bool;
 pub type Int = i64;
 pub type Date = String;
+
+#[derive(Deserialize, Debug)]
+#[allow(unused)]
+pub struct ResponseStatus {
+    succeeded: Boolean,
+    #[serde(rename = "errorCode")]
+    error_code: Int,
+    slug: String,
+    message: Option<String>,
+}
 
 pub(crate) trait UnknownError {
     fn unknown_error_code(code: i64, message: String) -> Self;

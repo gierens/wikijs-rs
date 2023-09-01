@@ -2,7 +2,7 @@ use graphql_client::reqwest::post_graphql_blocking as post_graphql;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::common::{Boolean, Int};
+use crate::common::{Boolean, ResponseStatus};
 
 #[derive(Deserialize, Debug)]
 pub struct AuthenticationLoginResponse {
@@ -20,16 +20,6 @@ pub struct AuthenticationLoginResponse {
     pub redirect: Option<String>,
     #[serde(rename = "tfaQRImage")]
     pub tfa_qr_image: Option<String>,
-}
-
-#[allow(dead_code)]
-#[derive(Deserialize, Debug)]
-pub struct ResponseStatus {
-    succeeded: Boolean,
-    #[serde(rename = "errorCode")]
-    error_code: Int,
-    slug: String,
-    message: Option<String>,
 }
 
 pub(crate) mod login_mod {
