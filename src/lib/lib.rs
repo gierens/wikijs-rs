@@ -90,7 +90,7 @@ impl Api {
     // contribute functions
     pub fn contributor_list(
         &self,
-    ) -> Result<Vec<contribute::ContributeContributor>, contribute::ContributeError> {
-        contribute::list_contribute_contributors(&self.client, &format!("{}/graphql", self.url))
+    ) -> Result<Vec<contribute::Contributor>, contribute::ContributeError> {
+        contribute::contributor_list(&self.client, &format!("{}/graphql", self.url))
     }
 }

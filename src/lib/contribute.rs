@@ -27,7 +27,7 @@ impl From<i64> for ContributeError {
 type Date = String;
 
 #[derive(Deserialize, Debug)]
-pub struct ContributeContributor {
+pub struct Contributor {
     pub id: String,
     pub source: String,
     pub name: String,
@@ -52,10 +52,10 @@ impl UnknownError for ContributeError {
 pub mod list_contribute_contributors_mod {
     use super::*;
 
-    pub struct ListContributeContributors;
+    pub struct ContributorList;
 
-    pub const OPERATION_NAME: &str = "ListContributeContributors";
-    pub const QUERY : & str = "query ListContributeContributors {\n  contribute {\n    contributors {\n      id\n      source\n      name\n      joined\n      website\n      twitter\n      avatar\n    }\n  }\n}\n" ;
+    pub const OPERATION_NAME: &str = "ContributorList";
+    pub const QUERY : & str = "query ContributorList {\n  contribute {\n    contributors {\n      id\n      source\n      name\n      joined\n      website\n      twitter\n      avatar\n    }\n  }\n}\n" ;
 
     #[derive(Serialize)]
     pub struct Variables;
@@ -67,10 +67,10 @@ pub mod list_contribute_contributors_mod {
 
     #[derive(Deserialize)]
     pub struct Contribute {
-        pub contributors: Option<Vec<Option<ContributeContributor>>>,
+        pub contributors: Option<Vec<Option<Contributor>>>,
     }
 
-    impl graphql_client::GraphQLQuery for ListContributeContributors {
+    impl graphql_client::GraphQLQuery for ContributorList {
         type Variables = Variables;
         type ResponseData = ResponseData;
         fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
@@ -83,12 +83,12 @@ pub mod list_contribute_contributors_mod {
     }
 }
 
-pub fn list_contribute_contributors(
+pub fn contributor_list(
     client: &Client,
     url: &str,
-) -> Result<Vec<ContributeContributor>, ContributeError> {
+) -> Result<Vec<Contributor>, ContributeError> {
     let variables = list_contribute_contributors_mod::Variables {};
-    let response = post_graphql::<list_contribute_contributors_mod::ListContributeContributors, _>(
+    let response = post_graphql::<list_contribute_contributors_mod::ContributorList, _>(
         client, url, variables,
     );
     if response.is_err() {
