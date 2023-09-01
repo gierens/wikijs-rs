@@ -24,7 +24,7 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt update
-          sudo apt install fuse httpie
+          sudo apt install fuse3 httpie
       - name: run initial wiki setup
         run: scripts/finalize_wiki_setup.sh
       - name: install rust toolchain
@@ -49,7 +49,7 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt update
-          sudo apt install fuse httpie
+          sudo apt install fuse3 httpie
       - name: run initial wiki setup
         run: scripts/finalize_wiki_setup.sh
       - name: install rust toolchain
