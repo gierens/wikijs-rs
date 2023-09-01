@@ -26,19 +26,19 @@ pub struct GroupMinimal {
 
 #[derive(Deserialize, Debug)]
 pub struct Group {
-   pub id: Int,
-   pub name: String,
-   #[serde(rename = "isSystem")]
-   pub is_system: Boolean,
-   #[serde(rename = "redirectOnLogin")]
-   pub redirect_on_login: Option<String>,
-   pub permissions: Vec<String>,
-   pub page_rules: Vec<PageRule>,
-   pub users: Vec<UserMinimal>,
-   #[serde(rename = "createAt")]
-   pub created_at: Date,
-   #[serde(rename = "updatedAt")]
-   pub updated_at: Date,
+    pub id: Int,
+    pub name: String,
+    #[serde(rename = "isSystem")]
+    pub is_system: Boolean,
+    #[serde(rename = "redirectOnLogin")]
+    pub redirect_on_login: Option<String>,
+    pub permissions: Vec<String>,
+    pub page_rules: Vec<PageRule>,
+    pub users: Vec<UserMinimal>,
+    #[serde(rename = "createAt")]
+    pub created_at: Date,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: Date,
 }
 
 #[derive(Deserialize, Debug)]
