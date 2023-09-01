@@ -49,7 +49,7 @@ impl UnknownError for ContributeError {
     }
 }
 
-pub mod list_contribute_contributors_mod {
+pub mod contributor_list {
     use super::*;
 
     pub struct ContributorList;
@@ -87,8 +87,8 @@ pub fn contributor_list(
     client: &Client,
     url: &str,
 ) -> Result<Vec<Contributor>, ContributeError> {
-    let variables = list_contribute_contributors_mod::Variables {};
-    let response = post_graphql::<list_contribute_contributors_mod::ContributorList, _>(
+    let variables = contributor_list::Variables {};
+    let response = post_graphql::<contributor_list::ContributorList, _>(
         client, url, variables,
     );
     if response.is_err() {
