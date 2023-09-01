@@ -12,6 +12,10 @@ path = "src/lib/lib.rs"
 [[bin]]
 name = "wikijs-fuse"
 path = "src/fuse/main.rs"
+required-features = ["fuse"]
+
+[features]
+fuse = ["fuser", "clap", "clap-verbosity-flag", "colored", "log", "stderrlog", "libc"]
 
 [dependencies]
 # lib
@@ -20,13 +24,13 @@ serde = "1.0"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 thiserror = "1.0"
 # fuse
-fuser = "0.13"
-clap = { version = "4.4", features = ["derive", "env"] }
-clap-verbosity-flag = "2.0"
-colored = "2.0"
-log = "0.4"
-stderrlog = "0.5"
-libc = "0.2"
+fuser = { version = "0.13", optional = true }
+clap = { version = "4.4", features = ["derive", "env"], optional = true }
+clap-verbosity-flag = { version = "2.0", optional = true }
+colored = { version = "2.0", optional = true }
+log = { version = "0.4", optional = true }
+stderrlog = { version = "0.5", optional = true }
+libc = { version = "0.2", optional = true }
 
 [dev-dependencies]
 # lib
