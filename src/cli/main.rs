@@ -26,6 +26,12 @@ enum Command {
         #[clap(subcommand)]
         command: PageCommand,
     },
+
+    #[clap(about = "Contributor commands")]
+    Contributor {
+        #[clap(subcommand)]
+        command: ContributorCommand,
+    },
 }
 
 #[derive(Subcommand)]
@@ -37,6 +43,12 @@ enum PageCommand {
     },
 
     #[clap(about = "List pages")]
+    List {},
+}
+
+#[derive(Subcommand)]
+enum ContributorCommand {
+    #[clap(about = "List contributors")]
     List {},
 }
 
@@ -121,6 +133,27 @@ fn main() {
                 }
                 Err(e) => eprintln!("{}: {}", "Error".bold().red(), e.to_string()),
             },
+        },
+        Command::Contributor { command } => match command {
+            ContributorCommand::List {} => match api.list_contribute_contributors() {
+                Ok(contributors) => {
+                    let mut builder = Builder::new();
+                    for contributor in contributors {
+                        builder.push_record([
+                            contributor.id.to_string().as_str(),
+                            contributor.source.as_str(),
+                            contributor.name.as_str(),
+                            contributor.joined.as_str(),
+                            // TODO these are too long
+                            // contributor.website.unwrap_or("".to_string()).as_str(),
+                            // contributor.twitter.unwrap_or("".to_string()).as_str(),
+                            // contributor.avatar.unwrap_or("".to_string()).as_str(),
+                        ]);
+                    }
+                    println!("{}", builder.build().with(Style::rounded()));
+                },
+                Err(e) => eprintln!("{}: {}", "Error".bold().red(), e.to_string()),
+            }
         },
     }
 }
