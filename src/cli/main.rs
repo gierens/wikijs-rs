@@ -21,6 +21,12 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    #[clap(about = "Asset commands")]
+    Asset {
+        #[clap(subcommand)]
+        command: AssetCommand,
+    },
+
     #[clap(about = "Page commands")]
     Page {
         #[clap(subcommand)]
@@ -32,6 +38,12 @@ enum Command {
         #[clap(subcommand)]
         command: ContributorCommand,
     },
+}
+
+#[derive(Subcommand)]
+enum AssetCommand {
+    #[clap(about = "List assets")]
+    List {},
 }
 
 #[derive(Subcommand)]
@@ -58,6 +70,48 @@ fn main() {
     let api = Api::new(cli.url, credentials);
 
     match cli.command {
+        Command::Asset { command } => match command {
+            AssetCommand::List {} => match api
+                .asset_list(0, wikijs::asset::AssetKind::ALL)
+            {
+                Ok(assets) => {
+                    let mut builder = Builder::new();
+                    builder.push_record([
+                        "id",
+                        "filename",
+                        "ext",
+                        "kind",
+                        "mime",
+                        "file_size",
+                        "metadata",
+                        "created_at",
+                        "updated_at",
+                        // "folder",
+                        // "author",
+                    ]);
+                    for asset in assets {
+                        builder.push_record([
+                            asset.id.to_string().as_str(),
+                            asset.filename.as_str(),
+                            asset.ext.as_str(),
+                            asset.kind.to_string().as_str(),
+                            asset.mime.as_str(),
+                            asset.file_size.to_string().as_str(),
+                            asset.metadata.unwrap_or("".to_string()).as_str(),
+                            asset.created_at.to_string().as_str(),
+                            asset.updated_at.to_string().as_str(),
+                            // TODO
+                            // asset.folder.to_string().as_str(),
+                            // asset.author.unwrap_or(0).to_string().as_str(),
+                        ]);
+                    }
+                    println!("{}", builder.build().with(Style::rounded()));
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                }
+            },
+        },
         Command::Page { command } => match command {
             PageCommand::Get { id } => match api.page_get(id) {
                 Ok(page) => {
