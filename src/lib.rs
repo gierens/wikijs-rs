@@ -4,6 +4,7 @@ use reqwest::header::{HeaderValue, AUTHORIZATION};
 pub mod authentication;
 pub(crate) mod error;
 pub mod page;
+pub mod contribute;
 
 #[derive(Debug)]
 pub enum Credentials {
@@ -82,6 +83,10 @@ impl Api {
             password,
             strategy,
         )
+    }
+
+    pub fn list_contribute_contributors(&self) -> Result<Vec<contribute::ContributeContributor>, contribute::ContributeError> {
+        contribute::list_contribute_contributors(&self.client, &format!("{}/graphql", self.url))
     }
 }
 
