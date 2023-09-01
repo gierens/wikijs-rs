@@ -2,9 +2,9 @@ use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 
 pub mod authentication;
+pub mod contribute;
 pub(crate) mod error;
 pub mod page;
-pub mod contribute;
 
 #[derive(Debug)]
 pub enum Credentials {
@@ -85,7 +85,9 @@ impl Api {
         )
     }
 
-    pub fn list_contribute_contributors(&self) -> Result<Vec<contribute::ContributeContributor>, contribute::ContributeError> {
+    pub fn list_contribute_contributors(
+        &self,
+    ) -> Result<Vec<contribute::ContributeContributor>, contribute::ContributeError> {
         contribute::list_contribute_contributors(&self.client, &format!("{}/graphql", self.url))
     }
 }

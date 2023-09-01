@@ -1,49 +1,46 @@
+use fuser::MountOption::FSName;
+use fuser::{
+    mount2, FileAttr, Filesystem, ReplyAttr, ReplyData, ReplyDirectory, ReplyEntry, Request,
+};
+use libc::{EISDIR, ENOENT};
 use wikijs::page::{Page, PageTreeItem};
 use wikijs::{Api, Credentials};
-use fuser::{Filesystem, mount2, Request, ReplyAttr, ReplyDirectory, FileAttr,
-            ReplyEntry, ReplyData};
-use fuser::MountOption::FSName;
-use libc::{ENOENT, EISDIR};
 
+use clap::Parser;
 use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::process::exit;
 use std::time::SystemTime;
-use clap::Parser;
 
 #[allow(unused_imports)]
 use colored::Colorize;
 #[allow(unused_imports)]
-use log::{trace, debug, info, warn, error};
-
+use log::{debug, error, info, trace, warn};
 
 enum Inode {
     Page(Page),
     Directory(Vec<PageTreeItem>),
 }
 
-
 impl Into<FileAttr> for Inode {
     fn into(self) -> FileAttr {
         match self {
-            Inode::Page(page) => {
-                FileAttr {
-                    ino: page.id as u64 | 0x80000000_00000000,
-                    size: page.content.len() as u64,
-                    blocks: 1,
-                    atime: SystemTime::now(),
-                    mtime: SystemTime::now(),
-                    ctime: SystemTime::now(),
-                    crtime: SystemTime::now(),
-                    kind: fuser::FileType::RegularFile,
-                    perm: 0o644,
-                    nlink: 1,
-                    uid: 0,
-                    gid: 0,
-                    rdev: 0,
-                    blksize: 0,
-                    flags: 0,
-                }
+            Inode::Page(page) => FileAttr {
+                ino: page.id as u64 | 0x80000000_00000000,
+                size: page.content.len() as u64,
+                blocks: 1,
+                atime: SystemTime::now(),
+                mtime: SystemTime::now(),
+                ctime: SystemTime::now(),
+                crtime: SystemTime::now(),
+                kind: fuser::FileType::RegularFile,
+                perm: 0o644,
+                nlink: 1,
+                uid: 0,
+                gid: 0,
+                rdev: 0,
+                blksize: 0,
+                flags: 0,
             },
             Inode::Directory(page_tree) => {
                 let ino = if page_tree.len() > 0 {
@@ -77,12 +74,10 @@ impl Into<FileAttr> for Inode {
     }
 }
 
-
 enum InodeType {
     Page(i64),
-    Directory(i64)
+    Directory(i64),
 }
-
 
 impl From<u64> for InodeType {
     fn from(ino: u64) -> Self {
@@ -94,11 +89,9 @@ impl From<u64> for InodeType {
     }
 }
 
-
 struct Fs {
     api: Api,
 }
-
 
 impl Fs {
     pub fn new(api: Api) -> Self {
@@ -113,7 +106,7 @@ impl Fs {
                     Ok(page) => Some(Inode::Page(page)),
                     Err(_) => None,
                 }
-            },
+            }
             InodeType::Directory(id) => {
                 debug!("get_inode: directory {}", id);
                 match self.api.get_page_tree(id) {
@@ -125,7 +118,6 @@ impl Fs {
     }
 }
 
-
 impl Filesystem for Fs {
     /// Get attributes of an inode.
     ///
@@ -136,12 +128,7 @@ impl Filesystem for Fs {
     ///
     /// # Returns
     /// Nothing.
-    fn getattr(
-        &mut self,
-        _req: &Request,
-        ino: u64,
-        reply: ReplyAttr
-    ) {
+    fn getattr(&mut self, _req: &Request, ino: u64, reply: ReplyAttr) {
         let start = SystemTime::now();
         info!("getattr(ino={})", ino);
 
@@ -175,8 +162,8 @@ impl Filesystem for Fs {
         ino: u64,
         fh: u64,
         offset: i64,
-        mut reply: ReplyDirectory)
-    {
+        mut reply: ReplyDirectory,
+    ) {
         info!("readdir(ino={}, fh={}, offset={})", ino, fh, offset);
         let mut next_offset = offset + 1;
 
@@ -213,7 +200,12 @@ impl Filesystem for Fs {
             }
             let basename = pti.path.split("/").last().unwrap();
             if pti.is_folder {
-                if reply.add(pti.id as u64 + 1, next_offset, fuser::FileType::Directory, basename) {
+                if reply.add(
+                    pti.id as u64 + 1,
+                    next_offset,
+                    fuser::FileType::Directory,
+                    basename,
+                ) {
                     debug!("readdir: buffer full at offset {}", next_offset);
                     reply.ok();
                     return;
@@ -223,7 +215,12 @@ impl Filesystem for Fs {
             }
             if let Some(pid) = pti.page_id {
                 let filename = format!("{}.md", basename);
-                if reply.add(pid as u64 | 0x80000000_00000000, next_offset, fuser::FileType::RegularFile, filename) {
+                if reply.add(
+                    pid as u64 | 0x80000000_00000000,
+                    next_offset,
+                    fuser::FileType::RegularFile,
+                    filename,
+                ) {
                     debug!("readdir: buffer full at offset {}", next_offset);
                     reply.ok();
                     return;
@@ -246,13 +243,7 @@ impl Filesystem for Fs {
     //
     // # Returns
     // Nothing.
-    fn lookup(
-        &mut self,
-        _req: &Request,
-        parent: u64,
-        name: &OsStr,
-        reply: ReplyEntry
-    ) {
+    fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
         let start = SystemTime::now();
         let mut name_str = name.to_str().unwrap();
         let mut is_dir = true;
@@ -261,7 +252,7 @@ impl Filesystem for Fs {
             is_dir = false;
         }
         info!("lookup(parent={}, name={:?})", parent, name_str);
-        
+
         let page_tree = match self.get_inode(parent) {
             Some(Inode::Directory(page_tree)) => page_tree,
             _ => {
@@ -290,9 +281,9 @@ impl Filesystem for Fs {
                 let ttl = SystemTime::now().duration_since(start).unwrap();
                 reply.entry(&ttl, &attr, 0);
                 return;
-            }    
+            }
         }
-    
+
         warn!("lookup: inode not found");
         reply.error(ENOENT);
     }
@@ -320,10 +311,13 @@ impl Filesystem for Fs {
         size: u32,
         flags: i32,
         lock_owner: Option<u64>,
-        reply: ReplyData
+        reply: ReplyData,
     ) {
-        info!("read(ino={}, fh={}, offset={}, size={}, flags={:?}, \
-              lock_owner={:?})", ino, fh, offset, size, flags, lock_owner);
+        info!(
+            "read(ino={}, fh={}, offset={}, size={}, flags={:?}, \
+              lock_owner={:?})",
+            ino, fh, offset, size, flags, lock_owner
+        );
 
         match InodeType::from(ino) {
             InodeType::Directory(_) => {
@@ -346,18 +340,19 @@ impl Filesystem for Fs {
         let content_size = page.content.len() as u64;
 
         if offset < 0 || offset as u64 > content_size {
-            warn!("read: invalid offset {} for file of size {} with inode {}",
-                offset, size, ino);
+            warn!(
+                "read: invalid offset {} for file of size {} with inode {}",
+                offset, size, ino
+            );
             reply.error(ENOENT);
             return;
         }
 
         let end = (offset as u64 + size as u64).min(content_size);
         let data = page.content[offset as usize..end as usize].to_string();
-        reply.data(&data.as_bytes());
+        reply.data(data.as_bytes());
     }
 }
-
 
 #[derive(Parser)]
 #[command(name = "wikijs-fuse")]
@@ -378,7 +373,6 @@ struct Cli {
     verbose: clap_verbosity_flag::Verbosity,
 }
 
-
 fn main() {
     let cli = Cli::parse();
     stderrlog::new()
@@ -388,8 +382,10 @@ fn main() {
         .unwrap();
 
     if !cli.mountpoint.exists() || !cli.mountpoint.is_dir() {
-        error!("Mountpoint {} does not exist or is not a directory",
-            cli.mountpoint.display());
+        error!(
+            "Mountpoint {} does not exist or is not a directory",
+            cli.mountpoint.display()
+        );
         exit(1);
     }
 
@@ -397,8 +393,7 @@ fn main() {
     let api = Api::new(cli.url, credentials);
     let fs = Fs::new(api);
 
-    mount2(fs, &cli.mountpoint, &[FSName("wikijs-fuse".to_string()),]
-    ).unwrap_or_else(|error| {
+    mount2(fs, &cli.mountpoint, &[FSName("wikijs-fuse".to_string())]).unwrap_or_else(|error| {
         error!("{}", error);
         exit(1);
     });

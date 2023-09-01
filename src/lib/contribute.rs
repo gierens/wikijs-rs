@@ -5,7 +5,6 @@ use thiserror::Error;
 
 use crate::error::{classify_response_error, UnknownError};
 
-
 #[derive(Error, Debug, PartialEq)]
 pub enum ContributeError {
     #[error("Unknown response error code: {code}: {message}")]
@@ -18,11 +17,9 @@ pub enum ContributeError {
 
 impl From<i64> for ContributeError {
     fn from(code: i64) -> Self {
-        match code {
-            _ => ContributeError::UnknownErrorCode {
-                code,
-                message: "Unknown error".to_string(),
-            },
+        ContributeError::UnknownErrorCode {
+            code,
+            message: "Unknown error".to_string(),
         }
     }
 }
@@ -39,7 +36,6 @@ pub struct ContributeContributor {
     pub twitter: Option<String>,
     pub avatar: Option<String>,
 }
-
 
 impl UnknownError for ContributeError {
     fn unknown_error_code(code: i64, message: String) -> Self {
@@ -87,10 +83,14 @@ pub mod list_contribute_contributors_mod {
     }
 }
 
-pub fn list_contribute_contributors(client: &Client, url: &str) -> Result<Vec<ContributeContributor>, ContributeError> {
+pub fn list_contribute_contributors(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<ContributeContributor>, ContributeError> {
     let variables = list_contribute_contributors_mod::Variables {};
-    let response =
-        post_graphql::<list_contribute_contributors_mod::ListContributeContributors, _>(client, url, variables);
+    let response = post_graphql::<list_contribute_contributors_mod::ListContributeContributors, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(ContributeError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -101,7 +101,12 @@ pub fn list_contribute_contributors(client: &Client, url: &str) -> Result<Vec<Co
         let data = response_body.data.unwrap();
         if data.contribute.is_some() {
             let contribute = data.contribute.unwrap();
-            return Ok(contribute.contributors.unwrap().into_iter().flatten().collect());
+            return Ok(contribute
+                .contributors
+                .unwrap()
+                .into_iter()
+                .flatten()
+                .collect());
         }
     }
     Err(classify_response_error(response_body.errors))
