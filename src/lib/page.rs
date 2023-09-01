@@ -415,10 +415,8 @@ pub fn page_tag_list(
         });
     }
     let response_body = response.unwrap();
-    if response_body.data.is_some() {
-        let data = response_body.data.unwrap();
-        if data.pages.is_some() {
-            let pages = data.pages.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
             return Ok(pages.tags.into_iter().flatten().collect());
         }
     }
