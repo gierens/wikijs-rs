@@ -1,6 +1,7 @@
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 
+pub mod asset;
 pub mod authentication;
 pub mod common;
 pub mod contribute;
