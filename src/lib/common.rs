@@ -1,3 +1,7 @@
+pub type Boolean = bool;
+pub type Int = i64;
+pub type Date = String;
+
 pub(crate) trait UnknownError {
     fn unknown_error_code(code: i64, message: String) -> Self;
     fn unknown_error_message(message: String) -> Self;

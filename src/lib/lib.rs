@@ -2,8 +2,8 @@ use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 
 pub mod authentication;
+pub mod common;
 pub mod contribute;
-pub(crate) mod error;
 pub mod page;
 
 #[derive(Debug)]

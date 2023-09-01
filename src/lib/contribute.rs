@@ -3,7 +3,7 @@ use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::error::{classify_response_error, UnknownError};
+use crate::common::{Date, classify_response_error, UnknownError};
 
 #[derive(Error, Debug, PartialEq)]
 pub enum ContributeError {
@@ -23,8 +23,6 @@ impl From<i64> for ContributeError {
         }
     }
 }
-
-type Date = String;
 
 #[derive(Deserialize, Debug)]
 pub struct Contributor {

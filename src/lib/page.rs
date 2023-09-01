@@ -3,7 +3,7 @@ use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::error::{classify_response_error, UnknownError};
+use crate::common::{Boolean, Date, Int, classify_response_error, UnknownError};
 
 #[derive(Error, Debug, PartialEq)]
 pub enum PageError {
@@ -76,10 +76,6 @@ impl UnknownError for PageError {
         PageError::UnknownError
     }
 }
-
-pub type Boolean = bool;
-pub type Int = i64;
-pub type Date = String;
 
 #[derive(Deserialize, Debug)]
 pub struct Page {

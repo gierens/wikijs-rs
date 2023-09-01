@@ -2,8 +2,7 @@ use graphql_client::reqwest::post_graphql_blocking as post_graphql;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 
-pub type Boolean = bool;
-pub type Int = i64;
+use crate::common::{Boolean, Int};
 
 #[derive(Deserialize, Debug)]
 pub struct AuthenticationLoginResponse {
