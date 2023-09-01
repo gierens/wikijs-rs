@@ -1,2 +1,2 @@
 # wikijs-rs
-Wiki.js API bindings in Rust
+API bindings, CLI client and FUSE filesystem for Wiki.js written in Rust.
