@@ -14,8 +14,14 @@ name = "wikijs-fuse"
 path = "src/fuse/main.rs"
 required-features = ["fuse"]
 
+[[bin]]
+name = "wikijs-cli"
+path = "src/cli/main.rs"
+required-features = ["cli"]
+
 [features]
 fuse = ["fuser", "clap", "clap-verbosity-flag", "colored", "log", "stderrlog", "libc"]
+cli = ["clap"]
 
 [dependencies]
 # lib
@@ -23,9 +29,10 @@ graphql_client = { version = "0.13", features = ["reqwest-blocking"] }
 serde = "1.0"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 thiserror = "1.0"
+# cli and fuse
+clap = { version = "4.4", features = ["derive", "env"], optional = true }
 # fuse
 fuser = { version = "0.13", optional = true }
-clap = { version = "4.4", features = ["derive", "env"], optional = true }
 clap-verbosity-flag = { version = "2.0", optional = true }
 colored = { version = "2.0", optional = true }
 log = { version = "0.4", optional = true }
