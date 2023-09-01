@@ -56,19 +56,19 @@ impl Api {
 
     // page functions
     pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {
-        page::get_page(&self.client, &format!("{}/graphql", self.url), id)
+        page::page_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
     pub fn page_tag_list(&self) -> Result<Vec<page::PageTag>, page::PageError> {
-        page::list_all_page_tags(&self.client, &format!("{}/graphql", self.url))
+        page::page_tag_list(&self.client, &format!("{}/graphql", self.url))
     }
 
     pub fn page_list(&self) -> Result<Vec<page::PageListItem>, page::PageError> {
-        page::list_all_pages(&self.client, &format!("{}/graphql", self.url))
+        page::page_list(&self.client, &format!("{}/graphql", self.url))
     }
 
     pub fn page_tree(&self, parent: i64) -> Result<Vec<page::PageTreeItem>, page::PageError> {
-        page::get_page_tree(&self.client, &format!("{}/graphql", self.url), parent)
+        page::page_tree(&self.client, &format!("{}/graphql", self.url), parent)
     }
 
     // authentication functions

@@ -179,13 +179,13 @@ pub struct PageTag {
     pub updated_at: Date,
 }
 
-pub(crate) mod get_page_mod {
+pub(crate) mod page_get {
     use super::*;
 
-    pub struct GetPage;
+    pub struct PageGet;
 
-    pub const OPERATION_NAME: &str = "GetPage";
-    pub const QUERY : & str = "query GetPage($id: Int!) {\n  pages {\n    single (id: $id) {\n      id\n      path\n      hash\n      title\n      description\n      isPrivate\n      isPublished\n      privateNS\n      publishStartDate\n      publishEndDate\n      tags {\n        id\n        tag\n        title\n        createdAt\n        updatedAt\n      }\n      content\n      render\n      toc\n      contentType\n      createdAt\n      updatedAt\n      editor\n      locale\n      scriptCss\n      scriptJs\n      authorId\n      authorName\n      authorEmail\n      creatorId\n      creatorName\n      creatorEmail\n    }\n  }\n}\n" ;
+    pub const OPERATION_NAME: &str = "PageGet";
+    pub const QUERY : & str = "query PageGet($id: Int!) {\n  pages {\n    single (id: $id) {\n      id\n      path\n      hash\n      title\n      description\n      isPrivate\n      isPublished\n      privateNS\n      publishStartDate\n      publishEndDate\n      tags {\n        id\n        tag\n        title\n        createdAt\n        updatedAt\n      }\n      content\n      render\n      toc\n      contentType\n      createdAt\n      updatedAt\n      editor\n      locale\n      scriptCss\n      scriptJs\n      authorId\n      authorName\n      authorEmail\n      creatorId\n      creatorName\n      creatorEmail\n    }\n  }\n}\n" ;
 
     #[derive(Serialize)]
     pub struct Variables {
@@ -204,7 +204,7 @@ pub(crate) mod get_page_mod {
         pub single: Option<Page>,
     }
 
-    impl graphql_client::GraphQLQuery for GetPage {
+    impl graphql_client::GraphQLQuery for PageGet {
         type Variables = Variables;
         type ResponseData = ResponseData;
         fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
@@ -217,9 +217,9 @@ pub(crate) mod get_page_mod {
     }
 }
 
-pub fn get_page(client: &Client, url: &str, id: i64) -> Result<Page, PageError> {
-    let variables = get_page_mod::Variables { id };
-    let response = post_graphql::<get_page_mod::GetPage, _>(client, url, variables);
+pub fn page_get(client: &Client, url: &str, id: i64) -> Result<Page, PageError> {
+    let variables = page_get::Variables { id };
+    let response = post_graphql::<page_get::PageGet, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -239,13 +239,13 @@ pub fn get_page(client: &Client, url: &str, id: i64) -> Result<Page, PageError> 
     Err(classify_response_error(response_body.errors))
 }
 
-pub(crate) mod list_all_pages_mod {
+pub(crate) mod page_list {
     use super::*;
 
-    pub struct ListAllPages;
+    pub struct PageList;
 
-    pub const OPERATION_NAME: &str = "ListAllPages";
-    pub const QUERY : & str = "query ListAllPages {\n  pages {\n    list (orderBy: TITLE) {\n      id\n      path\n      locale\n      title\n      description\n      contentType\n      isPublished\n      isPrivate\n      privateNS\n      createdAt\n      updatedAt\n      tags\n    }\n  }\n}\n" ;
+    pub const OPERATION_NAME: &str = "PageList";
+    pub const QUERY : & str = "query PageList {\n  pages {\n    list (orderBy: TITLE) {\n      id\n      path\n      locale\n      title\n      description\n      contentType\n      isPublished\n      isPrivate\n      privateNS\n      createdAt\n      updatedAt\n      tags\n    }\n  }\n}\n" ;
 
     #[derive(Serialize)]
     pub struct Variables;
@@ -260,7 +260,7 @@ pub(crate) mod list_all_pages_mod {
         pub list: Vec<PageListItem>,
     }
 
-    impl graphql_client::GraphQLQuery for ListAllPages {
+    impl graphql_client::GraphQLQuery for PageList {
         type Variables = Variables;
         type ResponseData = ResponseData;
         fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
@@ -273,9 +273,9 @@ pub(crate) mod list_all_pages_mod {
     }
 }
 
-pub fn list_all_pages(client: &Client, url: &str) -> Result<Vec<PageListItem>, PageError> {
-    let variables = list_all_pages_mod::Variables {};
-    let response = post_graphql::<list_all_pages_mod::ListAllPages, _>(client, url, variables);
+pub fn page_list(client: &Client, url: &str) -> Result<Vec<PageListItem>, PageError> {
+    let variables = page_list::Variables {};
+    let response = post_graphql::<page_list::PageList, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -292,13 +292,13 @@ pub fn list_all_pages(client: &Client, url: &str) -> Result<Vec<PageListItem>, P
     Err(classify_response_error(response_body.errors))
 }
 
-pub(crate) mod get_page_tree_mod {
+pub(crate) mod page_tree {
     use super::*;
 
-    pub struct GetPageTree;
+    pub struct PageTree;
 
-    pub const OPERATION_NAME: &str = "GetPageTree";
-    pub const QUERY : & str = "query GetPageTree($parent: Int!) {\n  pages {\n    tree (parent: $parent, mode: ALL, includeAncestors: true, locale: \"en\") {\n      id\n      path\n      depth\n      title\n      isPrivate\n      isFolder\n      privateNS\n      parent\n      pageId\n      locale\n    }\n  }\n}\n" ;
+    pub const OPERATION_NAME: &str = "PageTree";
+    pub const QUERY : & str = "query PageTree($parent: Int!) {\n  pages {\n    tree (parent: $parent, mode: ALL, includeAncestors: true, locale: \"en\") {\n      id\n      path\n      depth\n      title\n      isPrivate\n      isFolder\n      privateNS\n      parent\n      pageId\n      locale\n    }\n  }\n}\n" ;
 
     #[derive(Serialize)]
     pub struct Variables {
@@ -317,7 +317,7 @@ pub(crate) mod get_page_tree_mod {
         pub tree: Option<Vec<Option<PageTreeItem>>>,
     }
 
-    impl graphql_client::GraphQLQuery for GetPageTree {
+    impl graphql_client::GraphQLQuery for PageTree {
         type Variables = Variables;
         type ResponseData = ResponseData;
         fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
@@ -330,13 +330,13 @@ pub(crate) mod get_page_tree_mod {
     }
 }
 
-pub fn get_page_tree(
+pub fn page_tree(
     client: &Client,
     url: &str,
     parent: i64,
 ) -> Result<Vec<PageTreeItem>, PageError> {
-    let variables = get_page_tree_mod::Variables { parent };
-    let response = post_graphql::<get_page_tree_mod::GetPageTree, _>(client, url, variables);
+    let variables = page_tree::Variables { parent };
+    let response = post_graphql::<page_tree::PageTree, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -353,13 +353,13 @@ pub fn get_page_tree(
     Err(classify_response_error(response_body.errors))
 }
 
-pub(crate) mod list_all_page_tags_mod {
+pub(crate) mod page_tag_list {
     use super::*;
 
-    pub struct ListAllPageTags;
+    pub struct PageTagList;
 
-    pub const OPERATION_NAME: &str = "ListAllPageTags";
-    pub const QUERY : & str = "query ListAllPageTags {\n  pages {\n    tags {\n      id\n      tag\n      title\n      createdAt\n      updatedAt\n    }\n  }\n}\n" ;
+    pub const OPERATION_NAME: &str = "PageTagList";
+    pub const QUERY : & str = "query PageTagList {\n  pages {\n    tags {\n      id\n      tag\n      title\n      createdAt\n      updatedAt\n    }\n  }\n}\n" ;
 
     #[derive(Serialize)]
     pub struct Variables;
@@ -374,23 +374,23 @@ pub(crate) mod list_all_page_tags_mod {
         pub tags: Vec<Option<PageTag>>,
     }
 
-    impl graphql_client::GraphQLQuery for ListAllPageTags {
-        type Variables = list_all_page_tags_mod::Variables;
-        type ResponseData = list_all_page_tags_mod::ResponseData;
+    impl graphql_client::GraphQLQuery for PageTagList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
         fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
             graphql_client::QueryBody {
                 variables,
-                query: list_all_page_tags_mod::QUERY,
-                operation_name: list_all_page_tags_mod::OPERATION_NAME,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
             }
         }
     }
 }
 
-pub fn list_all_page_tags(client: &Client, url: &str) -> Result<Vec<PageTag>, PageError> {
-    let variables = list_all_page_tags_mod::Variables {};
+pub fn page_tag_list(client: &Client, url: &str) -> Result<Vec<PageTag>, PageError> {
+    let variables = page_tag_list::Variables {};
     let response =
-        post_graphql::<list_all_page_tags_mod::ListAllPageTags, _>(client, url, variables);
+        post_graphql::<page_tag_list::PageTagList, _>(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),

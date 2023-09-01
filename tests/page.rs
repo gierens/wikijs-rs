@@ -4,28 +4,28 @@ use common::API;
 use wikijs::page::PageError;
 
 #[test]
-fn nonexistent_page() {
+fn page_get_nonexistent() {
     let result = API.page_get(1000000);
     assert!(result.is_err());
     assert_eq!(result.unwrap_err() == PageError::PageNotFound, true);
 }
 
 #[test]
-fn list_no_pages() {
+fn page_list_empty() {
     let result = API.page_list();
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 0);
 }
 
 #[test]
-fn list_no_page_tags() {
+fn page_tag_list_empty() {
     let result = API.page_tag_list();
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 0);
 }
 
 #[test]
-fn get_empty_page_tree() {
+fn page_tree_empty() {
     let result = API.page_tree(0);
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 0);
