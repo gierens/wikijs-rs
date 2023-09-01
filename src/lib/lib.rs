@@ -91,7 +91,3 @@ impl Api {
         contribute::list_contribute_contributors(&self.client, &format!("{}/graphql", self.url))
     }
 }
-
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
