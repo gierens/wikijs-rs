@@ -3,7 +3,7 @@ use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::common::{Date, classify_response_error, UnknownError};
+use crate::common::{classify_response_error, Date, UnknownError};
 
 #[derive(Error, Debug, PartialEq)]
 pub enum ContributeError {
