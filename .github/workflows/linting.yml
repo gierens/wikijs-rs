@@ -26,5 +26,7 @@ jobs:
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
+      - name: install dependecies
+        run: sudo apt install libfuse3-dev fuse3
       - name: Linting
         run: cargo clippy -- -D warnings
