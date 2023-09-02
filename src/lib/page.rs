@@ -702,3 +702,71 @@ pub fn page_create(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_get_by_path {
+    use super::*;
+
+    pub struct PageGetByPath;
+
+    pub const OPERATION_NAME: &str = "PageGetByPath";
+    pub const QUERY : & str = "query PageGetByPath($path: String!, $locale: String!) {\n  pages {\n    singleByPath (path: $path, locale: $locale) {\n      id\n      path\n      hash\n      title\n      description\n      isPrivate\n      isPublished\n      privateNS\n      publishStartDate\n      publishEndDate\n      tags {\n        id\n        tag\n        title\n        createdAt\n        updatedAt\n      }\n      content\n      render\n      toc\n      contentType\n      createdAt\n      updatedAt\n      editor\n      locale\n      scriptCss\n      scriptJs\n      authorId\n      authorName\n      authorEmail\n      creatorId\n      creatorName\n      creatorEmail\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub path: String,
+        pub locale: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        #[serde(rename = "singleByPath")]
+        pub single_by_path: Option<Page>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageGetByPath {
+        type Variables = page_get_by_path::Variables;
+        type ResponseData = page_get_by_path::ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: page_get_by_path::QUERY,
+                operation_name: page_get_by_path::OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_get_by_path(
+    client: &Client,
+    url: &str,
+    path: String,
+    locale: String,
+) -> Result<Page, PageError> {
+    let variables = page_get_by_path::Variables { path, locale };
+    let response = post_graphql::<page_get_by_path::PageGetByPath, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(page) = pages.single_by_path {
+                return Ok(page);
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

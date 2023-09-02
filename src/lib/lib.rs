@@ -81,6 +81,19 @@ impl Api {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    pub fn page_get_by_path(
+        &self,
+        path: String,
+        locate: String,
+    ) -> Result<page::Page, page::PageError> {
+        page::page_get_by_path(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            path,
+            locate,
+        )
+    }
+
     pub fn page_tag_list(&self) -> Result<Vec<page::PageTag>, page::PageError> {
         page::page_tag_list(&self.client, &format!("{}/graphql", self.url))
     }

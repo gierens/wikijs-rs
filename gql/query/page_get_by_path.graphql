@@ -1,0 +1,39 @@
+query PageGetByPath($path: String!, $locale: String!) {
+  pages {
+    singleByPath (path: $path, locale: $locale) {
+      id
+      path
+      hash
+      title
+      description
+      isPrivate
+      isPublished
+      privateNS
+      publishStartDate
+      publishEndDate
+      tags {
+        id
+        tag
+        title
+        createdAt
+        updatedAt
+      }
+      content
+      render
+      toc
+      contentType
+      createdAt
+      updatedAt
+      editor
+      locale
+      scriptCss
+      scriptJs
+      authorId
+      authorName
+      authorEmail
+      creatorId
+      creatorName
+      creatorEmail
+    }
+  }
+}
