@@ -71,22 +71,32 @@ enum PageCommand {
 
     #[clap(about = "Create a page")]
     Create {
-        #[clap(short, long, help = "Page content", default_value="...")]
+        #[clap(short, long, help = "Page content", default_value = "...")]
         content: String,
 
-        #[clap(short, long, help = "Page description", default_value="")]
+        #[clap(short, long, help = "Page description", default_value = "")]
         description: String,
 
-        #[clap(short, long, help = "Page editor", default_value="markdown")]
+        #[clap(short, long, help = "Page editor", default_value = "markdown")]
         editor: String,
 
-        #[clap(short='p', long, help = "Page is private", default_value="false")]
+        #[clap(
+            short = 'p',
+            long,
+            help = "Page is private",
+            default_value = "false"
+        )]
         is_private: bool,
 
-        #[clap(short='P', long, help = "Page is published", default_value="true")]
+        #[clap(
+            short = 'P',
+            long,
+            help = "Page is published",
+            default_value = "true"
+        )]
         is_published: bool,
 
-        #[clap(short, long, help = "Page locale", default_value="en")]
+        #[clap(short, long, help = "Page locale", default_value = "en")]
         locale: String,
 
         #[clap(help = "Page path")]
@@ -103,8 +113,7 @@ enum PageCommand {
 
         // #[clap(help = "Page JS script")]
         // script_js: Option<String>,
-
-        #[clap(short='T', long, help = "Page tags")]
+        #[clap(short = 'T', long, help = "Page tags")]
         tags: Vec<String>,
 
         #[clap(short, long, help = "Page title")]
@@ -323,7 +332,7 @@ fn main() {
                 content,
                 description,
                 editor,
-                is_published, 
+                is_published,
                 is_private,
                 locale,
                 path.clone(),
