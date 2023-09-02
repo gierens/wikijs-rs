@@ -644,6 +644,7 @@ pub mod page_create {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn page_create(
     client: &Client,
     url: &str,

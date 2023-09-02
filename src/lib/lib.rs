@@ -106,6 +106,7 @@ impl Api {
         page::page_render(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn page_create(
         &self,
         content: String,
