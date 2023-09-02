@@ -5,6 +5,7 @@ use serial_test::serial;
 use wikijs::page::PageError;
 
 #[test]
+#[serial]
 fn page_get_nonexistent() {
     let result = API.page_get(1000000);
     assert!(result.is_err());
@@ -12,6 +13,7 @@ fn page_get_nonexistent() {
 }
 
 #[test]
+#[serial]
 fn page_get_by_path_nonexistent() {
     let result = API.page_get_by_path("qwerty".to_string(), "en".to_string());
     assert!(result.is_err());
@@ -19,6 +21,7 @@ fn page_get_by_path_nonexistent() {
 }
 
 #[test]
+#[serial]
 fn page_list_empty() {
     let result = API.page_list();
     assert!(result.is_ok());
@@ -26,6 +29,7 @@ fn page_list_empty() {
 }
 
 #[test]
+#[serial]
 fn page_tag_list_empty() {
     let result = API.page_tag_list();
     assert!(result.is_ok());
@@ -33,6 +37,7 @@ fn page_tag_list_empty() {
 }
 
 #[test]
+#[serial]
 fn page_tree_empty() {
     let result = API.page_tree(0);
     assert!(result.is_ok());
@@ -40,6 +45,7 @@ fn page_tree_empty() {
 }
 
 #[test]
+#[serial]
 fn page_delete_nonexistent() {
     let result = API.page_delete(1000000);
     assert!(result.is_err());
@@ -47,6 +53,7 @@ fn page_delete_nonexistent() {
 }
 
 #[test]
+#[serial]
 fn page_render_nonexistent() {
     let result = API.page_render(1000000);
     assert!(result.is_err());
