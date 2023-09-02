@@ -106,6 +106,41 @@ impl Api {
         page::page_render(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    pub fn page_create(
+        &self,
+        content: String,
+        description: String,
+        editor: String,
+        is_published: bool,
+        is_private: bool,
+        locale: String,
+        path: String,
+        publish_end_date: Option<common::Date>,
+        publish_start_date: Option<common::Date>,
+        script_css: Option<String>,
+        script_js: Option<String>,
+        tags: Vec<Option<String>>,
+        title: String,
+    ) -> Result<(), page::PageError> {
+        page::page_create(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            content,
+            description,
+            editor,
+            is_published,
+            is_private,
+            locale,
+            path,
+            publish_end_date,
+            publish_start_date,
+            script_css,
+            script_js,
+            tags,
+            title,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,

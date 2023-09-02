@@ -578,3 +578,126 @@ pub fn page_render(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_create {
+    use super::*;
+
+    pub struct PageCreate;
+
+    pub const OPERATION_NAME: &str = "PageCreate";
+    pub const QUERY : & str = "mutation PageCreate(\n    $content: String!\n    $description: String!\n    $editor: String!\n    $isPublished: Boolean!\n    $isPrivate: Boolean!\n    $locale: String!\n    $path: String!\n    $publishEndDate: Date\n    $publishStartDate: Date\n    $scriptCss: String\n    $scriptJs: String\n    $tags: [String]!\n    $title: String!\n    ) {\n  pages {\n    create (\n      content: $content\n      description: $description\n      editor: $editor\n      isPublished: $isPublished\n      isPrivate: $isPrivate\n      locale: $locale\n      path: $path\n      publishEndDate: $publishEndDate\n      publishStartDate: $publishStartDate\n      scriptCss: $scriptCss\n      scriptJs: $scriptJs\n      tags: $tags\n      title: $title\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      page {\n        id\n        path\n        hash\n        title\n        description\n        isPrivate\n        isPublished\n        privateNS\n        publishStartDate\n        publishEndDate\n        tags {\n          id\n          tag\n          title\n          createdAt\n          updatedAt\n        }\n        content\n        render\n        toc\n        contentType\n        createdAt\n        updatedAt\n        editor\n        locale\n        scriptCss\n        scriptJs\n        authorId\n        authorName\n        authorEmail\n        creatorId\n        creatorName\n        creatorEmail\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub content: String,
+        pub description: String,
+        pub editor: String,
+        #[serde(rename = "isPublished")]
+        pub is_published: Boolean,
+        #[serde(rename = "isPrivate")]
+        pub is_private: Boolean,
+        pub locale: String,
+        pub path: String,
+        #[serde(rename = "publishEndDate")]
+        pub publish_end_date: Option<Date>,
+        #[serde(rename = "publishStartDate")]
+        pub publish_start_date: Option<Date>,
+        #[serde(rename = "scriptCss")]
+        pub script_css: Option<String>,
+        #[serde(rename = "scriptJs")]
+        pub script_js: Option<String>,
+        pub tags: Vec<Option<String>>,
+        pub title: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<PageCreatePages>,
+    }
+
+    #[derive(Deserialize, Debug)]
+    pub struct PageCreatePages {
+        pub create: Option<Create>,
+    }
+
+    #[derive(Deserialize, Debug)]
+    pub struct Create {
+        #[serde(rename = "responseResult")]
+        pub response_result: ResponseStatus,
+        pub page: Option<Page>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageCreate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_create(
+    client: &Client,
+    url: &str,
+    content: String,
+    description: String,
+    editor: String,
+    is_published: bool,
+    is_private: bool,
+    locale: String,
+    path: String,
+    publish_end_date: Option<Date>,
+    publish_start_date: Option<Date>,
+    script_css: Option<String>,
+    script_js: Option<String>,
+    tags: Vec<Option<String>>,
+    title: String,
+) -> Result<(), PageError> {
+    let variables = page_create::Variables {
+        content,
+        description,
+        editor,
+        is_published,
+        is_private,
+        locale,
+        path,
+        publish_end_date,
+        publish_start_date,
+        script_css,
+        script_js,
+        tags,
+        title,
+    };
+    let response =
+        post_graphql::<page_create::PageCreate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(create) = pages.create {
+                if create.response_result.succeeded {
+                    // unfortunately, the API does not seem to return
+                    // the created page so we cannot return it here
+                    return Ok(());
+                } else {
+                    return Err(PageError::from(
+                        create.response_result.error_code,
+                    ));
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
