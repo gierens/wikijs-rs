@@ -13,7 +13,7 @@ fn page_get_nonexistent() {
 
 #[test]
 fn page_get_by_path_nonexistent() {
-    let result = API.page_get_by_path("test".to_string(), "en".to_string());
+    let result = API.page_get_by_path("qwerty".to_string(), "en".to_string());
     assert!(result.is_err());
     assert_eq!(result.unwrap_err() == PageError::PageNotFound, true);
 }
