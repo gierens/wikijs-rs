@@ -119,6 +119,59 @@ enum PageCommand {
         #[clap(short, long, help = "Page title")]
         title: Option<String>,
     },
+
+    #[clap(about = "Update a page")]
+    Update {
+        #[clap(help = "Page ID")]
+        id: i64,
+
+        #[clap(short, long, help = "Page content")]
+        content: Option<String>,
+
+        #[clap(short, long, help = "Page description")]
+        description: Option<String>,
+
+        #[clap(short, long, help = "Page editor")]
+        editor: Option<String>,
+
+        #[clap(short = 'P', long, help = "Page is private")]
+        is_private: Option<bool>,
+
+        #[clap(short = 'b', long, help = "Page is published")]
+        is_published: Option<bool>,
+
+        #[clap(short, long, help = "Page locale")]
+        locale: Option<String>,
+
+        #[clap(short, long, help = "Page path")]
+        path: Option<String>,
+
+        // #[clap(help = "Page publish start date")]
+        // publish_start_date: Option<String>,
+
+        // #[clap(help = "Page publish end date")]
+        // publish_end_date: Option<String>,
+
+        // #[clap(help = "Page CSS script")]
+        // script_css: Option<String>,
+
+        // #[clap(help = "Page JS script")]
+        // script_js: Option<String>,
+        #[clap(short = 'T', long, help = "Page tags")]
+        tags: Option<Vec<String>>,
+
+        #[clap(
+            short,
+            long,
+            help = "Remove tags",
+            action,
+            conflicts_with = "tags"
+        )]
+        no_tags: bool,
+
+        #[clap(short, long, help = "Page title")]
+        title: Option<String>,
+    },
 }
 
 #[derive(Subcommand)]
@@ -345,6 +398,56 @@ fn main() {
             ) {
                 Ok(()) => {
                     println!("{}: {}", "Success".bold().green(), "Page created")
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                }
+            },
+            PageCommand::Update {
+                id,
+                content,
+                description,
+                editor,
+                is_private,
+                is_published,
+                locale,
+                path,
+                // publish_start_date,
+                // publish_end_date,
+                // script_css,
+                // script_js,
+                tags,
+                no_tags,
+                title,
+            } => match api.page_update(
+                id,
+                content,
+                description,
+                editor,
+                is_published,
+                is_private,
+                locale,
+                path,
+                None,
+                None,
+                None,
+                None,
+                if no_tags {
+                    Some(Vec::new())
+                } else {
+                    match tags {
+                        Some(tags) => Some(
+                            tags.iter()
+                                .map(|s| Some(s.clone()))
+                                .collect::<Vec<Option<String>>>(),
+                        ),
+                        None => None,
+                    }
+                },
+                title,
+            ) {
+                Ok(()) => {
+                    println!("{}: {}", "Success".bold().green(), "Page updated")
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "Error".bold().red(), e.to_string())
