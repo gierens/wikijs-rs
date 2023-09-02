@@ -7,11 +7,11 @@ pub type Date = String;
 #[derive(Deserialize, Debug)]
 #[allow(unused)]
 pub struct ResponseStatus {
-    succeeded: Boolean,
+    pub succeeded: Boolean,
     #[serde(rename = "errorCode")]
-    error_code: Int,
-    slug: String,
-    message: Option<String>,
+    pub error_code: Int,
+    pub slug: String,
+    pub message: Option<String>,
 }
 
 pub(crate) trait UnknownError {
