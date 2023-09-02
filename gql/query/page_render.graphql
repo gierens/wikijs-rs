@@ -1,0 +1,12 @@
+mutation PageRender($id: Int!) {
+  pages {
+    render (id: $id) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}
