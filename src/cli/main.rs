@@ -56,6 +56,12 @@ enum PageCommand {
 
     #[clap(about = "List pages")]
     List {},
+
+    #[clap(about = "Delete a page")]
+    Delete {
+        #[clap(help = "Page ID")]
+        id: i64,
+    },
 }
 
 #[derive(Subcommand)]
@@ -226,6 +232,14 @@ fn main() {
                         ]);
                     }
                     println!("{}", builder.build().with(Style::rounded()));
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                }
+            },
+            PageCommand::Delete { id } => match api.page_delete(id) {
+                Ok(_) => {
+                    println!("{}: {}", "Success".bold().green(), "Page deleted")
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "Error".bold().red(), e.to_string())
