@@ -68,6 +68,48 @@ enum PageCommand {
         #[clap(help = "Page ID")]
         id: i64,
     },
+
+    #[clap(about = "Create a page")]
+    Create {
+        #[clap(short, long, help = "Page content", default_value="...")]
+        content: String,
+
+        #[clap(short, long, help = "Page description", default_value="")]
+        description: String,
+
+        #[clap(short, long, help = "Page editor", default_value="markdown")]
+        editor: String,
+
+        #[clap(short='p', long, help = "Page is private", default_value="false")]
+        is_private: bool,
+
+        #[clap(short='P', long, help = "Page is published", default_value="true")]
+        is_published: bool,
+
+        #[clap(short, long, help = "Page locale", default_value="en")]
+        locale: String,
+
+        #[clap(help = "Page path")]
+        path: String,
+
+        // #[clap(help = "Page publish start date")]
+        // publish_start_date: Option<String>,
+
+        // #[clap(help = "Page publish end date")]
+        // publish_end_date: Option<String>,
+
+        // #[clap(help = "Page CSS script")]
+        // script_css: Option<String>,
+
+        // #[clap(help = "Page JS script")]
+        // script_js: Option<String>,
+
+        #[clap(short='T', long, help = "Page tags")]
+        tags: Vec<String>,
+
+        #[clap(short, long, help = "Page title")]
+        title: Option<String>,
+    },
 }
 
 #[derive(Subcommand)]
@@ -258,6 +300,42 @@ fn main() {
                         "Success".bold().green(),
                         "Page rendered"
                     )
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                }
+            },
+            PageCommand::Create {
+                content,
+                description,
+                editor,
+                is_private,
+                is_published,
+                locale,
+                path,
+                // publish_start_date,
+                // publish_end_date,
+                // script_css,
+                // script_js,
+                tags,
+                title,
+            } => match api.page_create(
+                content,
+                description,
+                editor,
+                is_published, 
+                is_private,
+                locale,
+                path.clone(),
+                None,
+                None,
+                None,
+                None,
+                tags.iter().map(|s| Some(s.clone())).collect(),
+                title.unwrap_or(path.split("/").last().unwrap().to_string()),
+            ) {
+                Ok(()) => {
+                    println!("{}: {}", "Success".bold().green(), "Page created")
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "Error".bold().red(), e.to_string())
