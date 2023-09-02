@@ -253,7 +253,11 @@ fn main() {
             },
             PageCommand::Render { id } => match api.page_render(id) {
                 Ok(_) => {
-                    println!("{}: {}", "Success".bold().green(), "Page rendered")
+                    println!(
+                        "{}: {}",
+                        "Success".bold().green(),
+                        "Page rendered"
+                    )
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "Error".bold().red(), e.to_string())
