@@ -770,3 +770,135 @@ pub fn page_get_by_path(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_update {
+    use super::*;
+
+    pub struct PageUpdate;
+
+    pub const OPERATION_NAME: &str = "PageUpdate";
+    pub const QUERY : & str = "mutation PageUpdate(\n    $id: Int!\n    $content: String\n    $description: String\n    $editor: String\n    $isPrivate: Boolean\n    $isPublished: Boolean\n    $locale: String\n    $path: String\n    $publishEndDate: Date\n    $publishStartDate: Date\n    $scriptCss: String\n    $scriptJs: String\n    $tags: [String]\n    $title: String\n    ) {\n  pages {\n    update (\n      id: $id\n      content: $content\n      description: $description\n      editor: $editor\n      isPrivate: $isPrivate\n      isPublished: $isPublished\n      locale: $locale\n      path: $path\n      publishEndDate: $publishEndDate\n      publishStartDate: $publishStartDate\n      scriptCss: $scriptCss\n      scriptJs: $scriptJs\n      tags: $tags\n      title: $title\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      page {\n        id\n        path\n        hash\n        title\n        description\n        isPrivate\n        isPublished\n        privateNS\n        publishStartDate\n        publishEndDate\n        tags {\n          id\n          tag\n          title\n          createdAt\n          updatedAt\n        }\n        content\n        render\n        toc\n        contentType\n        createdAt\n        updatedAt\n        editor\n        locale\n        scriptCss\n        scriptJs\n        authorId\n        authorName\n        authorEmail\n        creatorId\n        creatorName\n        creatorEmail\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        pub content: Option<String>,
+        pub description: Option<String>,
+        pub editor: Option<String>,
+        #[serde(rename = "isPrivate")]
+        pub is_private: Option<Boolean>,
+        #[serde(rename = "isPublished")]
+        pub is_published: Option<Boolean>,
+        pub locale: Option<String>,
+        pub path: Option<String>,
+        #[serde(rename = "publishEndDate")]
+        pub publish_end_date: Option<Date>,
+        #[serde(rename = "publishStartDate")]
+        pub publish_start_date: Option<Date>,
+        #[serde(rename = "scriptCss")]
+        pub script_css: Option<String>,
+        #[serde(rename = "scriptJs")]
+        pub script_js: Option<String>,
+        pub tags: Option<Vec<Option<String>>>,
+        pub title: Option<String>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize, Debug)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize, Debug)]
+    pub struct Pages {
+        pub update: Option<Update>,
+    }
+
+    #[derive(Deserialize, Debug)]
+    pub struct Update {
+        #[serde(rename = "responseResult")]
+        pub response_result: ResponseStatus,
+        pub page: Option<Page>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn page_update(
+    client: &Client,
+    url: &str,
+    id: i64,
+    content: Option<String>,
+    description: Option<String>,
+    editor: Option<String>,
+    is_private: Option<bool>,
+    is_published: Option<bool>,
+    locale: Option<String>,
+    path: Option<String>,
+    publish_end_date: Option<Date>,
+    publish_start_date: Option<Date>,
+    script_css: Option<String>,
+    script_js: Option<String>,
+    tags: Option<Vec<Option<String>>>,
+    title: Option<String>,
+) -> Result<(), PageError> {
+    let page = page_get(client, url, id)?;
+    let variables = page_update::Variables {
+        id,
+        content: content.or(Some(page.content)),
+        description: description.or(Some(page.description)),
+        editor: editor.or(Some(page.editor)),
+        is_private: is_private.or(Some(page.is_private)),
+        is_published: is_published.or(Some(page.is_published)),
+        locale: locale.or(Some(page.locale)),
+        path: path.or(Some(page.path)),
+        publish_end_date: publish_end_date.or(Some(page.publish_end_date)),
+        publish_start_date: publish_start_date
+            .or(Some(page.publish_start_date)),
+        script_css: script_css.or(page.script_css),
+        script_js: script_js.or(page.script_js),
+        tags: tags.or(Some(
+            page.tags.into_iter().map(|t| t.map(|t| t.tag)).collect(),
+        )),
+        title: title.or(Some(page.title)),
+    };
+    let response =
+        post_graphql::<page_update::PageUpdate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(update) = pages.update {
+                if update.response_result.succeeded {
+                    // unfortunately, the API does not seem to return
+                    // the updated page so we cannot return it here
+                    return Ok(());
+                } else {
+                    // TODO we could need a From for ResponseStatus
+                    return Err(PageError::from(
+                        update.response_result.error_code,
+                    ));
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

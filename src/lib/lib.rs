@@ -155,6 +155,44 @@ impl Api {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
+    pub fn page_update(
+        &self,
+        id: i64,
+        content: Option<String>,
+        description: Option<String>,
+        editor: Option<String>,
+        is_private: Option<bool>,
+        is_published: Option<bool>,
+        locale: Option<String>,
+        path: Option<String>,
+        publish_end_date: Option<common::Date>,
+        publish_start_date: Option<common::Date>,
+        script_css: Option<String>,
+        script_js: Option<String>,
+        tags: Option<Vec<Option<String>>>,
+        title: Option<String>,
+    ) -> Result<(), page::PageError> {
+        page::page_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            content,
+            description,
+            editor,
+            is_private,
+            is_published,
+            locale,
+            path,
+            publish_end_date,
+            publish_start_date,
+            script_css,
+            script_js,
+            tags,
+            title,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,
