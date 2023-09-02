@@ -37,3 +37,10 @@ fn page_delete_nonexistent() {
     assert!(result.is_err());
     assert_eq!(result.unwrap_err() == PageError::PageNotFound, true);
 }
+
+#[test]
+fn page_render_nonexistent() {
+    let result = API.page_render(1000000);
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err() == PageError::PageNotFound, true);
+}
