@@ -94,6 +94,10 @@ impl Api {
         page::page_tree(&self.client, &format!("{}/graphql", self.url), parent)
     }
 
+    pub fn page_delete(&self, id: i64) -> Result<(), page::PageError> {
+        page::page_delete(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
     // authentication functions
     pub fn login(
         &self,
