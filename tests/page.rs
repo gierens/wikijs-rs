@@ -30,3 +30,10 @@ fn page_tree_empty() {
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 0);
 }
+
+#[test]
+fn page_delete_nonexistent() {
+    let result = API.page_delete(1000000);
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err() == PageError::PageNotFound, true);
+}
