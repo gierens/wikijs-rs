@@ -1,3 +1,10 @@
+.PHONY: favicon
+favicon: logo/favicon.ico
+
+logo/favicon.ico: logo/logo.svg
+	@echo "Generating favicon..."
+	convert $< -background none -define icon:auto-resize=256,128,96,64,48,32,16 $@
+
 .PHONY: schema
 schema: gql/schema.graphql
 
@@ -25,3 +32,4 @@ gql/schema.graphql: gql/schema/*.graphql
 .PHONY: clean
 clean:
 	rm -f gql/schema.graphql
+	rm -f logo/favicon.ico
