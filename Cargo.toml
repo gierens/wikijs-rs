@@ -1,7 +1,15 @@
 [package]
 name = "wikijs"
-version = "0.1.0"
+description = "API bindings, CLI client and FUSE filesystem for Wiki.js written in Rust."
+authors = ["Sandro-Alessio Gierens <sandro@gierens.de>"]
+categories = ["api-bindings", "command-line-utilities", "filesystem"]
 edition = "2021"
+homepage = "https://github.com/gierens/wikijs-rs"
+repository = "https://github.com/gierens/wikijs-rs"
+exclude = ["/gql/*", "/logo/*", "/scripts/*", "/tests/*", "docker-compose.yml", "/Makefile"]
+readme = "README.md"
+license = "AGPLv3"
+version = "0.1.0-rc0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
