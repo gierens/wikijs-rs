@@ -60,4 +60,6 @@ jobs:
         uses: actions-rs/tarpaulin@v0.1
         with:
           version: '0.15.0'
-          args: '--workspace --fail-under 15'
+          args: '--workspace --fail-under 50 \
+            --exclude-files src/cli/* --exclude-files src/fuse/* \
+            --exclude-files tests/* --exclude-files gql/*'
