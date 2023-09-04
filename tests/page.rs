@@ -2,7 +2,7 @@ mod common;
 use common::API;
 
 use serial_test::serial;
-use wikijs::page::PageError;
+use wikijs::page::{PageError, PageTreeMode};
 
 #[test]
 #[serial]
@@ -39,7 +39,7 @@ fn page_tag_list_empty() {
 #[test]
 #[serial]
 fn page_tree_empty() {
-    let result = API.page_tree(0);
+    let result = API.page_tree(0, PageTreeMode::ALL, true, "en".to_string());
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 0);
 }

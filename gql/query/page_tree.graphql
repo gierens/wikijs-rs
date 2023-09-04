@@ -1,6 +1,16 @@
-query PageTree($parent: Int!) {
+query PageTree(
+    $parent: Int!
+    $mode: PageTreeMode!
+    $includeAncestors: Boolean!
+    $locale: String!
+    ) {
   pages {
-    tree (parent: $parent, mode: ALL, includeAncestors: true, locale: "en") {
+    tree (
+      parent: $parent,
+      mode: $mode,
+      includeAncestors: $includeAncestors,
+      locale: $locale
+    ) {
       id
       path
       depth

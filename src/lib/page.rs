@@ -191,6 +191,14 @@ pub struct PageTag {
     pub updated_at: Date,
 }
 
+#[derive(Serialize, Debug)]
+pub enum PageTreeMode {
+    FOLDERS,
+    PAGES,
+    ALL,
+    Other(String),
+}
+
 pub(crate) mod page_get {
     use super::*;
 
@@ -322,11 +330,15 @@ pub(crate) mod page_tree {
     pub struct PageTree;
 
     pub const OPERATION_NAME: &str = "PageTree";
-    pub const QUERY : & str = "query PageTree($parent: Int!) {\n  pages {\n    tree (parent: $parent, mode: ALL, includeAncestors: true, locale: \"en\") {\n      id\n      path\n      depth\n      title\n      isPrivate\n      isFolder\n      privateNS\n      parent\n      pageId\n      locale\n    }\n  }\n}\n" ;
+    pub const QUERY : & str = "query PageTree(\n    $parent: Int!\n    $mode: PageTreeMode!\n    $includeAncestors: Boolean!\n    $locale: String!\n    ) {\n  pages {\n    tree (\n      parent: $parent,\n      mode: $mode,\n      includeAncestors: $includeAncestors,\n      locale: $locale\n    ) {\n      id\n      path\n      depth\n      title\n      isPrivate\n      isFolder\n      privateNS\n      parent\n      pageId\n      locale\n    }\n  }\n}\n" ;
 
     #[derive(Serialize)]
     pub struct Variables {
         pub parent: Int,
+        pub mode: PageTreeMode,
+        #[serde(rename = "includeAncestors")]
+        pub include_ancestors: Boolean,
+        pub locale: String,
     }
 
     impl Variables {}
@@ -360,8 +372,16 @@ pub fn page_tree(
     client: &Client,
     url: &str,
     parent: i64,
+    mode: PageTreeMode,
+    include_ancestors: bool,
+    locale: String,
 ) -> Result<Vec<PageTreeItem>, PageError> {
-    let variables = page_tree::Variables { parent };
+    let variables = page_tree::Variables {
+        parent,
+        mode,
+        include_ancestors,
+        locale,
+    };
     let response =
         post_graphql::<page_tree::PageTree, _>(client, url, variables);
     if response.is_err() {

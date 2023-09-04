@@ -107,8 +107,18 @@ impl Api {
     pub fn page_tree(
         &self,
         parent: i64,
+        mode: page::PageTreeMode,
+        include_ancestors: bool,
+        locale: String,
     ) -> Result<Vec<page::PageTreeItem>, page::PageError> {
-        page::page_tree(&self.client, &format!("{}/graphql", self.url), parent)
+        page::page_tree(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            parent,
+            mode,
+            include_ancestors,
+            locale,
+        )
     }
 
     pub fn page_delete(&self, id: i64) -> Result<(), page::PageError> {
