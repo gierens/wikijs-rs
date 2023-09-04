@@ -172,6 +172,15 @@ enum PageCommand {
         #[clap(short, long, help = "Page title")]
         title: Option<String>,
     },
+
+    #[clap(about = "Update a page's content")]
+    UpdateContent {
+        #[clap(help = "Page ID")]
+        id: i64,
+
+        #[clap(help = "Page content")]
+        content: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -453,6 +462,20 @@ fn main() {
                     eprintln!("{}: {}", "Error".bold().red(), e.to_string())
                 }
             },
+            PageCommand::UpdateContent { id, content } => {
+                match api.page_update_content(id, content) {
+                    Ok(()) => {
+                        println!(
+                            "{}: {}",
+                            "Success".bold().green(),
+                            "Page content updated"
+                        )
+                    }
+                    Err(e) => {
+                        eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                    }
+                }
+            }
         },
         Command::Contributor { command } => match command {
             ContributorCommand::List {} => match api.contributor_list() {
