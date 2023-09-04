@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Boolean, Date, Int, ResponseStatus, UnknownError,
+    classify_response_error, classify_response_status_error, Boolean, Date,
+    Int, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
 #[derive(Error, Debug, PartialEq)]
@@ -76,6 +77,19 @@ impl UnknownError for PageError {
     }
     fn unknown_error() -> Self {
         PageError::UnknownError
+    }
+}
+
+impl KnownErrorCodes for PageError {
+    fn known_error_codes() -> Vec<i64> {
+        vec![
+            6001, 6002, 6003, 6004, 6005, 6006, 6007, 6008, 6009, 6010, 6011,
+            6012, 6013,
+        ]
+    }
+
+    fn is_known_error_code(code: i64) -> bool {
+        code >= 6001 && code <= 6013
     }
 }
 
