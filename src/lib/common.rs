@@ -20,6 +20,11 @@ pub(crate) trait UnknownError {
     fn unknown_error() -> Self;
 }
 
+pub(crate) trait KnownErrorCodes {
+    fn known_error_codes() -> Vec<i64>;
+    fn is_known_error_code(code: i64) -> bool;
+}
+
 pub(crate) fn classify_response_error<E: UnknownError + From<i64>>(
     response_errors: Option<Vec<graphql_client::Error>>,
 ) -> E {
@@ -39,4 +44,17 @@ pub(crate) fn classify_response_error<E: UnknownError + From<i64>>(
         }
     }
     E::unknown_error()
+}
+
+pub(crate) fn classify_response_status_error<
+    E: UnknownError + KnownErrorCodes + From<i64>,
+>(
+    response_status: ResponseStatus,
+) -> E {
+    if !E::is_known_error_code(response_status.error_code) {
+        if let Some(message) = response_status.message {
+            return E::unknown_error_code(response_status.error_code, message);
+        }
+    }
+    response_status.error_code.into()
 }
