@@ -89,7 +89,7 @@ impl KnownErrorCodes for PageError {
     }
 
     fn is_known_error_code(code: i64) -> bool {
-        code >= 6001 && code <= 6013
+        (6001..=6013).contains(&code)
     }
 }
 
