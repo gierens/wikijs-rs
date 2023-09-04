@@ -1,4 +1,3 @@
-use std::process::exit;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use tabled::{builder::Builder, settings::Style};
@@ -244,7 +243,7 @@ fn main() {
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    exit(1);
+                    std::process::exit(1);
                 }
             },
         },
@@ -328,7 +327,7 @@ fn main() {
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    exit(1);
+                    std::process::exit(1);
                 }
             },
             PageCommand::List {} => match api.page_list() {
@@ -366,7 +365,7 @@ fn main() {
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    exit(1);
+                    std::process::exit(1);
                 }
             },
             PageCommand::Delete { id } => match api.page_delete(id) {
@@ -375,7 +374,7 @@ fn main() {
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    exit(1);
+                    std::process::exit(1);
                 }
             },
             PageCommand::Render { id } => match api.page_render(id) {
@@ -388,7 +387,7 @@ fn main() {
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    exit(1);
+                    std::process::exit(1);
                 }
             },
             PageCommand::Create {
@@ -425,7 +424,7 @@ fn main() {
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    exit(1);
+                    std::process::exit(1);
                 }
             },
             PageCommand::Update {
@@ -476,7 +475,7 @@ fn main() {
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    exit(1);
+                    std::process::exit(1);
                 }
             },
             PageCommand::UpdateContent { id, content } => {
@@ -515,7 +514,7 @@ fn main() {
                 }
                 Err(e) => {
                     eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    exit(1);
+                    std::process::exit(1);
                 }
             },
         },
