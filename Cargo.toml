@@ -29,7 +29,7 @@ required-features = ["cli"]
 
 [features]
 fuse = ["fuser", "clap", "clap-verbosity-flag", "colored", "log", "stderrlog", "libc"]
-cli = ["clap", "colored"]
+cli = ["clap", "colored", "tempfile"]
 
 [dependencies]
 # lib
@@ -48,6 +48,8 @@ clap-verbosity-flag = { version = "2.0", optional = true }
 log = { version = "0.4", optional = true }
 stderrlog = { version = "0.5", optional = true }
 libc = { version = "0.2", optional = true }
+# cli
+tempfile = { version = "3.8", optional = true }
 
 [dev-dependencies]
 # lib

@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand};
 use colored::Colorize;
+use std::io::Write;
 use tabled::{builder::Builder, settings::Style};
+use tempfile::Builder as TempFileBuilder;
 use wikijs::{Api, Credentials};
 
 #[derive(Parser)]
@@ -189,6 +191,12 @@ enum PageCommand {
 
         #[clap(help = "Page content")]
         content: String,
+    },
+
+    #[clap(about = "Edit a page")]
+    Edit {
+        #[clap(help = "Page ID")]
+        id: i64,
     },
 }
 
@@ -488,8 +496,115 @@ fn main() {
                         )
                     }
                     Err(e) => {
-                        eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                        exit(1);
+                        eprintln!(
+                            "{}: {}",
+                            "error".bold().red(),
+                            e.to_string()
+                        );
+                        std::process::exit(1);
+                    }
+                }
+            }
+            PageCommand::Edit { id } => {
+                let page = match api.page_get(id) {
+                    Ok(page) => page,
+                    Err(e) => {
+                        eprintln!(
+                            "{}: {}",
+                            "error".bold().red(),
+                            e.to_string()
+                        );
+                        std::process::exit(1);
+                    }
+                };
+                let file = match page.editor.as_str() {
+                    "markdown" => TempFileBuilder::new()
+                        .suffix(".md")
+                        .tempfile()
+                        .unwrap_or_else(|e| {
+                            eprintln!(
+                                "{}: {}",
+                                "error".bold().red(),
+                                e.to_string()
+                            );
+                            std::process::exit(1);
+                        }),
+                    _ => {
+                        TempFileBuilder::new().tempfile().unwrap_or_else(|e| {
+                            eprintln!(
+                                "{}: {}",
+                                "error".bold().red(),
+                                e.to_string()
+                            );
+                            std::process::exit(1);
+                        })
+                    }
+                };
+                file.reopen()
+                    .unwrap_or_else(|e| {
+                        eprintln!(
+                            "{}: {}",
+                            "error".bold().red(),
+                            e.to_string()
+                        );
+                        std::process::exit(1);
+                    })
+                    .write_all(page.content.as_bytes())
+                    .unwrap_or_else(|e| {
+                        eprintln!(
+                            "{}: {}",
+                            "error".bold().red(),
+                            e.to_string()
+                        );
+                        std::process::exit(1);
+                    });
+                let mut child = std::process::Command::new(cli.editor)
+                    .arg(file.path())
+                    .spawn()
+                    .unwrap_or_else(|e| {
+                        eprintln!(
+                            "{}: {}",
+                            "error".bold().red(),
+                            e.to_string()
+                        );
+                        std::process::exit(1);
+                    });
+                let status = child.wait().unwrap_or_else(|e| {
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    std::process::exit(1);
+                });
+                if !status.success() {
+                    eprintln!(
+                        "{}: {}",
+                        "error".bold().red(),
+                        "Editor exited with non-zero status"
+                    );
+                    std::process::exit(1);
+                }
+                let content = std::fs::read_to_string(file.path())
+                    .unwrap_or_else(|e| {
+                        eprintln!(
+                            "{}: {}",
+                            "error".bold().red(),
+                            e.to_string()
+                        );
+                        std::process::exit(1);
+                    });
+                match api.page_update_content(id, content) {
+                    Ok(()) => {
+                        println!(
+                            "{}: {}",
+                            "success".bold().green(),
+                            "Page content updated"
+                        )
+                    }
+                    Err(e) => {
+                        eprintln!(
+                            "{}: {}",
+                            "error".bold().red(),
+                            e.to_string()
+                        );
+                        std::process::exit(1);
                     }
                 }
             }
