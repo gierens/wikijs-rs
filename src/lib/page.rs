@@ -707,9 +707,9 @@ pub fn page_create(
                     // the created page so we cannot return it here
                     return Ok(());
                 } else {
-                    return Err(PageError::from(
-                        create.response_result.error_code,
-                    ));
+                    return Err(
+                        classify_response_status_error(create.response_result)
+                    );
                 }
             }
         }
@@ -906,9 +906,8 @@ pub fn page_update(
                     // the updated page so we cannot return it here
                     return Ok(());
                 } else {
-                    // TODO we could need a From for ResponseStatus
-                    return Err(PageError::from(
-                        update.response_result.error_code,
+                    return Err(classify_response_status_error(
+                        update.response_result,
                     ));
                 }
             }
