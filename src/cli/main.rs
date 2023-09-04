@@ -15,6 +15,15 @@ struct Cli {
     #[clap(short, long, help = "Wiki.js API key", env = "WIKI_JS_API_KEY")]
     key: String,
 
+    #[clap(
+        short,
+        long,
+        help = "Editor to use for editing pages",
+        default_value = "vi",
+        env = "EDITOR"
+    )]
+    editor: String,
+
     #[clap(subcommand)]
     command: Command,
 }
