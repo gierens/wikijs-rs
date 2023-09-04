@@ -193,6 +193,29 @@ impl Api {
         )
     }
 
+    pub fn page_update_content(
+        &self,
+        id: i64,
+        content: String,
+    ) -> Result<(), page::PageError> {
+        self.page_update(
+            id,
+            Some(content),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,
