@@ -83,8 +83,8 @@ impl UnknownError for PageError {
 impl KnownErrorCodes for PageError {
     fn known_error_codes() -> Vec<i64> {
         vec![
-            6001, 6002, 6003, 6004, 6005, 6006, 6007,
-            6008, 6009, 6010, 6011, 6012, 6013,
+            6001, 6002, 6003, 6004, 6005, 6006, 6007, 6008, 6009, 6010, 6011,
+            6012, 6013,
         ]
     }
 
