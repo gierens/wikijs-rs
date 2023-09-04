@@ -707,9 +707,9 @@ pub fn page_create(
                     // the created page so we cannot return it here
                     return Ok(());
                 } else {
-                    return Err(
-                        classify_response_status_error(create.response_result)
-                    );
+                    return Err(classify_response_status_error(
+                        create.response_result,
+                    ));
                 }
             }
         }
@@ -918,37 +918,37 @@ pub fn page_update(
 
 // pub mod page_update_content {
 //     use super::*;
-// 
+//
 //     pub struct PageUpdateContent;
-// 
+//
 //     pub const OPERATION_NAME: &str = "PageUpdateContent";
 //     pub const QUERY : & str = "mutation PageUpdateContent(\n    $id: Int!\n    $content: String!\n    ) {\n  pages {\n    update (\n      id: $id\n      content: $content\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      page {\n        id\n        path\n        hash\n        title\n        description\n        isPrivate\n        isPublished\n        privateNS\n        publishStartDate\n        publishEndDate\n        tags {\n          id\n          tag\n          title\n          createdAt\n          updatedAt\n        }\n        content\n        render\n        toc\n        contentType\n        createdAt\n        updatedAt\n        editor\n        locale\n        scriptCss\n        scriptJs\n        authorId\n        authorName\n        authorEmail\n        creatorId\n        creatorName\n        creatorEmail\n      }\n    }\n  }\n}\n" ;
-// 
+//
 //     #[derive(Serialize, Debug)]
 //     pub struct Variables {
 //         pub id: Int,
 //         pub content: String,
 //     }
-// 
+//
 //     impl Variables {}
-// 
+//
 //     #[derive(Deserialize, Debug)]
 //     pub struct ResponseData {
 //         pub pages: Option<Pages>,
 //     }
-// 
+//
 //     #[derive(Deserialize, Debug)]
 //     pub struct Pages {
 //         pub update: Option<Update>,
 //     }
-// 
+//
 //     #[derive(Deserialize, Debug)]
 //     pub struct Update {
 //         #[serde(rename = "responseResult")]
 //         pub response_result: ResponseStatus,
 //         pub page: Option<Page>,
 //     }
-// 
+//
 //     impl graphql_client::GraphQLQuery for PageUpdateContent {
 //         type Variables = Variables;
 //         type ResponseData = ResponseData;
@@ -963,7 +963,7 @@ pub fn page_update(
 //         }
 //     }
 // }
-// 
+//
 // pub fn page_update_content(
 //     client: &Client,
 //     url: &str,
