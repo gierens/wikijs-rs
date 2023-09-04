@@ -4,7 +4,7 @@ use fuser::{
     ReplyEntry, Request,
 };
 use libc::{EISDIR, ENOENT};
-use wikijs::page::{Page, PageTreeItem};
+use wikijs::page::{Page, PageTreeItem, PageTreeMode};
 use wikijs::{Api, Credentials};
 
 use clap::Parser;
@@ -112,7 +112,12 @@ impl Fs {
             }
             InodeType::Directory(id) => {
                 debug!("get_inode: directory {}", id);
-                match self.api.page_tree(id) {
+                match self.api.page_tree(
+                    id,
+                    PageTreeMode::ALL,
+                    true,
+                    "en".to_string(),
+                ) {
                     Ok(page_tree) => Some(Inode::Directory(page_tree)),
                     Err(_) => None,
                 }
