@@ -1,3 +1,4 @@
+use std::process::exit;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use tabled::{builder::Builder, settings::Style};
@@ -242,7 +243,8 @@ fn main() {
                     println!("{}", builder.build().with(Style::rounded()));
                 }
                 Err(e) => {
-                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    exit(1);
                 }
             },
         },
@@ -325,7 +327,8 @@ fn main() {
                     println!("{}", builder.build().with(Style::rounded()));
                 }
                 Err(e) => {
-                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    exit(1);
                 }
             },
             PageCommand::List {} => match api.page_list() {
@@ -362,27 +365,30 @@ fn main() {
                     println!("{}", builder.build().with(Style::rounded()));
                 }
                 Err(e) => {
-                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    exit(1);
                 }
             },
             PageCommand::Delete { id } => match api.page_delete(id) {
                 Ok(_) => {
-                    println!("{}: {}", "Success".bold().green(), "Page deleted")
+                    println!("{}: {}", "success".bold().green(), "Page deleted")
                 }
                 Err(e) => {
-                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    exit(1);
                 }
             },
             PageCommand::Render { id } => match api.page_render(id) {
                 Ok(_) => {
                     println!(
                         "{}: {}",
-                        "Success".bold().green(),
+                        "success".bold().green(),
                         "Page rendered"
                     )
                 }
                 Err(e) => {
-                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    exit(1);
                 }
             },
             PageCommand::Create {
@@ -415,10 +421,11 @@ fn main() {
                 title.unwrap_or(path.split("/").last().unwrap().to_string()),
             ) {
                 Ok(()) => {
-                    println!("{}: {}", "Success".bold().green(), "Page created")
+                    println!("{}: {}", "success".bold().green(), "Page created")
                 }
                 Err(e) => {
-                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    exit(1);
                 }
             },
             PageCommand::Update {
@@ -465,10 +472,11 @@ fn main() {
                 title,
             ) {
                 Ok(()) => {
-                    println!("{}: {}", "Success".bold().green(), "Page updated")
+                    println!("{}: {}", "success".bold().green(), "Page updated")
                 }
                 Err(e) => {
-                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    exit(1);
                 }
             },
             PageCommand::UpdateContent { id, content } => {
@@ -476,12 +484,13 @@ fn main() {
                     Ok(()) => {
                         println!(
                             "{}: {}",
-                            "Success".bold().green(),
+                            "success".bold().green(),
                             "Page content updated"
                         )
                     }
                     Err(e) => {
-                        eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                        eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                        exit(1);
                     }
                 }
             }
@@ -505,7 +514,8 @@ fn main() {
                     println!("{}", builder.build().with(Style::rounded()));
                 }
                 Err(e) => {
-                    eprintln!("{}: {}", "Error".bold().red(), e.to_string())
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    exit(1);
                 }
             },
         },
