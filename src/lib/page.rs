@@ -915,3 +915,85 @@ pub fn page_update(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+// pub mod page_update_content {
+//     use super::*;
+// 
+//     pub struct PageUpdateContent;
+// 
+//     pub const OPERATION_NAME: &str = "PageUpdateContent";
+//     pub const QUERY : & str = "mutation PageUpdateContent(\n    $id: Int!\n    $content: String!\n    ) {\n  pages {\n    update (\n      id: $id\n      content: $content\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      page {\n        id\n        path\n        hash\n        title\n        description\n        isPrivate\n        isPublished\n        privateNS\n        publishStartDate\n        publishEndDate\n        tags {\n          id\n          tag\n          title\n          createdAt\n          updatedAt\n        }\n        content\n        render\n        toc\n        contentType\n        createdAt\n        updatedAt\n        editor\n        locale\n        scriptCss\n        scriptJs\n        authorId\n        authorName\n        authorEmail\n        creatorId\n        creatorName\n        creatorEmail\n      }\n    }\n  }\n}\n" ;
+// 
+//     #[derive(Serialize, Debug)]
+//     pub struct Variables {
+//         pub id: Int,
+//         pub content: String,
+//     }
+// 
+//     impl Variables {}
+// 
+//     #[derive(Deserialize, Debug)]
+//     pub struct ResponseData {
+//         pub pages: Option<Pages>,
+//     }
+// 
+//     #[derive(Deserialize, Debug)]
+//     pub struct Pages {
+//         pub update: Option<Update>,
+//     }
+// 
+//     #[derive(Deserialize, Debug)]
+//     pub struct Update {
+//         #[serde(rename = "responseResult")]
+//         pub response_result: ResponseStatus,
+//         pub page: Option<Page>,
+//     }
+// 
+//     impl graphql_client::GraphQLQuery for PageUpdateContent {
+//         type Variables = Variables;
+//         type ResponseData = ResponseData;
+//         fn build_query(
+//             variables: Self::Variables,
+//         ) -> ::graphql_client::QueryBody<Self::Variables> {
+//             graphql_client::QueryBody {
+//                 variables,
+//                 query: QUERY,
+//                 operation_name: OPERATION_NAME,
+//             }
+//         }
+//     }
+// }
+// 
+// pub fn page_update_content(
+//     client: &Client,
+//     url: &str,
+//     id: i64,
+//     content: String,
+// ) -> Result<(), PageError> {
+//     let variables = page_update_content::Variables { id, content };
+//     let response = post_graphql::<page_update_content::PageUpdateContent, _>(
+//         client, url, variables,
+//     );
+//     if response.is_err() {
+//         return Err(PageError::UnknownErrorMessage {
+//             message: response.err().unwrap().to_string(),
+//         });
+//     }
+//     let response_body = response.unwrap();
+//     if let Some(data) = response_body.data {
+//         if let Some(pages) = data.pages {
+//             if let Some(update) = pages.update {
+//                 if update.response_result.succeeded {
+//                     // unfortunately, the API does not seem to return
+//                     // the updated page so we cannot return it here
+//                     return Ok(());
+//                 } else {
+//                     return Err(classify_response_status_error(
+//                         update.response_result,
+//                     ));
+//                 }
+//             }
+//         }
+//     }
+//     Err(classify_response_error(response_body.errors))
+// }
