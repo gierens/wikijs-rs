@@ -94,11 +94,15 @@ impl From<u64> for InodeType {
 
 struct Fs {
     api: Api,
+    locale: String,
 }
 
 impl Fs {
-    pub fn new(api: Api) -> Self {
-        Self { api }
+    pub fn new(api: Api, locale: String) -> Self {
+        Self { 
+            api,
+            locale,
+        }
     }
 
     fn get_inode(&self, ino: u64) -> Option<Inode> {
@@ -116,7 +120,7 @@ impl Fs {
                     id,
                     PageTreeMode::ALL,
                     true,
-                    "en".to_string(),
+                    self.locale.clone(),
                 ) {
                     Ok(page_tree) => Some(Inode::Directory(page_tree)),
                     Err(_) => None,
@@ -380,6 +384,15 @@ struct Cli {
     #[clap(help = "Mountpoint", env = "WIKI_JS_FUSE_MOUNTPOINT")]
     mountpoint: PathBuf,
 
+    #[clap(
+        short,
+        long,
+        default_value = "en",
+        help = "Wiki.js locale to use",
+        env = "WIKI_JS_LOCALE"
+    )]
+    locale: String,
+
     #[command(flatten)]
     verbose: clap_verbosity_flag::Verbosity,
 }
@@ -402,7 +415,7 @@ fn main() {
 
     let credentials = Credentials::Key(cli.key);
     let api = Api::new(cli.url, credentials);
-    let fs = Fs::new(api);
+    let fs = Fs::new(api, cli.locale);
 
     mount2(fs, &cli.mountpoint, &[FSName("wikijs-fuse".to_string())])
         .unwrap_or_else(|error| {
