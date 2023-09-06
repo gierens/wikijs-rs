@@ -1,0 +1,18 @@
+query AnalyticsProviderList {
+  analytics {
+    providers {
+      isEnabled
+      key
+      props
+      title
+      description
+      isAvailable
+      logo
+      website
+      config {
+        key,
+        value
+      }
+    }
+  }
+}
