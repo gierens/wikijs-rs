@@ -259,7 +259,8 @@ impl Api {
     // analytics functions
     pub fn analytics_provider_list(
         &self,
-    ) -> Result<Vec<analytics::AnalyticsProvider>, analytics::AnalyticsError> {
+    ) -> Result<Vec<analytics::AnalyticsProvider>, analytics::AnalyticsError>
+    {
         analytics::analytics_provider_list(
             &self.client,
             &format!("{}/graphql", self.url),
