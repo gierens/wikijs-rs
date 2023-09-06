@@ -700,7 +700,7 @@ fn main() {
                             ]);
                         }
                         println!("{}", builder.build().with(Style::rounded()));
-                    },
+                    }
                     Err(e) => {
                         eprintln!(
                             "{}: {}",
@@ -742,8 +742,10 @@ fn main() {
                             ]);
                         }
                         println!("{}", builder.build().with(Style::rounded()));
-                    },
-                    Err(e) => { eprintln!( "{}: {}",
+                    }
+                    Err(e) => {
+                        eprintln!(
+                            "{}: {}",
                             "error".bold().red(),
                             e.to_string()
                         );
@@ -751,6 +753,6 @@ fn main() {
                     }
                 }
             }
-        }
+        },
     }
 }

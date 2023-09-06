@@ -134,10 +134,7 @@ pub fn comment_list(
     locale: String,
     path: String,
 ) -> Result<Vec<Comment>, CommentError> {
-    let variables = comment_list::Variables {
-        locale,
-        path
-    };
+    let variables = comment_list::Variables { locale, path };
     let response =
         post_graphql::<comment_list::CommentList, _>(client, url, variables);
     if response.is_err() {
