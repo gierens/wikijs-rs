@@ -24,17 +24,6 @@ impl From<i64> for ContributeError {
     }
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Contributor {
-    pub id: String,
-    pub source: String,
-    pub name: String,
-    pub joined: Date,
-    pub website: Option<String>,
-    pub twitter: Option<String>,
-    pub avatar: Option<String>,
-}
-
 impl UnknownError for ContributeError {
     fn unknown_error_code(code: i64, message: String) -> Self {
         ContributeError::UnknownErrorCode { code, message }
@@ -45,6 +34,17 @@ impl UnknownError for ContributeError {
     fn unknown_error() -> Self {
         ContributeError::UnknownError
     }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Contributor {
+    pub id: String,
+    pub source: String,
+    pub name: String,
+    pub joined: Date,
+    pub website: Option<String>,
+    pub twitter: Option<String>,
+    pub avatar: Option<String>,
 }
 
 pub mod contributor_list {
