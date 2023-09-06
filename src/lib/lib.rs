@@ -234,10 +234,8 @@ impl Api {
         username: String,
         password: String,
         strategy: String,
-    ) -> Result<
-        authentication::AuthenticationLoginResponse,
-        Box<dyn std::error::Error>,
-    > {
+    ) -> Result<authentication::AuthenticationLoginResponse, user::UserError>
+    {
         authentication::login(
             &self.client,
             &format!("{}/graphql", self.url),

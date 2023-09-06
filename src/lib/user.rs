@@ -2,7 +2,7 @@ use serde::Deserialize;
 use thiserror::Error;
 
 use crate::common::{
-    Boolean, Date, Int, ResponseStatus, UnknownError, KnownErrorCodes
+    Boolean, Date, Int, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 use crate::group::Group;
 
@@ -11,7 +11,7 @@ pub enum UserError {
     #[error("An unexpected error occurred during login.")]
     AuthGenericError,
     #[error("Invalid email / username or password.")]
-    AuthLoginFailed,	
+    AuthLoginFailed,
     #[error("Invalid authentication provider.")]
     AuthProviderInvalid,
     #[error("An account already exists using this email address.")]
@@ -21,19 +21,21 @@ pub enum UserError {
     #[error("Invalid TFA Security Code or Login Token.")]
     AuthTFAInvalid,
     #[error("Invalid Brute Force Instance.")]
-    BruteInstanceIsInvalid,	
+    BruteInstanceIsInvalid,
     #[error("Too many attempts! Try again later.")]
     BruteTooManyAttempts,
     #[error("An unexpected error occurred during user creation.")]
-    UserCreationFailed,	
+    UserCreationFailed,
     #[error("Registration is disabled. Contact your system administrator.")]
     AuthRegistrationDisabled,
-    #[error("You are not authorized to register. Your domain is not whitelisted.")]
+    #[error(
+        "You are not authorized to register. Your domain is not whitelisted."
+    )]
     AuthRegistrationDomainUnauthorized,
     #[error("Input data is invalid.")]
     InputInvalid,
     #[error("Your account has been disabled.")]
-    AuthAccountBanned,	
+    AuthAccountBanned,
     #[error("You must verify your account before your can login.")]
     AuthAccountNotVerified,
     #[error("Invalid validation token.")]

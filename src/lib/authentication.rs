@@ -2,7 +2,8 @@ use graphql_client::reqwest::post_graphql_blocking as post_graphql;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::common::{Boolean, ResponseStatus};
+use crate::common::{classify_response_error, Boolean, ResponseStatus};
+use crate::user::UserError;
 
 #[derive(Deserialize, Debug)]
 pub struct AuthenticationLoginResponse {
@@ -70,20 +71,25 @@ pub fn login(
     username: String,
     password: String,
     strategy: String,
-) -> Result<AuthenticationLoginResponse, Box<dyn std::error::Error>> {
+) -> Result<AuthenticationLoginResponse, UserError> {
     let variables = login_mod::Variables {
         username,
         password,
         strategy,
     };
-    let response_body =
-        post_graphql::<login_mod::Login, _>(client, url, variables)?;
-
-    Ok(response_body
-        .data
-        .unwrap()
-        .authentication
-        .unwrap()
-        .login
-        .unwrap())
+    let response = post_graphql::<login_mod::Login, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(login) = authentication.login {
+                return Ok(login);
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
 }
