@@ -56,7 +56,7 @@ enum Command {
         command: AnalyticsProviderCommand,
     },
 
-    #[clap(about = "Comments commands")]
+    #[clap(about = "Comment commands")]
     Comment {
         #[clap(subcommand)]
         command: CommentCommand,
