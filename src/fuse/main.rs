@@ -1,9 +1,9 @@
 use fuser::MountOption::FSName;
 use fuser::{
     mount2, FileAttr, Filesystem, ReplyAttr, ReplyData, ReplyDirectory,
-    ReplyEntry, Request,
+    ReplyEntry, ReplyWrite, ReplyOpen, Request, TimeOrNow
 };
-use libc::{EISDIR, ENOENT};
+use libc::{EISDIR, ENOENT, EINVAL, EIO, O_TRUNC};
 use wikijs::page::{Page, PageTreeItem, PageTreeMode};
 use wikijs::{Api, Credentials};
 
@@ -170,6 +170,108 @@ impl Filesystem for Fs {
 
         let ttl = SystemTime::now().duration_since(start).unwrap();
         reply.attr(&ttl, &attr);
+    }
+
+    /// Set attributes of an inode.
+    ///
+    /// # Arguments
+    /// * `req` - The request.
+    /// * `ino` - The inode number.
+    /// * `mode` - The mode of the inode.
+    /// * `uid` - The user ID of the inode.
+    /// * `gid` - The group ID of the inode.
+    /// * `size` - The size of the inode.
+    /// * `atime` - The access time of the inode.
+    /// * `mtime` - The modification time of the inode.
+    /// * `fh` - The file handle.
+    /// * `crtime` - The creation time of the inode.
+    /// * `chgtime` - The change time of the inode.
+    /// * `bkuptime` - The backup time of the inode.
+    /// * `flags` - The flags of the inode.
+    /// * `reply` - The reply.
+    ///
+    /// # Returns
+    /// Nothing.
+    fn setattr(
+        &mut self,
+        _req: &Request,
+        ino: u64,
+        mode: Option<u32>,
+        uid: Option<u32>,
+        gid: Option<u32>,
+        size: Option<u64>,
+        atime: Option<TimeOrNow>,
+        mtime: Option<TimeOrNow>,
+        ctime: Option<SystemTime>,
+        fh: Option<u64>,
+        crtime: Option<SystemTime>,
+        chgtime: Option<SystemTime>,
+        bkuptime: Option<SystemTime>,
+        flags: Option<u32>,
+        reply: ReplyAttr,
+    ) {
+        let start = SystemTime::now();
+        info!(
+            "setattr(ino={}, mode={:?}, uid={:?}, gid={:?}, size={:?}, \
+              atime={:?}, mtime={:?}, fh={:?}, crtime={:?}, chgtime={:?}, \
+              bkuptime={:?}, flags={:?})",
+            ino, mode, uid, gid, size, atime, mtime, fh, crtime, chgtime,
+            bkuptime, flags
+        );
+
+        let inode = match self.get_inode(ino) {
+            Some(inode) => inode,
+            None => {
+                warn!("setattr: inode {} not found", ino);
+                reply.error(ENOENT);
+                return;
+            }
+        };
+
+        let page = match inode {
+            Inode::Page(page) => page,
+            _ => {
+                warn!("setattr: inode {} is not a page", ino);
+                reply.error(EINVAL);
+                return;
+            }
+        };
+        
+        if let Some(size) = size {
+            let mut content = page.content.clone();
+            if size < content.len() as u64 {
+                content.truncate(std::cmp::max(size as usize, 1));
+            }
+            match self.api.page_update_content(page.id, content) {
+                Ok(_) => {
+                    debug!("setattr: updated inode {}", ino);
+                    let attr = match self.get_inode(ino) {
+                        Some(inode) => inode.into(),
+                        None => {
+                            warn!("setattr: inode {} not found", ino);
+                            reply.error(ENOENT);
+                            return;
+                        }
+                    };
+                    reply.attr(
+                        &SystemTime::now().duration_since(start).unwrap(),
+                        &attr
+                        );
+                    return;
+                }
+                Err(_) => {
+                    error!("setattr: failed to update inode {}", ino);
+                    reply.error(EIO);
+                    return;
+                }
+            }
+        }
+
+        let attr = Inode::Page(page).into();
+        reply.attr(
+            &SystemTime::now().duration_since(start).unwrap(),
+            &attr
+            );
     }
 
     /// Read entries of a directory.
