@@ -625,6 +625,15 @@ fn main() {
             ContributorCommand::List {} => match api.contributor_list() {
                 Ok(contributors) => {
                     let mut builder = Builder::new();
+                    builder.push_record([
+                        "id",
+                        "source",
+                        "name",
+                        "joined",
+                        // "website",
+                        // "twitter",
+                        // "avatar",
+                    ]);
                     for contributor in contributors {
                         builder.push_record([
                             contributor.id.to_string().as_str(),
