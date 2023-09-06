@@ -700,7 +700,7 @@ fn main() {
                             ]);
                         }
                         println!("{}", builder.build().with(Style::rounded()));
-                    }
+                    },
                     Err(e) => {
                         eprintln!(
                             "{}: {}",
