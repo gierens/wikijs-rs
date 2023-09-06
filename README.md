@@ -149,7 +149,7 @@ implemented and what is still to be done.
 ### user
 - [ ] `user_list`
 - [ ] `user_search`
-- [ ] `user_get`
+- [x] `user_get`
 - [ ] `user_profile_get`
 - [ ] `user_last_login_list`
 - [ ] `user_create`
