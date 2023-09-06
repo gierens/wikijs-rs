@@ -5,6 +5,12 @@ pub type Int = i64;
 pub type Date = String;
 
 #[derive(Deserialize, Debug)]
+pub struct KeyValuePair {
+    pub key: String,
+    pub value: String,
+}
+
+#[derive(Deserialize, Debug)]
 #[allow(unused)]
 pub struct ResponseStatus {
     pub succeeded: Boolean,
