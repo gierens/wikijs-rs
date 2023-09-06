@@ -3,7 +3,9 @@ use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::common::{classify_response_error, Boolean, UnknownError, KeyValuePair};
+use crate::common::{
+    classify_response_error, Boolean, KeyValuePair, UnknownError,
+};
 
 #[derive(Debug, Error, PartialEq)]
 pub enum AnalyticsError {
@@ -92,9 +94,10 @@ pub fn analytics_provider_list(
     url: &str,
 ) -> Result<Vec<AnalyticsProvider>, AnalyticsError> {
     let variables = analytics_provider_list::Variables {};
-    let response = post_graphql::<analytics_provider_list::AnalyticsProviderList, _>(
-        client, url, variables,
-    );
+    let response = post_graphql::<
+        analytics_provider_list::AnalyticsProviderList,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(AnalyticsError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
