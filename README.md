@@ -21,6 +21,8 @@ implemented and what is still to be done.
 - [ ] `asset_rename`
 - [ ] `asset_delete`
 - [ ] `asset_flush_temp_uploads`
+- [ ] `asset_get` ... this needs the REST API
+- [ ] `asset_create` ... this needs the REST API
 
 ### authentication
 - [ ] `api_key_list`
