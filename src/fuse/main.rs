@@ -381,12 +381,12 @@ impl Filesystem for Fs {
     ) {
         let start = SystemTime::now();
         let mut name_str = name.to_str().unwrap();
+        info!("lookup(parent={}, name={:?})", parent, name_str);
         let mut is_dir = true;
         if name_str.ends_with(".md") {
             name_str = &name_str[..name_str.len() - 3];
             is_dir = false;
         }
-        info!("lookup(parent={}, name={:?})", parent, name_str);
 
         let page_tree = match self.get_inode(parent) {
             Some(Inode::Directory(page_tree)) => page_tree,
