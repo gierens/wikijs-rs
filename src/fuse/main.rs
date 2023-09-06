@@ -12,6 +12,7 @@ use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::process::exit;
 use std::time::SystemTime;
+use chrono::DateTime;
 
 #[allow(unused_imports)]
 use colored::Colorize;
@@ -24,26 +25,40 @@ enum Inode {
     Directory(Vec<PageTreeItem>),
 }
 
+fn parse_systemtime(str: String) -> SystemTime {
+    match DateTime::parse_from_rfc3339(&str) {
+        Ok(dt) => dt.into(),
+        Err(_) => {
+            warn!("parse_systemtime: failed to parse {}", str);
+            SystemTime::now()
+        }
+    }
+}
+
 #[allow(clippy::from_over_into)]
 impl Into<FileAttr> for Inode {
     fn into(self) -> FileAttr {
         match self {
-            Inode::Page(page) => FileAttr {
-                ino: page.id as u64 | 0x80000000_00000000,
-                size: page.content.len() as u64,
-                blocks: 1,
-                atime: SystemTime::now(),
-                mtime: SystemTime::now(),
-                ctime: SystemTime::now(),
-                crtime: SystemTime::now(),
-                kind: fuser::FileType::RegularFile,
-                perm: 0o644,
-                nlink: 1,
-                uid: 0,
-                gid: 0,
-                rdev: 0,
-                blksize: 0,
-                flags: 0,
+            Inode::Page(page) => {
+                let update_time = parse_systemtime(page.updated_at);
+                let create_time = parse_systemtime(page.created_at);
+                FileAttr {
+                    ino: page.id as u64 | 0x80000000_00000000,
+                    size: page.content.len() as u64,
+                    blocks: 1,
+                    atime: update_time,
+                    mtime: update_time,
+                    ctime: update_time,
+                    crtime: create_time,
+                    kind: fuser::FileType::RegularFile,
+                    perm: 0o644,
+                    nlink: 1,
+                    uid: 0,
+                    gid: 0,
+                    rdev: 0,
+                    blksize: 0,
+                    flags: 0,
+                }
             },
             Inode::Directory(page_tree) => {
                 let ino = if !page_tree.is_empty() {
