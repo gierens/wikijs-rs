@@ -61,6 +61,12 @@ enum Command {
         #[clap(subcommand)]
         command: CommentCommand,
     },
+
+    #[clap(about = "User commands")]
+    User {
+        #[clap(subcommand)]
+        command: UserCommand,
+    },
 }
 
 #[derive(Subcommand)]
@@ -233,6 +239,15 @@ enum CommentCommand {
 
         #[clap(help = "Page path")]
         path: String,
+    },
+}
+
+#[derive(Subcommand)]
+enum UserCommand {
+    #[clap(about = "Get a user")]
+    Get {
+        #[clap(help = "User ID")]
+        id: i64,
     },
 }
 
@@ -753,6 +768,70 @@ fn main() {
                     }
                 }
             }
+        },
+        Command::User { command } => match command {
+            UserCommand::Get { id } => match api.user_get(id) {
+                Ok(user) => {
+                    let mut builder = Builder::new();
+                    builder.push_record(["key", "value"]);
+                    builder.push_record(["id", user.id.to_string().as_str()]);
+                    builder.push_record(["name", user.name.as_str()]);
+                    builder.push_record(["email", user.email.as_str()]);
+                    builder.push_record([
+                        "provider_key",
+                        user.provider_key.as_str(),
+                    ]);
+                    builder.push_record([
+                        "provider_name",
+                        user.provider_name.unwrap_or("".to_string()).as_str(),
+                    ]);
+                    builder.push_record([
+                        "provider_id",
+                        user.provider_id.unwrap_or("".to_string()).as_str(),
+                    ]);
+                    // providerIs2FACapable
+                    builder.push_record([
+                        "is_system",
+                        user.is_system.to_string().as_str(),
+                    ]);
+                    builder.push_record([
+                        "is_active",
+                        user.is_active.to_string().as_str(),
+                    ]);
+                    builder.push_record([
+                        "is_verified",
+                        user.is_verified.to_string().as_str(),
+                    ]);
+                    builder.push_record(["location", user.location.as_str()]);
+                    builder.push_record(["job_title", user.job_title.as_str()]);
+                    builder.push_record(["timezone", user.timezone.as_str()]);
+                    builder.push_record([
+                        "date_format",
+                        user.date_format.as_str(),
+                    ]);
+                    builder
+                        .push_record(["appearance", user.appearance.as_str()]);
+                    builder.push_record([
+                        "created_at",
+                        user.created_at.to_string().as_str(),
+                    ]);
+                    builder.push_record([
+                        "updated_at",
+                        user.updated_at.to_string().as_str(),
+                    ]);
+                    builder.push_record([
+                        "last_login_at",
+                        user.last_login_at.unwrap_or("".to_string()).as_str(),
+                    ]);
+                    // tfaIsActive
+                    // groups
+                    println!("{}", builder.build().with(Style::rounded()));
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    std::process::exit(1);
+                }
+            },
         },
     }
 }
