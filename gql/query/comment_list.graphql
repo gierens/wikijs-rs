@@ -1,0 +1,15 @@
+query CommentList($locale: String!, $path: String!) {
+  comments {
+    list(locale: $locale, path: $path) {
+      id
+      content
+      render
+      authorId
+      authorName
+      authorEmail
+      authorIP
+      createdAt
+      updatedAt
+    }
+  }
+}

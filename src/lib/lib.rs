@@ -8,6 +8,7 @@ use reqwest::header::{HeaderValue, AUTHORIZATION};
 pub mod analytics;
 pub mod asset;
 pub mod authentication;
+pub mod comment;
 pub mod common;
 pub mod contribute;
 pub mod group;
@@ -264,6 +265,20 @@ impl Api {
         analytics::analytics_provider_list(
             &self.client,
             &format!("{}/graphql", self.url),
+        )
+    }
+
+    // comment functions
+    pub fn comment_list(
+        &self,
+        locale: String,
+        path: String,
+    ) -> Result<Vec<comment::Comment>, comment::CommentError> {
+        comment::comment_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            locale,
+            path,
         )
     }
 }
