@@ -626,9 +626,7 @@ fn main() {
                 Ok(contributors) => {
                     let mut builder = Builder::new();
                     builder.push_record([
-                        "id",
-                        "source",
-                        "name",
+                        "id", "source", "name",
                         "joined",
                         // "website",
                         // "twitter",
@@ -683,10 +681,7 @@ fn main() {
                                 // provider.config.as_str(),
                             ]);
                         }
-                        println!(
-                            "{}",
-                            builder.build().with(Style::rounded())
-                        );
+                        println!("{}", builder.build().with(Style::rounded()));
                     }
                     Err(e) => {
                         eprintln!(
