@@ -5,6 +5,7 @@
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 
+pub mod analytics;
 pub mod asset;
 pub mod authentication;
 pub mod common;
@@ -250,6 +251,16 @@ impl Api {
         &self,
     ) -> Result<Vec<contribute::Contributor>, contribute::ContributeError> {
         contribute::contributor_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
+    // analytics functions
+    pub fn analytics_provider_list(
+        &self,
+    ) -> Result<Vec<analytics::AnalyticsProvider>, analytics::AnalyticsError> {
+        analytics::analytics_provider_list(
             &self.client,
             &format!("{}/graphql", self.url),
         )
