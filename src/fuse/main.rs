@@ -484,6 +484,143 @@ impl Filesystem for Fs {
         let data = page.content[offset as usize..end as usize].to_string();
         reply.data(data.as_bytes());
     }
+
+    /// Write data to a file.
+    ///
+    /// # Arguments
+    /// * `req` - The request.
+    /// * `ino` - The inode number.
+    /// * `fh` - The file handle.
+    /// * `offset` - The offset in the file.
+    /// * `data` - The data to write.
+    /// * `write_flags` - The write flags.
+    /// * `flags` - The flags.
+    /// * `lock_owner` - The lock owner.
+    /// * `reply` - The reply.
+    ///
+    /// # Returns
+    /// Nothing.
+    fn write(
+        &mut self,
+        _req: &Request<'_>,
+        ino: u64,
+        fh: u64,
+        offset: i64,
+        data: &[u8],
+        write_flags: u32,
+        flags: i32,
+        lock_owner: Option<u64>,
+        reply: ReplyWrite
+    ) {
+        info!(
+            "write(ino={}, fh={}, offset={}, data={:?}, write_flags={:?}, \
+              flags={:?}, lock_owner={:?})",
+            ino, fh, offset, data, write_flags, flags, lock_owner
+        );
+
+        if let InodeType::Directory(_) = InodeType::from(ino) {
+            warn!("write: inode {} is a directory", ino);
+            reply.error(EISDIR);
+            return;
+        }
+
+        let mut page = match self.get_inode(ino) {
+            Some(Inode::Page(page)) => page,
+            _ => {
+                warn!("write: inode {} not found", ino);
+                reply.error(ENOENT);
+                return;
+            }
+        };
+
+        let size = page.content.len() as u64;
+
+        if offset < 0 || offset as u64 > size {
+            warn!(
+                "write: invalid offset {} for file of size {} with inode {}",
+                offset, size, ino
+            );
+            reply.error(EINVAL);
+            return;
+        }
+
+        let end = offset as usize + data.len();
+        if end < page.content.len() && write_flags as i32 == O_TRUNC {
+            debug!("write: truncating inode {} from {} to {}",
+                ino, page.content.len(), end);
+            page.content.truncate(end);
+        }
+
+        // TODO maybe page content should be mutable, or all fields actually
+        // merge contents
+        let mut content = page.content[..offset as usize].to_string()
+            + &String::from_utf8_lossy(data);
+        if end < page.content.len() {
+            content += &page.content[end..].to_string();
+        }
+        debug!("write: inode {} from {} to {}", ino, offset, end);
+
+        match self.api.page_update_content(page.id, content) {
+            Ok(_) => {
+                debug!("write: updated inode {}", ino);
+                reply.written(data.len() as u32);
+            }
+            Err(_) => {
+                error!("write: failed to update inode {}", ino);
+                reply.error(EIO);
+            }
+        }
+    }
+
+    /// Open a file.
+    ///
+    /// # Arguments
+    /// * `req` - The request.
+    /// * `ino` - The inode number.
+    /// * `flags` - The flags of the file.
+    /// * `reply` - The reply.
+    ///
+    /// # Returns
+    /// Nothing.
+    // fn open(
+    //     &mut self,
+    //     _req: &Request<'_>,
+    //     ino: u64,
+    //     flags: i32,
+    //     reply: ReplyOpen
+    // ) {
+    //     info!("open(ino={}, flags={:?})", ino, flags);
+    //     reply.opened(0, flags.try_into().unwrap());
+    // }
+
+    /// Create a file node.
+    ///
+    /// # Arguments
+    /// * `req` - The request.
+    /// * `parent` - The parent inode number.
+    /// * `name` - The name of the file.
+    /// * `mode` - The mode of the file.
+    /// * `umask` - The umask of the file.
+    /// * `flags` - The flags of the file.
+    /// * `reply` - The reply.
+    ///
+    /// # Returns
+    /// Nothing.
+    fn mknod(
+        &mut self,
+        _req: &Request<'_>,
+        parent: u64,
+        name: &OsStr,
+        mode: u32,
+        umask: u32,
+        rdev: u32,
+        reply: ReplyEntry
+    ) {
+        let start = SystemTime::now();
+        info!("mknod(parent={}, name={:?}, mode={}, umask={}, rdev={})",
+                 parent, name, mode, umask, rdev);
+        reply.error(EINVAL);
+    }
 }
 
 #[derive(Parser)]
