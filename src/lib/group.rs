@@ -18,7 +18,7 @@ pub struct GroupMinimal {
     pub is_system: Boolean,
     #[serde(rename = "userCount")]
     pub user_count: Option<Int>,
-    #[serde(rename = "createAt")]
+    #[serde(rename = "createdAt")]
     pub created_at: Date,
     #[serde(rename = "updatedAt")]
     pub updated_at: Date,
@@ -33,9 +33,9 @@ pub struct Group {
     #[serde(rename = "redirectOnLogin")]
     pub redirect_on_login: Option<String>,
     pub permissions: Vec<String>,
-    pub page_rules: Vec<PageRule>,
-    pub users: Vec<UserMinimal>,
-    #[serde(rename = "createAt")]
+    pub page_rules: Option<Vec<Option<PageRule>>>,
+    pub users: Option<Vec<UserMinimal>>,
+    #[serde(rename = "createdAt")]
     pub created_at: Date,
     #[serde(rename = "updatedAt")]
     pub updated_at: Date,

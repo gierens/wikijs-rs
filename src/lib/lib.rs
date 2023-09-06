@@ -279,4 +279,9 @@ impl Api {
             path,
         )
     }
+
+    // user functions
+    pub fn user_get(&self, id: i64) -> Result<user::User, user::UserError> {
+        user::user_get(&self.client, &format!("{}/graphql", self.url), id)
+    }
 }

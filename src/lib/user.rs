@@ -1,8 +1,11 @@
-use serde::Deserialize;
+use graphql_client::reqwest::post_graphql_blocking as post_graphql;
+use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    Boolean, Date, Int, KnownErrorCodes, ResponseStatus, UnknownError,
+    classify_response_error, Boolean, Date, Int, KnownErrorCodes,
+    ResponseStatus, UnknownError,
 };
 use crate::group::Group;
 
@@ -169,7 +172,7 @@ pub struct User {
     #[serde(rename = "dateFormat")]
     pub date_format: String,
     pub appearance: String,
-    #[serde(rename = "createAt")]
+    #[serde(rename = "createdAt")]
     pub created_at: Date,
     #[serde(rename = "updatedAt")]
     pub updated_at: Date,
@@ -177,7 +180,7 @@ pub struct User {
     pub last_login_at: Option<Date>,
     #[serde(rename = "tfaIsActive")]
     pub tfa_is_active: Boolean,
-    pub groups: Vec<Group>,
+    pub groups: Vec<Option<Group>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -216,4 +219,67 @@ pub struct UserTokenResponse {
     #[serde(rename = "responseResult")]
     pub response_result: ResponseStatus,
     pub jwt: Option<String>,
+}
+
+pub mod user_get {
+    use super::*;
+
+    pub struct UserGet;
+
+    pub const OPERATION_NAME: &str = "UserGet";
+    pub const QUERY : & str = "query UserGet($id: Int!) {\n  users {\n    single (id: $id) {\n      id\n      name\n      email\n      providerKey\n      providerName\n      providerId\n      providerIs2FACapable\n      isSystem\n      isActive\n      isVerified\n      location\n      jobTitle\n      timezone\n      dateFormat\n      appearance\n      createdAt\n      updatedAt\n      lastLoginAt\n      tfaIsActive\n      groups {\n        id\n        name\n        isSystem\n        redirectOnLogin\n        permissions\n        pageRules {\n          id\n          deny\n          match\n          roles\n          path\n          locales\n        }\n        users {\n          id\n          name\n          email\n          providerKey\n          isSystem\n          isActive\n          createdAt\n          lastLoginAt\n        }\n        createdAt\n        updatedAt\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub single: Option<User>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_get(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<User, UserError> {
+    let variables = user_get::Variables { id };
+    let response = post_graphql::<user_get::UserGet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(user) = users.single {
+                return Ok(user);
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
 }

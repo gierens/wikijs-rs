@@ -1,0 +1,52 @@
+query UserGet($id: Int!) {
+  users {
+    single (id: $id) {
+      id
+      name
+      email
+      providerKey
+      providerName
+      providerId
+      providerIs2FACapable
+      isSystem
+      isActive
+      isVerified
+      location
+      jobTitle
+      timezone
+      dateFormat
+      appearance
+      createdAt
+      updatedAt
+      lastLoginAt
+      tfaIsActive
+      groups {
+        id
+        name
+        isSystem
+        redirectOnLogin
+        permissions
+        pageRules {
+          id
+          deny
+          match
+          roles
+          path
+          locales
+        }
+        users {
+          id
+          name
+          email
+          providerKey
+          isSystem
+          isActive
+          createdAt
+          lastLoginAt
+        }
+        createdAt
+        updatedAt
+      }
+    }
+  }
+}
