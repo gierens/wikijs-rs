@@ -80,6 +80,12 @@ enum Command {
         command: LocaleCommand,
     },
 
+    #[clap(about = "Logger commands")]
+    Logger {
+        #[clap(subcommand)]
+        command: LoggerCommand,
+    },
+
     #[clap(about = "System flag commands")]
     SystemFlag {
         #[clap(subcommand)]
@@ -294,6 +300,18 @@ enum GroupCommand {
 enum LocaleCommand {
     #[clap(about = "List locales")]
     List
+
+}
+#[derive(Subcommand)]
+enum LoggerCommand {
+    #[clap(about = "List loggers")]
+    List {
+        #[clap(short, long, help = "Filter loggers by this")]
+        filter: Option<String>,
+
+        #[clap(short, long, help = "Order loggers by this")]
+        order_by: Option<String>,
+    }
 }
 
 #[derive(Subcommand)]
@@ -972,6 +990,40 @@ fn main() {
                             locale.name.as_str(),
                             locale.native_name.as_str(),
                             locale.updated_at.to_string().as_str(),
+                        ]);
+                    }
+                    println!("{}", builder.build().with(Style::rounded()));
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    std::process::exit(1);
+                }
+            }
+        },
+        Command::Logger { command } => match command {
+            LoggerCommand::List { filter, order_by } => match api.logger_list(filter, order_by) {
+                Ok(loggers) => {
+                    let mut builder = Builder::new();
+                    builder.push_record([
+                        "is_enabled",
+                        "key",
+                        "title",
+                        // "description",
+                        // "logo",
+                        // "website",
+                        "level",
+                        // "config",
+                    ]);
+                    for logger in loggers {
+                        builder.push_record([
+                            logger.is_enabled.to_string().as_str(),
+                            logger.key.as_str(),
+                            logger.title.as_str(),
+                            // logger.description.as_str(),
+                            // logger.logo.as_str(),
+                            // logger.website.as_str(),
+                            logger.level.unwrap_or("".to_string()).as_str(),
+                            // logger.config.as_str(),
                         ]);
                     }
                     println!("{}", builder.build().with(Style::rounded()));
