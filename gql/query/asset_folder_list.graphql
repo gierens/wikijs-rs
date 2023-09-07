@@ -1,0 +1,9 @@
+query AssetFolderList($parentFolderId: Int!) {
+  assets {
+    folders (parentFolderId: $parentFolderId) {
+      id
+      slug
+      name
+    }
+  }
+}

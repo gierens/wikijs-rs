@@ -180,3 +180,71 @@ pub fn asset_list(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod asset_folder_list {
+    use super::*;
+
+    pub struct AssetFolderList;
+
+    pub const OPERATION_NAME: &str = "AssetFolderList";
+    pub const QUERY : & str = "query AssetFolderList($parentFolderId: Int!) {\n  assets {\n    folders (parentFolderId: $parentFolderId) {\n      id\n      slug\n      name\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "parentFolderId")]
+        pub parent_folder_id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub assets: Option<Assets>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Assets {
+        pub folders: Option<Vec<Option<AssetFolder>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for AssetFolderList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn asset_folder_list(
+    client: &Client,
+    url: &str,
+    parent_folder_id: Int,
+) -> Result<Vec<AssetFolder>, AssetError> {
+    let variables =
+        asset_folder_list::Variables { parent_folder_id };
+    let response = post_graphql::<asset_folder_list::AssetFolderList, _>(client, url, variables);
+    if response.is_err() {
+        return Err(AssetError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(assets) = data.assets {
+            if let Some(folders) = assets.folders {
+                return Ok(folders
+                    .into_iter()
+                    .flatten()
+                    .collect::<Vec<AssetFolder>>());
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

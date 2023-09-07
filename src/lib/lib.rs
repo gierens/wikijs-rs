@@ -82,6 +82,17 @@ impl Api {
             kind,
         )
     }
+    
+    pub fn asset_folder_list(
+        &self,
+        parent_id: i64,
+    ) -> Result<Vec<asset::AssetFolder>, asset::AssetError> {
+        asset::asset_folder_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            parent_id,
+        )
+    }
 
     // page functions
     pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {
