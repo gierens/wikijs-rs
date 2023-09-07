@@ -1,0 +1,9 @@
+query ThemeList {
+  theming {
+    themes {
+      key
+      title
+      author
+    }
+  }
+}

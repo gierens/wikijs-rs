@@ -361,4 +361,14 @@ impl Api {
             &format!("{}/graphql", self.url),
         )
     }
+
+    // theming functions
+    pub fn theme_list(
+        &self,
+    ) -> Result<Vec<theming::Theme>, theming::ThemeError> {
+        theming::theme_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
 }
