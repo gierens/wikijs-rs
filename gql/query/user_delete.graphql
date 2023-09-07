@@ -1,0 +1,12 @@
+mutation UserDelete($id: Int!, $replaceId: Int!) {
+  users {
+    delete (id: $id, replaceId: $replaceId) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

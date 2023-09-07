@@ -156,11 +156,11 @@ implemented and what is still to be done.
 - [ ] `user_last_login_list`
 - [ ] `user_create`
 - [ ] `user_update`
-- [ ] `user_delete`
-- [ ] `user_verify`
-- [ ] `user_activate`
-- [ ] `user_deactivate`
-- [ ] `user_tfa_enable`
-- [ ] `user_tfa_disable`
+- [x] `user_delete`
+- [x] `user_verify`
+- [x] `user_activate`
+- [x] `user_deactivate`
+- [x] `user_tfa_enable`
+- [x] `user_tfa_disable`
 - [ ] `user_profile_update`
 - [ ] `user_password_change`

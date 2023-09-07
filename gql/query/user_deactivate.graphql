@@ -1,0 +1,12 @@
+mutation UserDeactivate($id: Int!) {
+  users {
+    deactivate (id: $id) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+mutation UserActivate($id: Int!) {
+  users {
+    activate (id: $id) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

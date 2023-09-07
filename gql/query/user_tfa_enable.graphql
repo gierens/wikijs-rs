@@ -1,0 +1,12 @@
+mutation UserTfaEnable($id: Int!) {
+  users {
+    enableTFA (id: $id) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

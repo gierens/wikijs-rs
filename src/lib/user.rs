@@ -5,7 +5,7 @@ use thiserror::Error;
 
 use crate::common::{
     classify_response_error, Boolean, Date, Int, KnownErrorCodes,
-    ResponseStatus, UnknownError,
+    ResponseStatus, UnknownError, classify_response_status_error
 };
 use crate::group::Group;
 
@@ -347,6 +347,478 @@ pub fn user_list(
         if let Some(users) = data.users {
             if let Some(list) = users.list {
                 return Ok(list.into_iter().flatten().collect());
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
+
+pub mod user_activate {
+    use super::*;
+
+    pub struct UserActivate;
+
+    pub const OPERATION_NAME: &str = "UserActivate";
+    pub const QUERY : & str = "mutation UserActivate($id: Int!) {\n  users {\n    activate (id: $id) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub activate: Option<Activate>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Activate {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserActivate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_activate(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<(), UserError> {
+    let variables = user_activate::Variables { id };
+    let response =
+        post_graphql::<user_activate::UserActivate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(activate) = users.activate {
+                if let Some(response_result) = activate.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<UserError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
+
+pub mod user_deactivate {
+    use super::*;
+
+    pub struct UserDeactivate;
+
+    pub const OPERATION_NAME: &str = "UserDeactivate";
+    pub const QUERY : & str = "mutation UserDeactivate($id: Int!) {\n  users {\n    deactivate (id: $id) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub deactivate: Option<Deactivate>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Deactivate {
+        #[serde(rename = "responseResult")]
+        pub response_result:
+            Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserDeactivate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_deactivate(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<(), UserError> {
+    let variables = user_deactivate::Variables { id };
+    let response =
+        post_graphql::<user_deactivate::UserDeactivate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(deactivate) = users.deactivate {
+                if let Some(response_result) = deactivate.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<UserError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
+
+pub mod user_delete {
+    use super::*;
+
+    pub struct UserDelete;
+
+    pub const OPERATION_NAME: &str = "UserDelete";
+    pub const QUERY : & str = "mutation UserDelete($id: Int!, $replaceId: Int!) {\n  users {\n    delete (id: $id, replaceId: $replaceId) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        #[serde(rename = "replaceId")]
+        pub replace_id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub delete: Option<Delete>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Delete {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserDelete {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_delete(
+    client: &Client,
+    url: &str,
+    id: i64,
+    replace_id: i64,
+) -> Result<(), UserError> {
+    let variables = user_delete::Variables { id, replace_id };
+    let response =
+        post_graphql::<user_delete::UserDelete, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(delete) = users.delete {
+                if let Some(response_result) = delete.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<UserError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
+
+pub mod user_tfa_disable {
+    use super::*;
+
+    pub struct UserTfaDisable;
+
+    pub const OPERATION_NAME: &str = "UserTfaDisable";
+    pub const QUERY : & str = "mutation UserTfaDisable($id: Int!) {\n  users {\n    disableTFA (id: $id) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        #[serde(rename = "disableTFA")]
+        pub disable_tfa: Option<DisableTfa>,
+    }
+    #[derive(Deserialize)]
+    pub struct DisableTfa {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserTfaDisable {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_tfa_disable(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<(), UserError> {
+    let variables = user_tfa_disable::Variables { id };
+    let response =
+        post_graphql::<user_tfa_disable::UserTfaDisable, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(disable_tfa) = users.disable_tfa {
+                if let Some(response_result) = disable_tfa.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<UserError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
+
+pub mod user_tfa_enable {
+    use super::*;
+
+    pub struct UserTfaEnable;
+
+    pub const OPERATION_NAME: &str = "UserTfaEnable";
+    pub const QUERY : & str = "mutation UserTfaEnable($id: Int!) {\n  users {\n    enableTFA (id: $id) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        #[serde(rename = "enableTFA")]
+        pub enable_tfa: Option<EnableTfa>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct EnableTfa {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserTfaEnable {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_tfa_enable(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<(), UserError> {
+    let variables = user_tfa_enable::Variables { id };
+    let response =
+        post_graphql::<user_tfa_enable::UserTfaEnable, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(enable_tfa) = users.enable_tfa {
+                if let Some(response_result) = enable_tfa.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<UserError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
+
+pub mod user_verify {
+    use super::*;
+
+    pub struct UserVerify;
+
+    pub const OPERATION_NAME: &str = "UserVerify";
+    pub const QUERY : & str = "mutation UserVerify($id: Int!) {\n  users {\n    verify (id: $id) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub verify: Option<Verify>,
+    }
+    #[derive(Deserialize)]
+    pub struct Verify {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserVerify {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_verify(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<(), UserError> {
+    let variables = user_verify::Variables { id };
+    let response =
+        post_graphql::<user_verify::UserVerify, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(verify) = users.verify {
+                if let Some(response_result) = verify.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<UserError>(
+                            response_result,
+                        ));
+                    }
+                }
             }
         }
     }

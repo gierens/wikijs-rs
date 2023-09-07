@@ -1,0 +1,12 @@
+mutation UserVerify($id: Int!) {
+  users {
+    verify (id: $id) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

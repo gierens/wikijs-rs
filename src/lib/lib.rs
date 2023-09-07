@@ -314,6 +314,49 @@ impl Api {
         )
     }
 
+    pub fn user_activate(
+        &self,
+        id: i64,
+    ) -> Result<(), user::UserError> {
+        user::user_activate(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
+    pub fn user_deactivate(
+        &self,
+        id: i64,
+    ) -> Result<(), user::UserError> {
+        user::user_deactivate(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
+    pub fn user_delete(
+        &self,
+        id: i64,
+        replace_id: i64,
+    ) -> Result<(), user::UserError> {
+        user::user_delete(&self.client, &format!("{}/graphql", self.url), id, replace_id)
+    }
+
+    pub fn user_tfa_disable(
+        &self,
+        id: i64,
+    ) -> Result<(), user::UserError> {
+        user::user_tfa_disable(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
+    pub fn user_tfa_enable(
+        &self,
+        id: i64,
+    ) -> Result<(), user::UserError> {
+        user::user_tfa_enable(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
+    pub fn user_verify(
+        &self,
+        id: i64,
+    ) -> Result<(), user::UserError> {
+        user::user_verify(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
     // group functions
     pub fn group_list(
         &self,
