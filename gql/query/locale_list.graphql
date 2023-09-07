@@ -1,0 +1,15 @@
+query LocaleList {
+  localization {
+    locales {
+      availability
+      code
+      createdAt
+      installDate
+      isInstalled
+      isRTL
+      name
+      nativeName
+      updatedAt
+    }
+  }
+}

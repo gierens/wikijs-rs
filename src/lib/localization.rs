@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Date, Int, KnownErrorCodes, UnknownError,
+    classify_response_error, Date, Int, KnownErrorCodes, UnknownError, Boolean,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -54,4 +54,86 @@ impl KnownErrorCodes for LocaleError {
     fn is_known_error_code(code: i64) -> bool {
         (5001..=5002).contains(&code)
     }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Locale {
+    pub availability: Int,
+    pub code: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: Date,
+    #[serde(rename = "installDate")]
+    pub install_date: Option<Date>,
+    #[serde(rename = "isInstalled")]
+    pub is_installed: Boolean,
+    #[serde(rename = "isRTL")]
+    pub is_rtl: Boolean,
+    pub name: String,
+    #[serde(rename = "nativeName")]
+    pub native_name: String,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: Date,
+}
+
+pub mod locale_list {
+    use super::*;
+
+    pub struct LocaleList;
+
+    pub const OPERATION_NAME: &str = "LocaleList";
+    pub const QUERY : & str = "query LocaleList {\n  localization {\n    locales {\n      availability\n      code\n      createdAt\n      installDate\n      isInstalled\n      isRTL\n      name\n      nativeName\n      updatedAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub localization: Option<Localization>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Localization {
+        pub locales: Option<Vec<Option<Locale>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for LocaleList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn locale_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<Locale>, LocaleError> {
+    let variables = locale_list::Variables {};
+    let response = post_graphql::<locale_list::LocaleList, _>(client, url, variables);
+    if response.is_err() {
+        return Err(LocaleError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(localization) = data.localization {
+            if let Some(locales) = localization.locales {
+                return Ok(locales
+                    .into_iter()
+                    .flatten()
+                    .collect());
+            }
+        }
+    }
+    Err(classify_response_error::<LocaleError>(
+        response_body.errors,
+    ))
 }

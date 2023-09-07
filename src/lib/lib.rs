@@ -12,7 +12,7 @@ pub mod comment;
 pub mod common;
 pub mod contribute;
 pub mod group;
-// pub mod localization;
+pub mod localization;
 // pub mod mail;
 pub mod page;
 // pub mod search;
@@ -313,6 +313,16 @@ impl Api {
             &format!("{}/graphql", self.url),
             filter,
             order_by,
+        )
+    }
+
+    // locale functions
+    pub fn locale_list(
+        &self,
+    ) -> Result<Vec<localization::Locale>, localization::LocaleError> {
+        localization::locale_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
         )
     }
 
