@@ -18,6 +18,7 @@ pub mod logging;
 pub mod page;
 // pub mod search;
 pub mod system;
+pub mod theming;
 pub mod user;
 
 #[derive(Debug)]
