@@ -97,6 +97,12 @@ enum Command {
         #[clap(subcommand)]
         command: SystemFlagCommand,
     },
+
+    #[clap(about = "Theme commands")]
+    Theme {
+        #[clap(subcommand)]
+        command: ThemeCommand,
+    },
 }
 
 #[derive(Subcommand)]
@@ -332,6 +338,12 @@ enum LoggerCommand {
 #[derive(Subcommand)]
 enum SystemFlagCommand {
     #[clap(about = "List system flags")]
+    List {},
+}
+
+#[derive(Subcommand)]
+enum ThemeCommand {
+    #[clap(about = "List themes")]
     List {},
 }
 
@@ -1099,6 +1111,34 @@ fn main() {
                     std::process::exit(1);
                 }
             },
+        },
+        Command::Theme { command } => match command {
+            ThemeCommand::List {} => match api.theme_list() {
+                Ok(themes) => {
+                    let mut builder = Builder::new();
+                    builder.push_record([
+                        "key",
+                        "title",
+                        "author",
+                    ]);
+                    for theme in themes {
+                        builder.push_record([
+                            theme.key.unwrap_or("".to_string()).as_str(),
+                            theme.title.unwrap_or("".to_string()).as_str(),
+                            theme.author.unwrap_or("".to_string()).as_str(),
+                        ]);
+                    }
+                    println!("{}", builder.build().with(Style::rounded()));
+                }
+                Err(e) => {
+                    eprintln!(
+                        "{}: {}",
+                        "error".bold().red(),
+                        e.to_string()
+                    );
+                    std::process::exit(1);
+                }
+            }
         },
     }
 }
