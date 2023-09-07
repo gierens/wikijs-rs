@@ -67,6 +67,12 @@ enum Command {
         #[clap(subcommand)]
         command: UserCommand,
     },
+
+    #[clap(about = "System flag commands")]
+    SystemFlag {
+        #[clap(subcommand)]
+        command: SystemFlagCommand,
+    },
 }
 
 #[derive(Subcommand)]
@@ -249,6 +255,12 @@ enum UserCommand {
         #[clap(help = "User ID")]
         id: i64,
     },
+}
+
+#[derive(Subcommand)]
+enum SystemFlagCommand {
+    #[clap(about = "List system flags")]
+    List {},
 }
 
 fn main() {
@@ -825,6 +837,25 @@ fn main() {
                     ]);
                     // tfaIsActive
                     // groups
+                    println!("{}", builder.build().with(Style::rounded()));
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    std::process::exit(1);
+                }
+            },
+        },
+        Command::SystemFlag { command } => match command {
+            SystemFlagCommand::List {} => match api.system_flag_list() {
+                Ok(flags) => {
+                    let mut builder = Builder::new();
+                    builder.push_record(["key", "value"]);
+                    for flag in flags {
+                        builder.push_record([
+                            flag.key.as_str(),
+                            flag.value.to_string().as_str(),
+                        ]);
+                    }
                     println!("{}", builder.build().with(Style::rounded()));
                 }
                 Err(e) => {
