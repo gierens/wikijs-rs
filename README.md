@@ -16,7 +16,7 @@ implemented and what is still to be done.
 
 ### asset
 - [x] `asset_list`
-- [ ] `asset_folder_list`
+- [x] `asset_folder_list`
 - [ ] `asset_folder_create`
 - [ ] `asset_rename`
 - [ ] `asset_delete`
@@ -54,7 +54,7 @@ implemented and what is still to be done.
 - [x] `contributor_list`
 
 ### group
-- [ ] `group_list`
+- [x] `group_list`
 - [ ] `group_get`
 - [ ] `group_create`
 - [ ] `group_update`
@@ -63,14 +63,14 @@ implemented and what is still to be done.
 - [ ] `group_unassign_user`
 
 ### localization
-- [ ] `locale_list`
+- [x] `locale_list`
 - [ ] `locale_config_get`
 - [ ] `translation_list`
 - [ ] `locale_download`
 - [ ] `locale_update`
 
 ### logging
-- [ ] `logger_list`
+- [x] `logger_list`
 - [ ] `logger_update`
 
 ### mail
@@ -130,7 +130,7 @@ implemented and what is still to be done.
 - [ ] `storage_execute_action`
 
 ### system
-- [ ] `system_flags_list`
+- [x] `system_flags_list`
 - [ ] `system_info_get`
 - [ ] `system_extension_list`
 - [ ] `system_status_export`
@@ -144,12 +144,12 @@ implemented and what is still to be done.
 - [ ] `system_export`
 
 ### theming
-- [ ] `theme_list`
+- [x] `theme_list`
 - [ ] `theme_config_get`
 - [ ] `theme_config_set`
 
 ### user
-- [ ] `user_list`
+- [x] `user_list`
 - [ ] `user_search`
 - [x] `user_get`
 - [ ] `user_profile_get`
