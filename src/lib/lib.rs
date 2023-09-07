@@ -16,7 +16,7 @@ pub mod group;
 // pub mod mail;
 pub mod page;
 // pub mod search;
-// pub mod system;
+pub mod system;
 pub mod user;
 
 #[derive(Debug)]
@@ -287,5 +287,15 @@ impl Api {
     // user functions
     pub fn user_get(&self, id: i64) -> Result<user::User, user::UserError> {
         user::user_get(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
+    // system functions
+    pub fn system_flag_list(
+        &self,
+    ) -> Result<Vec<system::SystemFlag>, system::SystemError> {
+        system::system_flag_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
     }
 }

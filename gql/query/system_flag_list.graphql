@@ -1,0 +1,8 @@
+query SystemFlagList {
+  system {
+    flags {
+      key
+      value
+    }
+  }
+}

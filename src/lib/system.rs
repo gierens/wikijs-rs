@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Date, Int, KnownErrorCodes, UnknownError,
+    classify_response_error, KnownErrorCodes, UnknownError, Boolean,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -60,4 +60,77 @@ impl KnownErrorCodes for SystemError {
     fn is_known_error_code(code: i64) -> bool {
         (7001..=7004).contains(&code)
     }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SystemFlag {
+    pub key: String,
+    pub value: Boolean,
+}
+
+pub mod system_flag_list {
+    use super::*;
+
+    pub struct SystemFlagList;
+
+    pub const OPERATION_NAME: &str = "SystemFlagList";
+    pub const QUERY : & str = "query SystemFlagList {\n  system {\n    flags {\n      key\n      value\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize, Debug)]
+    pub struct ResponseData {
+        pub system: Option<System>,
+    }
+
+    #[derive(Deserialize, Debug)]
+    pub struct System {
+        pub flags: Option<Vec<Option<SystemFlag>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for SystemFlagList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn system_flag_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<SystemFlag>, SystemError> {
+    let variables = system_flag_list::Variables {};
+    let response = post_graphql::<system_flag_list::SystemFlagList, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(flags) = system.flags {
+                return Ok(flags
+                    .into_iter()
+                    .filter_map(|x| x)
+                    .collect::<Vec<_>>());
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
 }
