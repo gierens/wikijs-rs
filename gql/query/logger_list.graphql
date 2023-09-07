@@ -1,0 +1,17 @@
+query LoggerList($filter: String, $orderBy: String) {
+  logging {
+    loggers(filter: $filter, orderBy: $orderBy) {
+      isEnabled
+      key
+      title
+      description
+      logo
+      website
+      level
+      config {
+        key
+        value
+      }
+    }
+  }
+}

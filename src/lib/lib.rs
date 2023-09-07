@@ -13,6 +13,7 @@ pub mod common;
 pub mod contribute;
 pub mod group;
 pub mod localization;
+pub mod logging;
 // pub mod mail;
 pub mod page;
 // pub mod search;
@@ -323,6 +324,20 @@ impl Api {
         localization::locale_list(
             &self.client,
             &format!("{}/graphql", self.url),
+        )
+    }
+
+    // logger functions
+    pub fn logger_list(
+        &self,
+        filter: Option<String>,
+        order_by: Option<String>,
+    ) -> Result<Vec<logging::Logger>, logging::LoggingError> {
+        logging::logger_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            filter,
+            order_by,
         )
     }
 
