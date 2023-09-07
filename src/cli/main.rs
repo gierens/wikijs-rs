@@ -74,6 +74,12 @@ enum Command {
         command: GroupCommand,
     },
 
+    #[clap(about = "Locale commands")]
+    Locale {
+        #[clap(subcommand)]
+        command: LocaleCommand,
+    },
+
     #[clap(about = "System flag commands")]
     SystemFlag {
         #[clap(subcommand)]
@@ -282,6 +288,12 @@ enum GroupCommand {
         #[clap(short, long, help = "Order groups by this")]
         order_by: Option<String>,
     },
+}
+
+#[derive(Subcommand)]
+enum LocaleCommand {
+    #[clap(about = "List groups")]
+    List
 }
 
 #[derive(Subcommand)]
