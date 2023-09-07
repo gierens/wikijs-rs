@@ -68,6 +68,12 @@ enum Command {
         command: UserCommand,
     },
 
+    #[clap(about = "Group commands")]
+    Group {
+        #[clap(subcommand)]
+        command: GroupCommand,
+    },
+
     #[clap(about = "System flag commands")]
     SystemFlag {
         #[clap(subcommand)]
@@ -262,6 +268,18 @@ enum UserCommand {
         filter: Option<String>,
 
         #[clap(short, long, help = "Order users by this")]
+        order_by: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+enum GroupCommand {
+    #[clap(about = "List groups")]
+    List {
+        #[clap(short, long, help = "Filter groups by this")]
+        filter: Option<String>,
+
+        #[clap(short, long, help = "Order groups by this")]
         order_by: Option<String>,
     },
 }
@@ -876,6 +894,36 @@ fn main() {
                             user.is_active.to_string().as_str(),
                             user.created_at.to_string().as_str(),
                             user.last_login_at.unwrap_or("".to_string()).as_str(),
+                        ]);
+                    }
+                    println!("{}", builder.build().with(Style::rounded()));
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    std::process::exit(1);
+                }
+            }
+        },
+        Command::Group { command } => match command {
+            GroupCommand::List { filter, order_by } => match api.group_list(filter, order_by) {
+                Ok(groups) => {
+                    let mut builder = Builder::new();
+                    builder.push_record([
+                        "id",
+                        "name",
+                        "is_system",
+                        "user_count",
+                        "created_at",
+                        "updated_at",
+                    ]);
+                    for group in groups {
+                        builder.push_record([
+                            group.id.to_string().as_str(),
+                            group.name.as_str(),
+                            group.is_system.to_string().as_str(),
+                            group.user_count.unwrap_or(0).to_string().as_str(),
+                            group.created_at.to_string().as_str(),
+                            group.updated_at.to_string().as_str(),
                         ]);
                     }
                     println!("{}", builder.build().with(Style::rounded()));
