@@ -12,6 +12,7 @@ pub mod comment;
 pub mod common;
 pub mod contribute;
 pub mod group;
+// pub mod localization;
 // pub mod mail;
 pub mod page;
 // pub mod search;
