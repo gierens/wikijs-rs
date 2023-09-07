@@ -255,6 +255,15 @@ enum UserCommand {
         #[clap(help = "User ID")]
         id: i64,
     },
+
+    #[clap(about = "List users")]
+    List {
+        #[clap(short, long, help = "Filter users by this")]
+        filter: Option<String>,
+
+        #[clap(short, long, help = "Order users by this")]
+        order_by: Option<String>,
+    },
 }
 
 #[derive(Subcommand)]
@@ -844,6 +853,38 @@ fn main() {
                     std::process::exit(1);
                 }
             },
+            UserCommand::List { filter, order_by } => match api.user_list(filter, order_by) {
+                Ok(users) => {
+                    let mut builder = Builder::new();
+                    builder.push_record([
+                        "id",
+                        "name",
+                        "email",
+                        "provider_key",
+                        "is_system",
+                        "is_active",
+                        "created_at",
+                        "last_login_at",
+                    ]);
+                    for user in users {
+                        builder.push_record([
+                            user.id.to_string().as_str(),
+                            user.name.as_str(),
+                            user.email.as_str(),
+                            user.provider_key.as_str(),
+                            user.is_system.to_string().as_str(),
+                            user.is_active.to_string().as_str(),
+                            user.created_at.to_string().as_str(),
+                            user.last_login_at.unwrap_or("".to_string()).as_str(),
+                        ]);
+                    }
+                    println!("{}", builder.build().with(Style::rounded()));
+                }
+                Err(e) => {
+                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                    std::process::exit(1);
+                }
+            }
         },
         Command::SystemFlag { command } => match command {
             SystemFlagCommand::List {} => match api.system_flag_list() {
