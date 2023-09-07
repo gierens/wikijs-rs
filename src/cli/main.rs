@@ -292,7 +292,7 @@ enum GroupCommand {
 
 #[derive(Subcommand)]
 enum LocaleCommand {
-    #[clap(about = "List groups")]
+    #[clap(about = "List locales")]
     List
 }
 
