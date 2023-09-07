@@ -302,6 +302,20 @@ impl Api {
         )
     }
 
+    // group functions
+    pub fn group_list(
+        &self,
+        filter: Option<String>,
+        order_by: Option<String>,
+    ) -> Result<Vec<group::GroupMinimal>, group::GroupError> {
+        group::group_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            filter,
+            order_by,
+        )
+    }
+
     // system functions
     pub fn system_flag_list(
         &self,

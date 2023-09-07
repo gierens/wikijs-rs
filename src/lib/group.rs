@@ -1,7 +1,43 @@
-use serde::Deserialize;
+use graphql_client::reqwest::post_graphql_blocking as post_graphql;
+use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
-use crate::common::{Boolean, Date, Int, ResponseStatus};
+use crate::common::{
+    classify_response_error, Date, UnknownError, Boolean, Int, ResponseStatus
+};
 use crate::user::UserMinimal;
+
+#[derive(Error, Debug, PartialEq)]
+pub enum GroupError {
+    #[error("Unknown response error code: {code}: {message}")]
+    UnknownErrorCode { code: i64, message: String },
+    #[error("Unknown response error: {message}")]
+    UnknownErrorMessage { message: String },
+    #[error("Unknown response error.")]
+    UnknownError,
+}
+
+impl From<i64> for GroupError {
+    fn from(code: i64) -> Self {
+        GroupError::UnknownErrorCode {
+            code,
+            message: "Unknown error".to_string(),
+        }
+    }
+}
+
+impl UnknownError for GroupError {
+    fn unknown_error_code(code: i64, message: String) -> Self {
+        GroupError::UnknownErrorCode { code, message }
+    }
+    fn unknown_error_message(message: String) -> Self {
+        GroupError::UnknownErrorMessage { message }
+    }
+    fn unknown_error() -> Self {
+        GroupError::UnknownError
+    }
+}
 
 #[derive(Deserialize, Debug)]
 pub struct GroupResponse {
@@ -68,4 +104,70 @@ pub enum PageRuleMatch {
     END,
     REGEX,
     TAG,
+}
+
+pub mod group_list {
+    use super::*;
+
+    pub struct GroupList;
+
+    pub const OPERATION_NAME: &str = "GroupList";
+    pub const QUERY : & str = "query GroupList($filter: String, $orderBy: String) {\n  groups {\n    list (filter: $filter, orderBy: $orderBy) {\n      id\n      name\n      isSystem\n      userCount\n      createdAt\n      updatedAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub filter: Option<String>,
+        #[serde(rename = "orderBy")]
+        pub order_by: Option<String>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub groups: Option<Groups>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Groups {
+        pub list: Option<Vec<Option<GroupMinimal>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for GroupList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn group_list(
+    client: &Client,
+    url: &str,
+    filter: Option<String>,
+    order_by: Option<String>,
+) -> Result<Vec<GroupMinimal>, GroupError> {
+    let variables = group_list::Variables { filter, order_by };
+    let response = post_graphql::<group_list::GroupList, _>(client, url, variables);
+    if response.is_err() {
+        return Err(GroupError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(groups) = data.groups {
+            if let Some(list) = groups.list {
+                return Ok(list.into_iter().flatten().collect());
+            }
+        }
+    }
+    Err(classify_response_error::<GroupError>(response_body.errors))
 }

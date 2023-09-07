@@ -1,0 +1,12 @@
+query GroupList($filter: String, $orderBy: String) {
+  groups {
+    list (filter: $filter, orderBy: $orderBy) {
+      id
+      name
+      isSystem
+      userCount
+      createdAt
+      updatedAt
+    }
+  }
+}
