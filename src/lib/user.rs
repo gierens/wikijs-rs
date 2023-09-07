@@ -106,11 +106,14 @@ impl UnknownError for UserError {
 
 impl KnownErrorCodes for UserError {
     fn known_error_codes() -> Vec<i64> {
-        vec![8001, 8002, 8003, 8004, 8005, 8006]
+        vec![
+            1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1010, 1011, 1012,
+            1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020,
+        ]
     }
 
     fn is_known_error_code(code: i64) -> bool {
-        (6001..=6013).contains(&code)
+        (1001..=1020).contains(&code)
     }
 }
 

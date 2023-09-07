@@ -64,7 +64,7 @@ impl KnownErrorCodes for CommentError {
     }
 
     fn is_known_error_code(code: i64) -> bool {
-        (6001..=6013).contains(&code)
+        (8001..=8006).contains(&code)
     }
 }
 
