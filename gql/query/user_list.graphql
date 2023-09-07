@@ -1,0 +1,13 @@
+query UserList($filter: String, $orderBy: String) {
+  users {
+    list (filter: $filter, orderBy: $orderBy) {
+      id
+      name
+      email providerKey
+      isSystem
+      isActive
+      createdAt
+      lastLoginAt
+    }
+  }
+}

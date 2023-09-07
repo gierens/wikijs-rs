@@ -289,6 +289,19 @@ impl Api {
         user::user_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    pub fn user_list(
+        &self,
+        filter: Option<String>,
+        order_by: Option<String>,
+    ) -> Result<Vec<user::UserMinimal>, user::UserError> {
+        user::user_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            filter,
+            order_by,
+        )
+    }
+
     // system functions
     pub fn system_flag_list(
         &self,

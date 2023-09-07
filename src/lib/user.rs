@@ -286,3 +286,69 @@ pub fn user_get(
     }
     Err(classify_response_error::<UserError>(response_body.errors))
 }
+
+pub mod user_list {
+    use super::*;
+
+    pub struct UserList;
+
+    pub const OPERATION_NAME: &str = "UserList";
+    pub const QUERY : & str = "query UserList($filter: String, $orderBy: String) {\n  users {\n    list (filter: $filter, orderBy: $orderBy) {\n      id\n      name\n      email providerKey\n      isSystem\n      isActive\n      createdAt\n      lastLoginAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub filter: Option<String>,
+        #[serde(rename = "orderBy")]
+        pub order_by: Option<String>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub list: Option<Vec<Option<UserMinimal>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_list(
+    client: &Client,
+    url: &str,
+    filter: Option<String>,
+    order_by: Option<String>,
+) -> Result<Vec<UserMinimal>, UserError> {
+    let variables = user_list::Variables { filter, order_by };
+    let response = post_graphql::<user_list::UserList, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(list) = users.list {
+                return Ok(list.into_iter().flatten().collect());
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
