@@ -13,6 +13,7 @@ pub mod common;
 pub mod contribute;
 pub mod group;
 pub mod page;
+// pub mod search;
 // pub mod system;
 pub mod user;
 
