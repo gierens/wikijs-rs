@@ -38,6 +38,12 @@ enum Command {
         command: AssetCommand,
     },
 
+    #[clap(about = "Asset folder commands")]
+    AssetFolder {
+        #[clap(subcommand)]
+        command: AssetFolderCommand,
+    },
+
     #[clap(about = "Page commands")]
     Page {
         #[clap(subcommand)]
@@ -97,6 +103,15 @@ enum Command {
 enum AssetCommand {
     #[clap(about = "List assets")]
     List {},
+}
+
+#[derive(Subcommand)]
+enum AssetFolderCommand {
+    #[clap(about = "List asset folders")]
+    List {
+        #[clap(help = "Parent folder ID")]
+        parent_folder_id: i64,
+    },
 }
 
 #[derive(Subcommand)]
@@ -368,6 +383,38 @@ fn main() {
                     std::process::exit(1);
                 }
             },
+        },
+        Command::AssetFolder { command } => match command {
+            AssetFolderCommand::List { parent_folder_id } => {
+                match api.asset_folder_list(parent_folder_id) {
+                    Ok(asset_folders) => {
+                        let mut builder = Builder::new();
+                        builder.push_record([
+                            "id",
+                            "slug",
+                            "name",
+                        ]);
+                        for asset_folder in asset_folders {
+                            builder.push_record([
+                                asset_folder.id.to_string().as_str(),
+                                asset_folder.slug.as_str(),
+                                asset_folder
+                                    .name
+                                    .unwrap_or("".to_string())
+                                    .as_str(),
+                            ]);
+                        }
+                        println!(
+                            "{}",
+                            builder.build().with(Style::rounded())
+                        );
+                    }
+                    Err(e) => {
+                        eprintln!("{}: {}", "error".bold().red(), e.to_string());
+                        std::process::exit(1);
+                    }
+                }
+            }
         },
         Command::Page { command } => match command {
             PageCommand::Get { id } => match api.page_get(id) {
