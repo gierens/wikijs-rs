@@ -95,6 +95,21 @@ impl Api {
         )
     }
 
+    pub fn asset_folder_create(
+        &self,
+        parent_folder_id: i64,
+        slug: String,
+        name: Option<String>,
+    ) -> Result<(), asset::AssetError> {
+        asset::asset_folder_create(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            parent_folder_id,
+            slug,
+            name,
+        )
+    }
+
     // page functions
     pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)

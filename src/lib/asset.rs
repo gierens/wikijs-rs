@@ -3,7 +3,7 @@ use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::common::{classify_response_error, Date, Int, UnknownError};
+use crate::common::{classify_response_error, Date, Int, UnknownError, ResponseStatus, classify_response_status_error, KnownErrorCodes};
 
 #[derive(Error, Debug, PartialEq)]
 pub enum AssetError {
@@ -66,6 +66,23 @@ impl UnknownError for AssetError {
     }
     fn unknown_error() -> Self {
         AssetError::UnknownError
+    }
+}
+
+impl KnownErrorCodes for AssetError {
+    fn known_error_codes() -> Vec<i64> {
+        vec![
+            2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+            2009,
+        ]
+    }
+
+    fn is_known_error_code(code: i64) -> bool {
+        match code {
+            2001 | 2002 | 2003 | 2004 | 2005 | 2006 | 2007
+            | 2008 | 2009 => true,
+            _ => false,
+        }
     }
 }
 
@@ -243,6 +260,95 @@ pub fn asset_folder_list(
                     .into_iter()
                     .flatten()
                     .collect::<Vec<AssetFolder>>());
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod asset_folder_create {
+
+    use super::*;
+
+    pub struct AssetFolderCreate;
+
+    pub const OPERATION_NAME: &str = "AssetFolderCreate";
+    pub const QUERY : & str = "mutation AssetFolderCreate(\n  $parentFolderId: Int!\n  $slug: String!\n  $name: String\n) {\n  assets {\n    createFolder(\n      parentFolderId: $parentFolderId\n      slug: $slug\n      name: $name\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "parentFolderId")]
+        pub parent_folder_id: Int,
+        pub slug: String,
+        pub name: Option<String>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub assets: Option<Assets>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Assets {
+        #[serde(rename = "createFolder")]
+        pub create_folder: Option<CreateFolder>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct CreateFolder {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for AssetFolderCreate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn asset_folder_create(
+    client: &Client,
+    url: &str,
+    parent_folder_id: Int,
+    slug: String,
+    name: Option<String>,
+) -> Result<(), AssetError> {
+    let variables = asset_folder_create::Variables {
+        parent_folder_id,
+        slug,
+        name,
+    };
+    let response =
+        post_graphql::<asset_folder_create::AssetFolderCreate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(AssetError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(assets) = data.assets {
+            if let Some(create_folder) = assets.create_folder {
+                if let Some(response_result) = create_folder.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
             }
         }
     }
