@@ -1212,3 +1212,94 @@ pub fn user_update(
     }
     Err(classify_response_error::<UserError>(response_body.errors))
 }
+
+pub mod user_profile_update {
+    use super::*;
+
+    pub struct UserProfileUpdate;
+
+    pub const OPERATION_NAME: &str = "UserProfileUpdate";
+    pub const QUERY : & str = "mutation UserProfileUpdate(\n  $name: String!\n  $location: String!\n  $jobTitle: String!\n  $timezone: String!\n  $dateFormat: String!\n  $appearance: String!\n) {\n  users {\n    updateProfile (\n      name: $name\n      location: $location\n      jobTitle: $jobTitle\n      timezone: $timezone\n      dateFormat: $dateFormat\n      appearance: $appearance\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      jwt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub name: String,
+        pub location: String,
+        #[serde(rename = "jobTitle")]
+        pub job_title: String,
+        pub timezone: String,
+        #[serde(rename = "dateFormat")]
+        pub date_format: String,
+        pub appearance: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        #[serde(rename = "updateProfile")]
+        pub update_profile: Option<UserTokenResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserProfileUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_profile_update(
+    client: &Client,
+    url: &str,
+    name: String,
+    location: String,
+    job_title: String,
+    timezone: String,
+    date_format: String,
+    appearance: String,
+) -> Result<Option<String>, UserError> {
+    let variables = user_profile_update::Variables {
+        name,
+        location,
+        job_title,
+        timezone,
+        date_format,
+        appearance,
+    };
+    let response =
+        post_graphql::<user_profile_update::UserProfileUpdate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(update_profile) = users.update_profile {
+                if update_profile.response_result.succeeded {
+                    return Ok(update_profile.jwt);
+                } else {
+                    return Err(classify_response_status_error::<UserError>(
+                        update_profile.response_result,
+                    ));
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}

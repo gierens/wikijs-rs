@@ -162,6 +162,6 @@ implemented and what is still to be done.
 - [x] `user_deactivate`
 - [x] `user_tfa_enable`
 - [x] `user_tfa_disable`
-- [ ] `user_profile_update`
+- [x] `user_profile_update`
 - [ ] `user_password_change`
 - [ ] `user_password_reset`

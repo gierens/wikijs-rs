@@ -659,6 +659,27 @@ impl Api {
         )
     }
 
+    pub fn user_profile_update(
+        &self,
+        name: String,
+        location: String,
+        job_title: String,
+        timezone: String,
+        date_format: String,
+        appearance: String,
+    ) -> Result<Option<String>, user::UserError> {
+        user::user_profile_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            name,
+            location,
+            job_title,
+            timezone,
+            date_format,
+            appearance,
+        )
+    }
+
     // group functions
     pub fn group_list(
         &self,
