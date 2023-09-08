@@ -1,0 +1,28 @@
+mutation ThemeConfigUpdate (
+  $theme: String!
+  $iconset: String!
+  $darkMode: Boolean!
+  $tocPosition: String
+  $injectCSS: String
+  $injectHead: String
+  $injectBody: String
+) {
+  theming {
+    setConfig (
+      theme: $theme
+      iconset: $iconset
+      darkMode: $darkMode
+      tocPosition: $tocPosition
+      injectCSS: $injectCSS
+      injectHead: $injectHead
+      injectBody: $injectBody
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}
