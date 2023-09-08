@@ -46,7 +46,7 @@ implemented and what is still to be done.
 - [x] `comment_list`
 - [x] `comment_get`
 - [x] `comment_provider_update`
-- [ ] `comment_create`
+- [x] `comment_create`
 - [ ] `comment_update`
 - [ ] `comment_delete`
 

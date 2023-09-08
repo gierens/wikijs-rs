@@ -554,6 +554,25 @@ impl Api {
         )
     }
 
+    pub fn comment_create(
+        &self,
+        page_id: i64,
+        reply_to: Option<i64>,
+        content: String,
+        guest_name: Option<String>,
+        guest_email: Option<String>,
+    ) -> Result<(), comment::CommentError> {
+        comment::comment_create(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            page_id,
+            reply_to,
+            content,
+            guest_name,
+            guest_email,
+        )
+    }
+
     // user functions
     pub fn user_get(&self, id: i64) -> Result<user::User, user::UserError> {
         user::user_get(&self.client, &format!("{}/graphql", self.url), id)

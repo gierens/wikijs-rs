@@ -111,6 +111,13 @@ pub struct CommentProviderInput {
     pub config: Option<Vec<Option<KeyValuePairInput>>>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct CommentCreateResponse {
+    #[serde(rename = "responseResult")]
+    pub response_result: Option<ResponseStatus>,
+    pub id: Option<Int>,
+}
+
 pub mod comment_list {
     use super::*;
 
@@ -376,6 +383,99 @@ pub fn comment_provider_update(
             if let Some(update_providers) = comments.update_providers {
                 if let Some(response_result) = update_providers.response_result {
                     if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            CommentError,
+                        >(response_result));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<CommentError>(
+        response_body.errors,
+    ))
+}
+
+pub mod comment_create {
+    use super::*;
+
+    pub struct CommentCreate;
+
+    pub const OPERATION_NAME: &str = "CommentCreate";
+    pub const QUERY : & str = "mutation CommentCreate(\n  $pageId: Int!\n  $replyTo: Int\n  $content: String!\n  $guestName: String\n  $guestEmail: String\n) {\n  comments {\n    create (\n      pageId: $pageId\n      replyTo: $replyTo\n      content: $content\n      guestName: $guestName\n      guestEmail: $guestEmail\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      id\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "pageId")]
+        pub page_id: Int,
+        #[serde(rename = "replyTo")]
+        pub reply_to: Option<Int>,
+        pub content: String,
+        #[serde(rename = "guestName")]
+        pub guest_name: Option<String>,
+        #[serde(rename = "guestEmail")]
+        pub guest_email: Option<String>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub comments: Option<Comments>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Comments {
+        pub create: Option<CommentCreateResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for CommentCreate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn comment_create(
+    client: &Client,
+    url: &str,
+    page_id: Int,
+    reply_to: Option<Int>,
+    content: String,
+    guest_name: Option<String>,
+    guest_email: Option<String>,
+) -> Result<(), CommentError> {
+    let variables = comment_create::Variables {
+        page_id,
+        reply_to,
+        content,
+        guest_name,
+        guest_email,
+    };
+    let response =
+        post_graphql::<comment_create::CommentCreate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(CommentError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(comments) = data.comments {
+            if let Some(create) = comments.create {
+                if let Some(response_result) = create.response_result {
+                    if response_result.succeeded {
+                        // TODO check if this does really not return an id
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error::<
