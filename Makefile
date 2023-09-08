@@ -33,7 +33,7 @@ gql/schema.graphql: gql/schema/*.graphql
 	cat $^ | sed -e '/\(^extend type\|^type Query\|^type Mutation\|^type Subscription\)/,+3d' >> $@
 
 .PHONY: queries
-queries: $(patsubst gql/query/%.graphql,gql/query/%.rs,$(wildcard gql/query/*.graphql))
+queries: $(patsubst gql/query/%.graphql,gql/query/%.rs,$(wildcard gql/query/*/*.graphql))
 
 gql/query/%.rs: gql/query/%.graphql
 	@echo "Generating GraphQL query..."

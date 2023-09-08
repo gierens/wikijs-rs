@@ -1,0 +1,17 @@
+query SearchEngineList($filter: String, $orderBy: String) {
+  search {
+    searchEngines(filter: $filter, orderBy: $orderBy) {
+      isEnabled
+      key
+      title
+      description
+      logo
+      website
+      isAvailable
+      config {
+        key
+        value
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+query RendererList($filter: String, $orderBy: String) {
+  rendering {
+    renderers(filter: $filter, orderBy: $orderBy) {
+      isEnabled
+      key
+      title
+      description
+      icon
+      dependsOn
+      input
+      output
+      config {
+        key
+        value
+      }
+    }
+  }
+}
