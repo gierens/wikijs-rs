@@ -1,0 +1,47 @@
+query SiteConfigGet {
+  site {
+    config {
+      host
+      title
+      description
+      robots
+      analyticsService
+      analyticsId
+      company
+      contentLicense
+      footerOverride
+      logoUrl
+      pageExtensions
+      authAutoLogin
+      authEnforce2FA
+      authHideLocal
+      authLoginBgUrl
+      authJwtAudience
+      authJwtExpiration
+      authJwtRenewablePeriod
+      editFab
+      editMenuBar
+      editMenuBtn
+      editMenuExternalBtn
+      editMenuExternalName
+      editMenuExternalIcon
+      editMenuExternalUrl
+      featurePageRatings
+      featurePageComments
+      featurePersonalWikis
+      securityOpenRedirect
+      securityIframe
+      securityReferrerPolicy
+      securityTrustProxy
+      securitySRI
+      securityHSTS
+      securityHSTSDuration
+      securityCSP
+      securityCSPDirectives
+      uploadMaxFileSize
+      uploadMaxFiles
+      uploadScanSVG
+      uploadForceDownload
+    }
+  }
+}

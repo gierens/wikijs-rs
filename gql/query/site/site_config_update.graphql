@@ -1,0 +1,96 @@
+mutation SiteConfigUpdate(
+  $host: String
+  $title: String
+  $description: String
+  $robots: [String]
+  $analyticsService: String
+  $analyticsId: String
+  $company: String
+  $contentLicense: String
+  $footerOverride: String
+  $logoUrl: String
+  $pageExtensions: String
+  $authAutoLogin: Boolean
+  $authEnforce2FA: Boolean
+  $authHideLocal: Boolean
+  $authLoginBgUrl: String
+  $authJwtAudience: String
+  $authJwtExpiration: String
+  $authJwtRenewablePeriod: String
+  $editFab: Boolean
+  $editMenuBar: Boolean
+  $editMenuBtn: Boolean
+  $editMenuExternalBtn: Boolean
+  $editMenuExternalName: String
+  $editMenuExternalIcon: String
+  $editMenuExternalUrl: String
+  $featurePageRatings: Boolean
+  $featurePageComments: Boolean
+  $featurePersonalWikis: Boolean
+  $securityOpenRedirect: Boolean
+  $securityIframe: Boolean
+  $securityReferrerPolicy: Boolean
+  $securityTrustProxy: Boolean
+  $securitySRI: Boolean
+  $securityHSTS: Boolean
+  $securityHSTSDuration: Int
+  $securityCSP: Boolean
+  $securityCSPDirectives: String
+  $uploadMaxFileSize: Int
+  $uploadMaxFiles: Int
+  $uploadScanSVG: Boolean
+  $uploadForceDownload: Boolean
+) {
+  site {
+    updateConfig(
+      host: $host
+      title: $title
+      description: $description
+      robots: $robots
+      analyticsService: $analyticsService
+      analyticsId: $analyticsId
+      company: $company
+      contentLicense: $contentLicense
+      footerOverride: $footerOverride
+      logoUrl: $logoUrl
+      pageExtensions: $pageExtensions
+      authAutoLogin: $authAutoLogin
+      authEnforce2FA: $authEnforce2FA
+      authHideLocal: $authHideLocal
+      authLoginBgUrl: $authLoginBgUrl
+      authJwtAudience: $authJwtAudience
+      authJwtExpiration: $authJwtExpiration
+      authJwtRenewablePeriod: $authJwtRenewablePeriod
+      editFab: $editFab
+      editMenuBar: $editMenuBar
+      editMenuBtn: $editMenuBtn
+      editMenuExternalBtn: $editMenuExternalBtn
+      editMenuExternalName: $editMenuExternalName
+      editMenuExternalIcon: $editMenuExternalIcon
+      editMenuExternalUrl: $editMenuExternalUrl
+      featurePageRatings: $featurePageRatings
+      featurePageComments: $featurePageComments
+      featurePersonalWikis: $featurePersonalWikis
+      securityOpenRedirect: $securityOpenRedirect
+      securityIframe: $securityIframe
+      securityReferrerPolicy: $securityReferrerPolicy
+      securityTrustProxy: $securityTrustProxy
+      securitySRI: $securitySRI
+      securityHSTS: $securityHSTS
+      securityHSTSDuration: $securityHSTSDuration
+      securityCSP: $securityCSP
+      securityCSPDirectives: $securityCSPDirectives
+      uploadMaxFileSize: $uploadMaxFileSize
+      uploadMaxFiles: $uploadMaxFiles
+      uploadScanSVG: $uploadScanSVG
+      uploadForceDownload: $uploadForceDownload
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}
