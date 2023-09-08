@@ -693,6 +693,17 @@ impl Api {
         )
     }
 
+    pub fn user_password_reset(
+        &self,
+        id: i64,
+    ) -> Result<(), user::UserError> {
+        user::user_password_reset(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+        )
+    }
+
     // group functions
     pub fn group_list(
         &self,

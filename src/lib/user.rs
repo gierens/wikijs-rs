@@ -1377,3 +1377,83 @@ pub fn user_password_change(
     }
     Err(classify_response_error::<UserError>(response_body.errors))
 }
+
+pub mod user_password_reset {
+    use super::*;
+
+    pub struct UserPasswordReset;
+
+    pub const OPERATION_NAME: &str = "UserPasswordReset";
+    pub const QUERY : & str = "mutation UserPasswordReset($id: Int!) {\n  users {\n    resetPassword(id: $id) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+    
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        #[serde(rename = "resetPassword")]
+        pub reset_password: Option<ResetPassword>,
+    }
+    #[derive(Deserialize)]
+    pub struct ResetPassword {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserPasswordReset {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_password_reset(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<(), UserError> {
+    let variables = user_password_reset::Variables { id };
+    let response =
+        post_graphql::<user_password_reset::UserPasswordReset, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(reset_password) = users.reset_password {
+                if let Some(response_result) = reset_password.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<UserError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
