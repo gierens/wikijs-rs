@@ -7,6 +7,7 @@ use wikijs::{Api, Credentials};
 
 mod analytics;
 mod asset;
+mod comment;
 mod common;
 mod contribute;
 mod group;
@@ -79,7 +80,7 @@ enum Command {
     #[clap(about = "Comment commands")]
     Comment {
         #[clap(subcommand)]
-        command: CommentCommand,
+        command: comment::CommentCommand,
     },
 
     #[clap(about = "User commands")]
@@ -266,18 +267,6 @@ enum PageCommand {
 enum AnalyticsProviderCommand {
     #[clap(about = "List analytics providers")]
     List {},
-}
-
-#[derive(Subcommand)]
-enum CommentCommand {
-    #[clap(about = "List comments")]
-    List {
-        #[clap(short, long, help = "Page locale", default_value = "en")]
-        locale: String,
-
-        #[clap(help = "Page path")]
-        path: String,
-    },
 }
 
 #[derive(Subcommand)]
@@ -748,48 +737,7 @@ fn main() {
                 }
             }
         },
-        Command::Comment { command } => match command {
-            CommentCommand::List { locale, path } => {
-                match api.comment_list(locale, path) {
-                    Ok(comments) => {
-                        let mut builder = Builder::new();
-                        builder.push_record([
-                            "id",
-                            // "content",
-                            // "render",
-                            "author_id",
-                            "author_name",
-                            "author_email",
-                            // "author_ip",
-                            "created_at",
-                            "updated_at",
-                        ]);
-                        for comment in comments {
-                            builder.push_record([
-                                comment.id.to_string().as_str(),
-                                // comment.content.as_str(),
-                                // comment.render.as_str(),
-                                comment.author_id.to_string().as_str(),
-                                comment.author_name.as_str(),
-                                comment.author_email.as_str(),
-                                // comment.author_ip.as_str(),
-                                comment.created_at.to_string().as_str(),
-                                comment.updated_at.to_string().as_str(),
-                            ]);
-                        }
-                        println!("{}", builder.build().with(Style::rounded()));
-                    }
-                    Err(e) => {
-                        eprintln!(
-                            "{}: {}",
-                            "error".bold().red(),
-                            e.to_string()
-                        );
-                        std::process::exit(1);
-                    }
-                }
-            }
-        },
+        Command::Comment { command } => command.execute(api),
         Command::User { command } => match command {
             UserCommand::Get { id } => match api.user_get(id) {
                 Ok(user) => {
