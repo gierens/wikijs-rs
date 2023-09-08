@@ -1939,3 +1939,87 @@ pub fn page_cache_flush(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_migrate_to_locale {
+    use super::*;
+
+    pub struct PageMigrateToLocale;
+
+    pub const OPERATION_NAME: &str = "PageMigrateToLocale";
+    pub const QUERY : & str = "mutation PageMigrateToLocale(\n  $sourceLocale: String!\n  $targetLocale: String!\n) {\n  pages {\n    migrateToLocale(\n      sourceLocale: $sourceLocale\n      targetLocale: $targetLocale\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "sourceLocale")]
+        pub source_locale: String,
+        #[serde(rename = "targetLocale")]
+        pub target_locale: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        #[serde(rename = "migrateToLocale")]
+        pub migrate_to_locale: Option<MigrateToLocale>,
+    }
+    #[derive(Deserialize)]
+    pub struct MigrateToLocale {
+        #[serde(rename = "responseResult")]
+        pub response_result: ResponseStatus,
+    }
+
+    impl graphql_client::GraphQLQuery for PageMigrateToLocale {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            ::graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_migrate_to_locale(
+    client: &Client,
+    url: &str,
+    source_locale: String,
+    target_locale: String,
+) -> Result<(), PageError> {
+    let variables = page_migrate_to_locale::Variables {
+        source_locale,
+        target_locale,
+    };
+    let response =
+        post_graphql::<page_migrate_to_locale::PageMigrateToLocale, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(migrate_to_locale) = pages.migrate_to_locale {
+                if migrate_to_locale.response_result.succeeded {
+                    return Ok(());
+                } else {
+                    return Err(classify_response_status_error(
+                        migrate_to_locale.response_result,
+                    ));
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

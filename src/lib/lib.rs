@@ -421,6 +421,19 @@ impl Api {
         page::page_cache_flush(&self.client, &format!("{}/graphql", self.url))
     }
 
+    pub fn page_migrate_to_locale(
+        &self,
+        source_locale: String,
+        target_locale: String,
+    ) -> Result<(), page::PageError> {
+        page::page_migrate_to_locale(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            source_locale,
+            target_locale,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,
