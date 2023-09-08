@@ -946,3 +946,63 @@ pub fn user_profile_get(
     }
     Err(classify_response_error::<UserError>(response_body.errors))
 }
+
+pub mod user_last_login_list {
+    use super::*;
+
+    pub struct UserLastLoginList;
+
+    pub const OPERATION_NAME: &str = "UserLastLoginList";
+    pub const QUERY : & str = "query UserLastLoginList {\n  users {\n    lastLogins {\n      id\n      name\n      lastLoginAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        #[serde(rename = "lastLogins")]
+        pub last_logins: Option<Vec<Option<UserLastLogin>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserLastLoginList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            _variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables: Variables {},
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_last_login_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<UserLastLogin>, UserError> {
+    let variables = user_last_login_list::Variables {};
+    let response =
+        post_graphql::<user_last_login_list::UserLastLoginList, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(last_logins) = users.last_logins {
+                return Ok(last_logins.into_iter().flatten().collect());
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}

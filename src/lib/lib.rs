@@ -601,6 +601,12 @@ impl Api {
         user::user_profile_get(&self.client, &format!("{}/graphql", self.url))
     }
 
+    pub fn user_last_login_list(
+        &self,
+    ) -> Result<Vec<user::UserLastLogin>, user::UserError> {
+        user::user_last_login_list(&self.client, &format!("{}/graphql", self.url))
+    }
+
     // group functions
     pub fn group_list(
         &self,
