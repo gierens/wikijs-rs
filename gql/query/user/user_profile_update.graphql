@@ -1,0 +1,27 @@
+mutation UserProfileUpdate(
+  $name: String!
+  $location: String!
+  $jobTitle: String!
+  $timezone: String!
+  $dateFormat: String!
+  $appearance: String!
+) {
+  users {
+    updateProfile (
+      name: $name
+      location: $location
+      jobTitle: $jobTitle
+      timezone: $timezone
+      dateFormat: $dateFormat
+      appearance: $appearance
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+      jwt
+    }
+  }
+}

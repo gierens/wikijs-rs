@@ -1,0 +1,23 @@
+query UserProfileGet {
+  users {
+    profile {
+      id
+      name
+      email
+      providerKey
+      providerName
+      isSystem
+      isVerified
+      location
+      jobTitle
+      timezone
+      dateFormat
+      appearance
+      createdAt
+      updatedAt
+      lastLoginAt
+      groups
+      pagesTotal
+    }
+  }
+}

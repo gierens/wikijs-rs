@@ -1,0 +1,9 @@
+query UserLastLoginList {
+  users {
+    lastLogins {
+      id
+      name
+      lastLoginAt
+    }
+  }
+}

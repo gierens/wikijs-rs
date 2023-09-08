@@ -1,0 +1,34 @@
+mutation UserUpdate(
+  $id: Int!
+  $email: String
+  $name: String
+  $newPassword: String
+  $groups: [Int]
+  $location: String
+  $jobTitle: String
+  $timezone: String
+  $dateFormat: String
+  $appearance: String
+) {
+  users {
+    update (
+      id: $id
+      email: $email
+      name: $name
+      newPassword: $newPassword
+      groups: $groups
+      location: $location
+      jobTitle: $jobTitle
+      timezone: $timezone
+      dateFormat: $dateFormat
+      appearance: $appearance
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}
