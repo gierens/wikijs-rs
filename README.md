@@ -107,7 +107,7 @@ implemented and what is still to be done.
 - [x] `page_migrate_to_locale`
 - [x] `page_rebuild_tree`
 - [x] `page_render`
-- [ ] `page_restore`
+- [x] `page_restore`
 - [ ] `page_purge_history`
 
 ### rendering

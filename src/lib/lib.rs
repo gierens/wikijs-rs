@@ -440,6 +440,19 @@ impl Api {
         page::page_tree_rebuild(&self.client, &format!("{}/graphql", self.url))
     }
 
+    pub fn page_restore(
+        &self,
+        page_id: i64,
+        version_id: i64,
+    ) -> Result<(), page::PageError> {
+        page::page_restore(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            page_id,
+            version_id,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,

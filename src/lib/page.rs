@@ -2099,3 +2099,89 @@ pub fn page_tree_rebuild(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_restore {
+    use super::*;
+
+    pub struct PageRestore;
+
+    pub const OPERATION_NAME: &str = "PageRestore";
+    pub const QUERY : & str = "mutation PageRestore(\n  $pageId: Int!\n  $versionId: Int!\n) {\n  pages {\n    restore (\n      pageId: $pageId\n      versionId: $versionId \n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "pageId")]
+        pub page_id: Int,
+        #[serde(rename = "versionId")]
+        pub version_id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        pub restore: Option<Restore>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Restore {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageRestore {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            ::graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_restore(
+    client: &Client,
+    url: &str,
+    page_id: i64,
+    version_id: i64,
+) -> Result<(), PageError> {
+    let variables = page_restore::Variables {
+        page_id,
+        version_id,
+    };
+    let response =
+        post_graphql::<page_restore::PageRestore, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(restore) = pages.restore {
+                if let Some(response_result) = restore.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
