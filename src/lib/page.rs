@@ -1864,3 +1864,78 @@ pub fn page_tag_update(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub(crate) mod page_cache_flush {
+    use super::*;
+
+    pub struct PageCacheFlush;
+
+    pub const OPERATION_NAME: &str = "PageCacheFlush";
+    pub const QUERY : & str = "mutation PageCacheFlush {\n  pages {\n    flushCache {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        #[serde(rename = "flushCache")]
+        pub flush_cache: Option<FlushCache>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct FlushCache {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageCacheFlush {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            _variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            ::graphql_client::QueryBody {
+                variables: Variables {},
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_cache_flush(
+    client: &Client,
+    url: &str,
+) -> Result<(), PageError> {
+    let variables = page_cache_flush::Variables {};
+    let response =
+        post_graphql::<page_cache_flush::PageCacheFlush, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(flush_cache) = pages.flush_cache {
+                if let Some(response_result) = flush_cache.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

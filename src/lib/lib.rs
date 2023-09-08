@@ -417,6 +417,10 @@ impl Api {
         )
     }
 
+    pub fn page_cache_flush(&self) -> Result<(), page::PageError> {
+        page::page_cache_flush(&self.client, &format!("{}/graphql", self.url))
+    }
+
     // authentication functions
     pub fn login(
         &self,

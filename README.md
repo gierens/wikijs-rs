@@ -103,7 +103,7 @@ implemented and what is still to be done.
 - [x] `page_delete`
 - [x] `page_tag_delete`
 - [x] `page_tag_update`
-- [ ] `page_flush_cache`
+- [x] `page_flush_cache`
 - [ ] `page_migrate_to_locale`
 - [ ] `page_rebuild_tree`
 - [x] `page_render`
