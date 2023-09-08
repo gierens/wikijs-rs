@@ -2023,3 +2023,79 @@ pub fn page_migrate_to_locale(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_tree_rebuild {
+    use super::*;
+    
+    pub struct PageTreeRebuild;
+
+    pub const OPERATION_NAME: &str = "PageTreeRebuild";
+    pub const QUERY : & str = "mutation PageTreeRebuild {\n  pages {\n    rebuildTree {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        #[serde(rename = "rebuildTree")]
+        pub rebuild_tree: Option<RebuildTree>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct RebuildTree {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageTreeRebuild {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            _variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            ::graphql_client::QueryBody {
+                variables: Variables {},
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_tree_rebuild(
+    client: &Client,
+    url: &str,
+) -> Result<(), PageError> {
+    let variables = page_tree_rebuild::Variables {};
+    let response =
+        post_graphql::<page_tree_rebuild::PageTreeRebuild, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(rebuild_tree) = pages.rebuild_tree {
+                if let Some(response_result) = rebuild_tree.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

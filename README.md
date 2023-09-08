@@ -105,7 +105,7 @@ implemented and what is still to be done.
 - [x] `page_tag_update`
 - [x] `page_flush_cache`
 - [x] `page_migrate_to_locale`
-- [ ] `page_rebuild_tree`
+- [x] `page_rebuild_tree`
 - [x] `page_render`
 - [ ] `page_restore`
 - [ ] `page_purge_history`

@@ -434,6 +434,12 @@ impl Api {
         )
     }
 
+    pub fn page_tree_rebuild(
+        &self,
+    ) -> Result<(), page::PageError> {
+        page::page_tree_rebuild(&self.client, &format!("{}/graphql", self.url))
+    }
+
     // authentication functions
     pub fn login(
         &self,
