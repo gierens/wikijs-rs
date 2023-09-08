@@ -67,7 +67,7 @@ enum Command {
     #[clap(about = "Contributor commands")]
     Contributor {
         #[clap(subcommand)]
-        command: ContributorCommand,
+        command: contribute::ContributorCommand,
     },
 
     #[clap(about = "Analytics provider commands")]
@@ -260,12 +260,6 @@ enum PageCommand {
         #[clap(help = "Page ID")]
         id: i64,
     },
-}
-
-#[derive(Subcommand)]
-enum ContributorCommand {
-    #[clap(about = "List contributors")]
-    List {},
 }
 
 #[derive(Subcommand)]
@@ -711,37 +705,7 @@ fn main() {
                 }
             }
         },
-        Command::Contributor { command } => match command {
-            ContributorCommand::List {} => match api.contributor_list() {
-                Ok(contributors) => {
-                    let mut builder = Builder::new();
-                    builder.push_record([
-                        "id", "source", "name",
-                        "joined",
-                        // "website",
-                        // "twitter",
-                        // "avatar",
-                    ]);
-                    for contributor in contributors {
-                        builder.push_record([
-                            contributor.id.to_string().as_str(),
-                            contributor.source.as_str(),
-                            contributor.name.as_str(),
-                            contributor.joined.as_str(),
-                            // TODO these are too long
-                            // contributor.website.unwrap_or("".to_string()).as_str(),
-                            // contributor.twitter.unwrap_or("".to_string()).as_str(),
-                            // contributor.avatar.unwrap_or("".to_string()).as_str(),
-                        ]);
-                    }
-                    println!("{}", builder.build().with(Style::rounded()));
-                }
-                Err(e) => {
-                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    std::process::exit(1);
-                }
-            },
-        },
+        Command::Contributor { command } => command.execute(api),
         Command::AnalyticsProvider { command } => match command {
             AnalyticsProviderCommand::List {} => {
                 match api.analytics_provider_list() {
