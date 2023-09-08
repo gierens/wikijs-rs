@@ -83,7 +83,7 @@ impl Api {
             kind,
         )
     }
-    
+
     pub fn asset_folder_list(
         &self,
         parent_id: i64,
@@ -107,6 +107,19 @@ impl Api {
             parent_folder_id,
             slug,
             name,
+        )
+    }
+
+    pub fn asset_rename(
+        &self,
+        id: i64,
+        filename: String,
+    ) -> Result<(), asset::AssetError> {
+        asset::asset_rename(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            filename,
         )
     }
 

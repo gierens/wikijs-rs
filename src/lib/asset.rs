@@ -354,3 +354,83 @@ pub fn asset_folder_create(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod asset_rename {
+    use super::*;
+
+    pub struct AssetRename;
+
+    pub const OPERATION_NAME: &str = "AssetRename";
+    pub const QUERY : & str = "mutation AssetRename($id: Int!, $filename: String!) {\n  assets {\n    renameAsset(id: $id, filename: $filename) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        pub filename: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub assets: Option<Assets>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Assets {
+        #[serde(rename = "renameAsset")]
+        pub rename_asset: Option<RenameAsset>,
+    }
+    #[derive(Deserialize)]
+    pub struct RenameAsset {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for AssetRename {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn asset_rename(
+    client: &Client,
+    url: &str,
+    id: Int,
+    filename: String,
+) -> Result<(), AssetError> {
+    let variables = asset_rename::Variables { id, filename };
+    let response =
+        post_graphql::<asset_rename::AssetRename, _>(client, url, variables);
+    if response.is_err() {
+        return Err(AssetError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(assets) = data.assets {
+            if let Some(rename_asset) = assets.rename_asset {
+                if let Some(response_result) = rename_asset.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
