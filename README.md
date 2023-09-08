@@ -150,7 +150,7 @@ implemented and what is still to be done.
 
 ### user
 - [x] `user_list`
-- [ ] `user_search`
+- [x] `user_search`
 - [x] `user_get`
 - [ ] `user_profile_get`
 - [ ] `user_last_login_list`

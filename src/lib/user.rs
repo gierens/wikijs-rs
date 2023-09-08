@@ -824,3 +824,67 @@ pub fn user_verify(
     }
     Err(classify_response_error::<UserError>(response_body.errors))
 }
+
+pub mod user_search {
+    use super::*;
+
+    pub struct UserSearch;
+
+    pub const OPERATION_NAME: &str = "UserSearch";
+    pub const QUERY : & str = "query UserSearch($query: String!) {\n  users {\n    search(query: $query) {\n      id\n      name\n      email providerKey\n      isSystem\n      isActive\n      createdAt\n      lastLoginAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub query: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub search: Option<Vec<Option<UserMinimal>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserSearch {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_search(
+    client: &Client,
+    url: &str,
+    query: String,
+) -> Result<Vec<UserMinimal>, UserError> {
+    let variables = user_search::Variables { query };
+    let response =
+        post_graphql::<user_search::UserSearch, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(search) = users.search {
+                return Ok(search.into_iter().flatten().collect());
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}

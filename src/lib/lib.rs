@@ -588,6 +588,13 @@ impl Api {
         user::user_verify(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    pub fn user_search(
+        &self,
+        query: String,
+    ) -> Result<Vec<user::UserMinimal>, user::UserError> {
+        user::user_search(&self.client, &format!("{}/graphql", self.url), query)
+    }
+
     // group functions
     pub fn group_list(
         &self,
