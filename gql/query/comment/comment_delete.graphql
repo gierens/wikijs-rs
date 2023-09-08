@@ -1,0 +1,12 @@
+mutation CommentDelete($id: Int!) {
+  comments {
+    delete (id: $id) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

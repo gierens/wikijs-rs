@@ -1,0 +1,12 @@
+mutation CommentProviderUpdate($providers: [CommentProviderInput]) {
+  comments {
+    updateProviders(providers: $providers) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

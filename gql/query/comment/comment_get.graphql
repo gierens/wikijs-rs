@@ -1,0 +1,15 @@
+query CommentGet($id: Int!) {
+  comments {
+    single (id: $id) {
+      id
+      content
+      render
+      authorId
+      authorName
+      authorEmail
+      authorIP
+      createdAt
+      updatedAt
+    }
+  }
+}

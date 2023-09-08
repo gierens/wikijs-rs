@@ -1,0 +1,13 @@
+mutation CommentUpdate($id: Int!, $content: String!) {
+  comments {
+    update (id: $id, content: $content) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+      render
+    }
+  }
+}

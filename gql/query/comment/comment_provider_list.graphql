@@ -1,0 +1,17 @@
+query CommentProviderList {
+  comments {
+    providers {
+      isEnabled
+      key
+      title
+      description
+      logo
+      website
+      isAvailable
+      config {
+        key
+        value
+      }
+    }
+  }
+}
