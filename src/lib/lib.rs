@@ -283,6 +283,17 @@ impl Api {
         )
     }
 
+    pub fn analytics_provider_update(
+        &self,
+        providers: Vec<analytics::AnalyticsProviderInput>,
+    ) -> Result<(), analytics::AnalyticsError> {
+        analytics::analytics_provider_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            providers,
+        )
+    }
+
     // comment functions
     pub fn comment_list(
         &self,

@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub type Boolean = bool;
 pub type Int = i64;
@@ -6,6 +6,12 @@ pub type Date = String;
 
 #[derive(Deserialize, Debug)]
 pub struct KeyValuePair {
+    pub key: String,
+    pub value: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct KeyValuePairInput {
     pub key: String,
     pub value: String,
 }

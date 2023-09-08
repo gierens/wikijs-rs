@@ -12,7 +12,7 @@ implemented and what is still to be done.
 
 ### analytics
 - [x] `provider_list`
-- [ ] `update_providers`
+- [x] `update_providers`
 
 ### asset
 - [x] `asset_list`
