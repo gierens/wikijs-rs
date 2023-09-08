@@ -1,0 +1,18 @@
+mutation StorageActionExecute(
+  $targetKey: String!
+  $handler: String!
+) {
+  storage {
+    executeAction(
+      targetKey: $targetKey
+      handler: $handler
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

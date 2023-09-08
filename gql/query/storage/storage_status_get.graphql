@@ -1,0 +1,11 @@
+query StorageStatusGet {
+  storage {
+    status {
+      key
+      title
+      status
+      message
+      lastAttempt
+    }
+  }
+}
