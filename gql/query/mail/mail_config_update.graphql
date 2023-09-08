@@ -1,0 +1,40 @@
+mutation MailConfigUpdate(
+  $senderName: String!
+  $senderEmail: String!
+  $host: String!
+  $port: Int!
+  $name: String!
+  $secure: Boolean!
+  $verifySSL: Boolean!
+  $user: String!
+  $pass: String!
+  $useDKIM: Boolean!
+  $dkimDomainName: String!
+  $dkimKeySelector: String!
+  $dkimPrivateKey: String!
+) {
+  mail {
+    updateConfig(
+      senderName: $senderName
+      senderEmail: $senderEmail
+      host: $host
+      port: $port
+      name: $name
+      secure: $secure
+      verifySSL: $verifySSL
+      user: $user
+      pass: $pass
+      useDKIM: $useDKIM
+      dkimDomainName: $dkimDomainName
+      dkimKeySelector: $dkimKeySelector
+      dkimPrivateKey: $dkimPrivateKey
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

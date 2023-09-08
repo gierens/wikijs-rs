@@ -1,0 +1,19 @@
+query MailConfigGet {
+  mail {
+    config {
+      senderName
+      senderEmail
+      host
+      port
+      name
+      secure
+      verifySSL
+      user
+      pass
+      useDKIM
+      dkimDomainName
+      dkimKeySelector
+      dkimPrivateKey
+    }
+  }
+}
