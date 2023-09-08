@@ -434,3 +434,82 @@ pub fn asset_rename(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod asset_delete {
+    use super::*;
+
+    pub struct AssetDelete;
+
+    pub const OPERATION_NAME: &str = "AssetDelete";
+    pub const QUERY : & str = "mutation AssetDelete($id: Int!) {\n  assets {\n    deleteAsset(id: $id) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub assets: Option<Assets>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Assets {
+        #[serde(rename = "deleteAsset")]
+        pub delete_asset: Option<DeleteAsset>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct DeleteAsset {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>
+    }
+
+    impl graphql_client::GraphQLQuery for AssetDelete {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn asset_delete(
+    client: &Client,
+    url: &str,
+    id: Int,
+) -> Result<(), AssetError> {
+    let variables = asset_delete::Variables { id };
+    let response =
+        post_graphql::<asset_delete::AssetDelete, _>(client, url, variables);
+    if response.is_err() {
+        return Err(AssetError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(assets) = data.assets {
+            if let Some(delete_asset) = assets.delete_asset {
+                if let Some(response_result) = delete_asset.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

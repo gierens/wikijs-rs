@@ -123,6 +123,13 @@ impl Api {
         )
     }
 
+    pub fn asset_delete(
+        &self,
+        id: i64,
+    ) -> Result<(), asset::AssetError> {
+        asset::asset_delete(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
     // page functions
     pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)
