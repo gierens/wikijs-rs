@@ -453,6 +453,17 @@ impl Api {
         )
     }
 
+    pub fn page_history_purge(
+        &self,
+        older_than: String,
+    ) -> Result<(), page::PageError> {
+        page::page_history_purge(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            older_than,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,

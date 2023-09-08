@@ -108,7 +108,7 @@ implemented and what is still to be done.
 - [x] `page_rebuild_tree`
 - [x] `page_render`
 - [x] `page_restore`
-- [ ] `page_purge_history`
+- [x] `page_purge_history`
 
 ### rendering
 - [ ] `renderer_list`
