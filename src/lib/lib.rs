@@ -718,6 +718,13 @@ impl Api {
         )
     }
 
+    pub fn group_get(
+        &self,
+        id: i64,
+    ) -> Result<group::Group, group::GroupError> {
+        group::group_get(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
     // locale functions
     pub fn locale_list(
         &self,

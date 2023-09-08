@@ -171,3 +171,66 @@ pub fn group_list(
     }
     Err(classify_response_error::<GroupError>(response_body.errors))
 }
+
+pub mod group_get {
+    use super::*;
+
+    pub struct GroupGet;
+
+    pub const OPERATION_NAME: &str = "GroupGet";
+    pub const QUERY : & str = "query GroupGet($id: Int!) {\n  groups {\n    single(id: $id) {\n      id\n      name\n      isSystem\n      redirectOnLogin\n      permissions\n      pageRules\n      users\n      createdAt\n      updatedAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub groups: Option<Groups>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Groups {
+        pub single: Option<Group>,
+    }
+
+    impl graphql_client::GraphQLQuery for GroupGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn group_get(
+    client: &Client,
+    url: &str,
+    id: Int,
+) -> Result<Group, GroupError> {
+    let variables = group_get::Variables { id };
+    let response = post_graphql::<group_get::GroupGet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(GroupError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(groups) = data.groups {
+            if let Some(single) = groups.single {
+                return Ok(single);
+            }
+        }
+    }
+    Err(classify_response_error::<GroupError>(response_body.errors))
+}
