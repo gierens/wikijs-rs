@@ -94,7 +94,7 @@ implemented and what is still to be done.
 - [x] `page_tag_list`
 - [x] `page_tree`
 - [ ] `page_link_list` ... is done but name `page_link_get`
-- [ ] `page_check_conflicts`
+- [x] `page_check_conflicts`
 - [ ] `page_conflict_latest`
 - [x] `page_create`
 - [x] `page_update`

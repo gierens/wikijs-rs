@@ -339,6 +339,19 @@ impl Api {
         page::page_link_get(&self.client, &format!("{}/graphql", self.url), locale)
     }
 
+    pub fn page_conflict_check(
+        &self,
+        id: i64,
+        checkout_date: String,
+    ) -> Result<bool, page::PageError> {
+        page::page_conflict_check(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            checkout_date,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,

@@ -1379,3 +1379,72 @@ pub fn page_link_get(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_conflict_check {
+    use super::*;
+
+    pub struct PageConflictCheck;
+
+    pub const OPERATION_NAME: &str = "PageConflictCheck";
+    pub const QUERY : & str = "query PageConflictCheck(\n  $id: Int!\n  $checkoutDate: Date!\n) {\n  pages {\n    checkConflicts (\n      id: $id\n      checkoutDate: $checkoutDate\n    )\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        #[serde(rename = "checkoutDate")]
+        pub checkout_date: Date,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        #[serde(rename = "checkConflicts")]
+        pub check_conflicts: Boolean,
+    }
+
+    impl graphql_client::GraphQLQuery for PageConflictCheck {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_conflict_check(
+    client: &Client,
+    url: &str,
+    id: i64,
+    checkout_date: Date,
+) -> Result<Boolean, PageError> {
+    let variables = page_conflict_check::Variables {
+        id,
+        checkout_date,
+    };
+    let response =
+        post_graphql::<page_conflict_check::PageConflictCheck, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            return Ok(pages.check_conflicts);
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
