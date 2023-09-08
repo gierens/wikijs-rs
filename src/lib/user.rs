@@ -1006,3 +1006,97 @@ pub fn user_last_login_list(
     }
     Err(classify_response_error::<UserError>(response_body.errors))
 }
+
+pub mod user_create {
+    use super::*;
+
+    pub struct UserCreate;
+
+    pub const OPERATION_NAME: &str = "UserCreate";
+    pub const QUERY : & str = "mutation UserCreate(\n  $email: String!\n  $name: String!\n  $passwordRaw: String\n  $providerKey: String!\n  $groups: [Int]!\n  $mustChangePassword: Boolean\n  $sendWelcomeEmail: Boolean\n) {\n  users {\n    create (\n      email: $email\n      name: $name\n      passwordRaw: $passwordRaw\n      providerKey: $providerKey\n      groups: $groups\n      mustChangePassword: $mustChangePassword\n      sendWelcomeEmail: $sendWelcomeEmail\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      user {\n        id\n        name\n        email\n        providerKey\n        providerName\n        providerId\n        providerIs2FACapable\n        isSystem\n        isActive\n        isVerified\n        location\n        jobTitle\n        timezone\n        dateFormat\n        appearance\n        createdAt\n        updatedAt\n        lastLoginAt\n        tfaIsActive\n        groups {\n          id\n          name\n          isSystem\n          redirectOnLogin\n          permissions\n          pageRules {\n            id\n            deny\n            match\n            roles\n            path\n            locales\n          }\n          users {\n            id\n            name\n            email\n            providerKey\n            isSystem\n            isActive\n            createdAt\n            lastLoginAt\n          }\n          createdAt\n          updatedAt\n        }\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub email: String,
+        pub name: String,
+        #[serde(rename = "passwordRaw")]
+        pub password_raw: Option<String>,
+        #[serde(rename = "providerKey")]
+        pub provider_key: String,
+        pub groups: Vec<Option<Int>>,
+        #[serde(rename = "mustChangePassword")]
+        pub must_change_password: Option<Boolean>,
+        #[serde(rename = "sendWelcomeEmail")]
+        pub send_welcome_email: Option<Boolean>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub create: Option<UserResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserCreate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_create(
+    client: &Client,
+    url: &str,
+    email: String,
+    name: String,
+    password_raw: Option<String>,
+    provider_key: String,
+    groups: Vec<Option<i64>>,
+    must_change_password: Option<bool>,
+    send_welcome_email: Option<bool>,
+) -> Result<(), UserError> {
+    let variables = user_create::Variables {
+        email,
+        name,
+        password_raw,
+        provider_key,
+        groups,
+        must_change_password,
+        send_welcome_email,
+    };
+    let response =
+        post_graphql::<user_create::UserCreate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(create) = users.create {
+                if create.response_result.succeeded {
+                    return Ok(());
+                } else {
+                    return Err(classify_response_status_error::<UserError>(
+                        create.response_result,
+                    ));
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}

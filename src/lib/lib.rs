@@ -607,6 +607,29 @@ impl Api {
         user::user_last_login_list(&self.client, &format!("{}/graphql", self.url))
     }
 
+    pub fn user_create(
+        &self,
+        email: String,
+        name: String,
+        password_raw: Option<String>,
+        provider_key: String,
+        groups: Vec<Option<i64>>,
+        must_change_password: Option<bool>,
+        send_welcome_email: Option<bool>,
+    ) -> Result<(), user::UserError> {
+        user::user_create(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            email,
+            name,
+            password_raw,
+            provider_key,
+            groups,
+            must_change_password,
+            send_welcome_email,
+        )
+    }
+
     // group functions
     pub fn group_list(
         &self,
