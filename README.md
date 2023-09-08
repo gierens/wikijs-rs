@@ -152,7 +152,7 @@ implemented and what is still to be done.
 - [x] `user_list`
 - [x] `user_search`
 - [x] `user_get`
-- [ ] `user_profile_get`
+- [x] `user_profile_get`
 - [ ] `user_last_login_list`
 - [ ] `user_create`
 - [ ] `user_update`

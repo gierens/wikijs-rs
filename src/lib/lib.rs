@@ -595,6 +595,12 @@ impl Api {
         user::user_search(&self.client, &format!("{}/graphql", self.url), query)
     }
 
+    pub fn user_profile_get(
+        &self,
+    ) -> Result<user::UserProfile, user::UserError> {
+        user::user_profile_get(&self.client, &format!("{}/graphql", self.url))
+    }
+
     // group functions
     pub fn group_list(
         &self,

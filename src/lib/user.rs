@@ -888,3 +888,61 @@ pub fn user_search(
     }
     Err(classify_response_error::<UserError>(response_body.errors))
 }
+
+pub mod user_profile_get {
+    use super::*;
+
+    pub struct UserProfileGet;
+
+    pub const OPERATION_NAME: &str = "UserProfileGet";
+    pub const QUERY : & str = "query UserProfileGet {\n  users {\n    profile {\n      id\n      name\n      email\n      providerKey\n      providerName\n      isSystem\n      isVerified\n      location\n      jobTitle\n      timezone\n      dateFormat\n      appearance\n      createdAt\n      updatedAt\n      lastLoginAt\n      groups\n      pagesTotal\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub profile: Option<UserProfile>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserProfileGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            _variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables: Variables {},
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_profile_get(
+    client: &Client,
+    url: &str,
+) -> Result<UserProfile, UserError> {
+    let variables = user_profile_get::Variables {};
+    let response =
+        post_graphql::<user_profile_get::UserProfileGet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(profile) = users.profile {
+                return Ok(profile);
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
