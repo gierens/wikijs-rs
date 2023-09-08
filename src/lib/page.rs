@@ -1780,3 +1780,87 @@ pub fn page_tag_delete(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_tag_update {
+    use super::*;
+
+    pub struct PageTagUpdate;
+
+    pub const OPERATION_NAME: &str = "PageTagUpdate";
+    pub const QUERY : & str = "mutation PageTagUpdate(\n  $id: Int!\n  $tag: String!\n  $title: String!\n) {\n  pages {\n    updateTag (\n      id: $id\n      tag: $tag\n      title: $title\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        pub tag: String,
+        pub title: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        #[serde(rename = "updateTag")]
+        pub update_tag: Option<UpdateTag>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct UpdateTag {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageTagUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            ::graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_tag_update(
+    client: &Client,
+    url: &str,
+    id: i64,
+    tag: String,
+    title: String,
+) -> Result<(), PageError> {
+    let variables = page_tag_update::Variables { id, tag, title };
+    let response =
+        post_graphql::<page_tag_update::PageTagUpdate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(update_tag) = pages.update_tag {
+                if let Some(response_result) = update_tag.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

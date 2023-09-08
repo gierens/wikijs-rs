@@ -402,6 +402,21 @@ impl Api {
         )
     }
 
+    pub fn page_tag_update(
+        &self,
+        id: i64,
+        tag: String,
+        title: String,
+    ) -> Result<(), page::PageError> {
+        page::page_tag_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            tag,
+            title,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,
