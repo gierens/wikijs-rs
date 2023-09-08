@@ -85,7 +85,7 @@ implemented and what is still to be done.
 - [ ] `navigation_config_update`
 
 ### page
-- [ ] `page_history_get`
+- [x] `page_history_get`
 - [ ] `page_version_get`
 - [ ] `page_search`
 - [ ] `page_list` ... implementation is only there in parts so far

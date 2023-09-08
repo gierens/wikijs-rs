@@ -289,6 +289,21 @@ impl Api {
         )
     }
 
+    pub fn page_history_get(
+        &self,
+        id: i64,
+        offset_page: Option<i64>,
+        offset_size: Option<i64>,
+    ) -> Result<page::PageHistoryResult, page::PageError> {
+        page::page_history_get(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            offset_page,
+            offset_size,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,

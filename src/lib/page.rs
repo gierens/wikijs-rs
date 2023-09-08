@@ -199,6 +199,30 @@ pub enum PageTreeMode {
     Other(String),
 }
 
+#[derive(Deserialize, Debug)]
+pub struct PageHistoryResult {
+    pub trail: Option<Vec<Option<PageHistory>>>,
+    pub total: Int,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct PageHistory {
+    #[serde(rename = "versionId")]
+    pub version_id: Int,
+    #[serde(rename = "versionDate")]
+    pub version_date: Date,
+    #[serde(rename = "authorId")]
+    pub author_id: Int,
+    #[serde(rename = "authorName")]
+    pub author_name: String,
+    #[serde(rename = "actionType")]
+    pub action_type: String,
+    #[serde(rename = "valueBefore")]
+    pub value_before: Option<String>,
+    #[serde(rename = "valueAfter")]
+    pub value_after: Option<String>,
+}
+
 pub(crate) mod page_get {
     use super::*;
 
@@ -1017,3 +1041,77 @@ pub fn page_update(
 //     }
 //     Err(classify_response_error(response_body.errors))
 // }
+
+pub mod page_history_get {
+    use super::*;
+
+    pub struct PageHistoryGet;
+
+    pub const OPERATION_NAME: &str = "PageHistoryGet";
+    pub const QUERY : & str = "query PageHistoryGet(\n  $id: Int!\n  $offsetPage: Int\n  $offsetSize: Int\n) {\n  pages {\n    history(\n      id: $id\n      offsetPage: $offsetPage\n      offsetSize: $offsetSize\n    ) {\n      trail {\n        versionId\n        versionDate\n        authorId\n        authorName\n        actionType\n        valueBefore\n        valueAfter\n      }\n      total\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        #[serde(rename = "offsetPage")]
+        pub offset_page: Option<Int>,
+        #[serde(rename = "offsetSize")]
+        pub offset_size: Option<Int>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        pub history: Option<PageHistoryResult>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageHistoryGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_history_get(
+    client: &Client,
+    url: &str,
+    id: i64,
+    offset_page: Option<i64>,
+    offset_size: Option<i64>,
+) -> Result<PageHistoryResult, PageError> {
+    let variables = page_history_get::Variables {
+        id,
+        offset_page,
+        offset_size,
+    };
+    let response =
+        post_graphql::<page_history_get::PageHistoryGet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(history) = pages.history {
+                return Ok(history);
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
