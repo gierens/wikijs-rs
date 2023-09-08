@@ -1,0 +1,14 @@
+mutation NavigationConfigUpdate (
+  $mode: NavigationMode!
+) { 
+  navigation {
+    updateConfig(config: $config) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

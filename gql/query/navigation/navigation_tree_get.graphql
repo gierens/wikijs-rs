@@ -1,0 +1,17 @@
+query NavigationTreeGet {
+  navigation {
+    tree {
+      locale
+      items {
+        id
+        kind
+        label
+        icon
+        targetType
+        target
+        visibilityMode
+        visibilityGroups
+      }
+    }
+  }
+}

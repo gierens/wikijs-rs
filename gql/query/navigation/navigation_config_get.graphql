@@ -1,0 +1,7 @@
+query NavigationConfigGet {
+  navigation {
+    config {
+      mode
+    }
+  }
+}
