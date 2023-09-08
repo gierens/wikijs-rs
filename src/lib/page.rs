@@ -561,7 +561,7 @@ pub fn page_tag_list(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_delete {
+pub(crate) mod page_delete {
     use super::*;
 
     pub struct PageDelete;
@@ -639,7 +639,7 @@ pub fn page_delete(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_render {
+pub(crate) mod page_render {
     use super::*;
 
     pub struct PageRender;
@@ -841,7 +841,7 @@ pub fn page_create(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_get_by_path {
+pub(crate) mod page_get_by_path {
     use super::*;
 
     pub struct PageGetByPath;
@@ -909,7 +909,7 @@ pub fn page_get_by_path(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_update {
+pub(crate) mod page_update {
     use super::*;
 
     pub struct PageUpdate;
@@ -1040,7 +1040,7 @@ pub fn page_update(
     Err(classify_response_error(response_body.errors))
 }
 
-// pub mod page_update_content {
+// pub(crate) mod page_update_content {
 //     use super::*;
 //
 //     pub struct PageUpdateContent;
@@ -1122,7 +1122,7 @@ pub fn page_update(
 //     Err(classify_response_error(response_body.errors))
 // }
 
-pub mod page_history_get {
+pub(crate) mod page_history_get {
     use super::*;
 
     pub struct PageHistoryGet;
@@ -1196,7 +1196,7 @@ pub fn page_history_get(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_version_get {
+pub(crate) mod page_version_get {
     use super::*;
 
     pub struct PageVersionGet;
@@ -1267,7 +1267,7 @@ pub fn page_version_get(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_search {
+pub(crate) mod page_search {
     use super::*;
 
     pub struct PageSearch;
@@ -1337,7 +1337,7 @@ pub fn page_search(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_link_get {
+pub(crate) mod page_link_get {
     use super::*;
 
     pub struct PageLinkGet;
@@ -1401,7 +1401,7 @@ pub fn page_link_get(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_conflict_check {
+pub(crate) mod page_conflict_check {
     use super::*;
 
     pub struct PageConflictCheck;
@@ -1470,7 +1470,7 @@ pub fn page_conflict_check(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_conflict_latest {
+pub(crate) mod page_conflict_latest {
     use super::*;
 
     pub struct PageConflictLatestFunction;
@@ -1533,7 +1533,7 @@ pub fn page_conflict_latest(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_convert {
+pub(crate) mod page_convert {
     use super::*;
 
     pub struct PageConvert;
@@ -1613,7 +1613,7 @@ pub fn page_convert(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_move {
+pub(crate) mod page_move {
     use super::*;
 
     pub struct PageMove;
@@ -1702,7 +1702,7 @@ pub fn page_move(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_tag_delete {
+pub(crate) mod page_tag_delete {
     use super::*;
 
     pub struct PageTagDelete;
@@ -1781,7 +1781,7 @@ pub fn page_tag_delete(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_tag_update {
+pub(crate) mod page_tag_update {
     use super::*;
 
     pub struct PageTagUpdate;
