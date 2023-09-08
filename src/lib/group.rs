@@ -234,3 +234,75 @@ pub fn group_get(
     }
     Err(classify_response_error::<GroupError>(response_body.errors))
 }
+
+pub mod group_create {
+    use super::*;
+
+    pub struct GroupCreate;
+
+    pub const OPERATION_NAME: &str = "GroupCreate";
+    pub const QUERY : & str = "mutation GroupCreate($name: String!) {\n  groups {\n    create(name: $name) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      group {\n        id\n        name\n        isSystem\n        redirectOnLogin\n        permissions\n        pageRules\n        users\n        createdAt\n        updatedAt\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub name: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub groups: Option<Groups>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Groups {
+        pub create: Option<GroupResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for GroupCreate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn group_create(
+    client: &Client,
+    url: &str,
+    name: String,
+) -> Result<(), GroupError> {
+    let variables = group_create::Variables { name };
+    let response = post_graphql::<group_create::GroupCreate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(GroupError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(groups) = data.groups {
+            if let Some(create) = groups.create {
+                if create.response_result.succeeded {
+                    // TODO check that this really does not return a group
+                    return Ok(());
+                }
+                return Err(GroupError::UnknownErrorCode {
+                    code: create.response_result.error_code,
+                    message: create.response_result.message.unwrap_or(
+                        "Unknown error".to_string(),
+                    ),
+                });
+            }
+        }
+    }
+    Err(classify_response_error::<GroupError>(response_body.errors))
+}

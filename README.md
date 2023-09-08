@@ -56,7 +56,7 @@ implemented and what is still to be done.
 ### group
 - [x] `group_list`
 - [x] `group_get`
-- [ ] `group_create`
+- [x] `group_create`
 - [ ] `group_update`
 - [ ] `group_delete`
 - [ ] `group_assign_user`

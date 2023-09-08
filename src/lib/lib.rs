@@ -725,6 +725,17 @@ impl Api {
         group::group_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    pub fn group_create(
+        &self,
+        name: String,
+    ) -> Result<(), group::GroupError> {
+        group::group_create(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            name,
+        )
+    }
+
     // locale functions
     pub fn locale_list(
         &self,
