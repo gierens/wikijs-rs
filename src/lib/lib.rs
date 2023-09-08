@@ -762,6 +762,19 @@ impl Api {
         group::group_delete(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    pub fn group_user_assign(
+        &self,
+        group_id: i64,
+        user_id: i64,
+    ) -> Result<(), group::GroupError> {
+        group::group_user_assign(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            group_id,
+            user_id,
+        )
+    }
+
     // locale functions
     pub fn locale_list(
         &self,
