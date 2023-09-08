@@ -363,6 +363,19 @@ impl Api {
         )
     }
 
+    pub fn page_convert(
+        &self,
+        id: i64,
+        editor: String,
+    ) -> Result<(), page::PageError> {
+        page::page_convert(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            editor,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,
