@@ -543,6 +543,17 @@ impl Api {
         comment::comment_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    pub fn comment_provider_update(
+        &self,
+        providers: Vec<comment::CommentProviderInput>,
+    ) -> Result<(), comment::CommentError> {
+        comment::comment_provider_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            providers,
+        )
+    }
+
     // user functions
     pub fn user_get(&self, id: i64) -> Result<user::User, user::UserError> {
         user::user_get(&self.client, &format!("{}/graphql", self.url), id)

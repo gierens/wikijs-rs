@@ -5,7 +5,8 @@ use thiserror::Error;
 
 use crate::common::{
     classify_response_error, Date, Int, KnownErrorCodes, UnknownError,
-    Boolean, KeyValuePair,
+    Boolean, KeyValuePair, KeyValuePairInput, ResponseStatus,
+    classify_response_status_error
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -100,6 +101,14 @@ pub struct CommentProvider {
     #[serde(rename = "isAvailable")]
     pub is_available: Option<Boolean>,
     pub config: Option<Vec<Option<KeyValuePair>>>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct CommentProviderInput {
+    #[serde(rename = "isEnabled")]
+    pub is_enabled: Boolean,
+    pub key: String,
+    pub config: Option<Vec<Option<KeyValuePairInput>>>,
 }
 
 pub mod comment_list {
@@ -289,6 +298,91 @@ pub fn comment_get(
         if let Some(comments) = data.comments {
             if let Some(comment) = comments.single {
                 return Ok(comment);
+            }
+        }
+    }
+    Err(classify_response_error::<CommentError>(
+        response_body.errors,
+    ))
+}
+
+pub mod comment_provider_update {
+    use super::*;
+
+    pub struct CommentProviderUpdate;
+
+    pub const OPERATION_NAME: &str = "CommentProviderUpdate";
+    pub const QUERY : & str = "mutation CommentProviderUpdate($providers: [CommentProviderInput]) {\n  comments {\n    updateProviders(providers: $providers) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub providers: Option<Vec<Option<CommentProviderInput>>>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub comments: Option<Comments>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Comments {
+        #[serde(rename = "updateProviders")]
+        pub update_providers: Option<UpdateProviders>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct UpdateProviders {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for CommentProviderUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn comment_provider_update(
+    client: &Client,
+    url: &str,
+    providers: Vec<CommentProviderInput>,
+) -> Result<(), CommentError> {
+    let variables = comment_provider_update::Variables {
+        providers: Some(providers.into_iter().map(Some).collect()),
+    };
+    let response = post_graphql::<
+        comment_provider_update::CommentProviderUpdate,
+        _,
+    >(client, url, variables);
+    if response.is_err() {
+        return Err(CommentError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(comments) = data.comments {
+            if let Some(update_providers) = comments.update_providers {
+                if let Some(response_result) = update_providers.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            CommentError,
+                        >(response_result));
+                    }
+                }
             }
         }
     }
