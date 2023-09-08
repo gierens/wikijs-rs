@@ -410,3 +410,80 @@ pub fn group_update(
     }
     Err(classify_response_error::<GroupError>(response_body.errors))
 }
+
+pub mod group_delete {
+    use super::*;
+
+    pub struct GroupDelete;
+
+    pub const OPERATION_NAME: &str = "GroupDelete";
+    pub const QUERY : & str = "mutation GroupDelete(\n  $id: Int!\n) {\n  groups {\n    delete(\n      id: $id\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub groups: Option<Groups>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Groups {
+        pub delete: Option<Delete>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Delete {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for GroupDelete {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn group_delete(
+    client: &Client,
+    url: &str,
+    id: Int,
+) -> Result<(), GroupError> {
+    let variables = group_delete::Variables { id };
+    let response = post_graphql::<group_delete::GroupDelete, _>(client, url, variables);
+    if response.is_err() {
+        return Err(GroupError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(groups) = data.groups {
+            if let Some(delete) = groups.delete {
+                if let Some(response_result) = delete.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<GroupError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<GroupError>(response_body.errors))
+}
