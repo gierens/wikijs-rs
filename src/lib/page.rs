@@ -257,6 +257,23 @@ pub struct PageVersion {
     pub version_id: Int,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct PageSearchResponse {
+    pub results: Vec<Option<PageSearchResult>>,
+    pub suggestions: Vec<Option<String>>,
+    #[serde(rename = "totalHits")]
+    pub total_hits: Int,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct PageSearchResult {
+    pub id: String,
+    pub title: String,
+    pub description: String,
+    pub path: String,
+    pub locale: String,
+}
+
 pub(crate) mod page_get {
     use super::*;
 
@@ -1216,6 +1233,76 @@ pub fn page_version_get(
             if let Some(version) = pages.version {
                 return Ok(version);
             }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod page_search {
+    use super::*;
+
+    pub struct PageSearch;
+
+    pub const OPERATION_NAME: &str = "PageSearch";
+    pub const QUERY : & str = "query PageSearch(\n  $query: String!\n  $path: String\n  $locale: String\n) {\n  pages {\n    search(\n      query: $query\n      path: $path\n      locale: $locale\n    ) {\n      results {\n        id\n        title\n        description\n        path\n        locale\n      }\n      suggestions\n      totalHits\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub query: String,
+        pub path: Option<String>,
+        pub locale: Option<String>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        pub search: PageSearchResponse,
+    }
+
+    impl graphql_client::GraphQLQuery for PageSearch {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_search(
+    client: &Client,
+    url: &str,
+    query: String,
+    path: Option<String>,
+    locale: Option<String>,
+) -> Result<PageSearchResponse, PageError> {
+    let variables = page_search::Variables {
+        query,
+        path,
+        locale,
+    };
+    let response =
+        post_graphql::<page_search::PageSearch, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            return Ok(pages.search);
         }
     }
     Err(classify_response_error(response_body.errors))

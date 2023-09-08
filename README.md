@@ -87,7 +87,7 @@ implemented and what is still to be done.
 ### page
 - [x] `page_history_get`
 - [x] `page_version_get`
-- [ ] `page_search`
+- [x] `page_search`
 - [ ] `page_list` ... implementation is only there in parts so far
 - [x] `page_get`
 - [x] `page_get_by_path`

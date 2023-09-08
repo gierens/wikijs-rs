@@ -317,6 +317,21 @@ impl Api {
         )
     }
 
+    pub fn page_search(
+        &self,
+        query: String,
+        path: Option<String>,
+        locale: Option<String>,
+    ) -> Result<page::PageSearchResponse, page::PageError> {
+        page::page_search(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            query,
+            path,
+            locale,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,
