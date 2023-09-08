@@ -680,6 +680,19 @@ impl Api {
         )
     }
 
+    pub fn user_password_change(
+        &self,
+        current: String,
+        new: String,
+    ) -> Result<Option<String>, user::UserError> {
+        user::user_password_change(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            current,
+            new,
+        )
+    }
+
     // group functions
     pub fn group_list(
         &self,

@@ -1303,3 +1303,77 @@ pub fn user_profile_update(
     }
     Err(classify_response_error::<UserError>(response_body.errors))
 }
+
+pub mod user_password_change {
+    use super::*;
+
+    pub struct UserPasswordChange;
+
+    pub const OPERATION_NAME: &str = "UserPasswordChange";
+    pub const QUERY : & str = "mutation UserPasswordChange($current: String!, $new: String!) {\n  users {\n    changePassword(current: $current, new: $new) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      jwt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub current: String,
+        pub new: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        #[serde(rename = "changePassword")]
+        pub change_password: Option<UserTokenResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserPasswordChange {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_password_change(
+    client: &Client,
+    url: &str,
+    current: String,
+    new: String,
+) -> Result<Option<String>, UserError> {
+    let variables = user_password_change::Variables { current, new };
+    let response =
+        post_graphql::<user_password_change::UserPasswordChange, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(change_password) = users.change_password {
+                if change_password.response_result.succeeded {
+                    return Ok(change_password.jwt);
+                } else {
+                    return Err(classify_response_status_error::<UserError>(
+                        change_password.response_result,
+                    ));
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}
