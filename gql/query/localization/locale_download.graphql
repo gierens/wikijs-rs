@@ -1,0 +1,16 @@
+mutation LocaleUpdate(
+  $locale: String!
+) {
+  localization {
+    downloadLocale(
+      locale: $locale
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

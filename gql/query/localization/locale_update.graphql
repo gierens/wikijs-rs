@@ -1,0 +1,22 @@
+mutation LocaleUpdate(
+  $locale: String!
+  $autoUpdate: Boolean!
+  $namespacing: Boolean!
+  $namespaces: [String]!
+) {
+  localization {
+    downloadLocale(
+      locale: $locale
+      autoUpdate: $autoUpdate
+      namespacing: $namespacing
+      namespaces: $namespaces
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

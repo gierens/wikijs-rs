@@ -1,0 +1,10 @@
+query LocalizationConfigGet {
+  localization {
+    config {
+      locale
+      autoUpdate
+      namespacing
+      namespaces
+    }
+  }
+}
