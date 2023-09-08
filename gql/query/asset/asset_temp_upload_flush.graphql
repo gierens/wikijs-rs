@@ -1,0 +1,12 @@
+mutation AssetTempUploadFlush {
+  assets {
+    flushTempUploads {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

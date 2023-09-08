@@ -1,0 +1,20 @@
+mutation AssetFolderCreate(
+  $parentFolderId: Int!
+  $slug: String!
+  $name: String
+) {
+  assets {
+    createFolder(
+      parentFolderId: $parentFolderId
+      slug: $slug
+      name: $name
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}
