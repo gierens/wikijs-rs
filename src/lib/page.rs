@@ -717,7 +717,7 @@ pub fn page_render(
     Err(classify_response_error(response_body.errors))
 }
 
-pub mod page_create {
+pub(crate) mod page_create {
     use super::*;
 
     pub struct PageCreate;
