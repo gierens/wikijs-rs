@@ -47,7 +47,7 @@ implemented and what is still to be done.
 - [x] `comment_get`
 - [x] `comment_provider_update`
 - [x] `comment_create`
-- [ ] `comment_update`
+- [x] `comment_update`
 - [ ] `comment_delete`
 
 ### contribute

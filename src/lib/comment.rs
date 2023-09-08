@@ -118,6 +118,13 @@ pub struct CommentCreateResponse {
     pub id: Option<Int>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct CommentUpdateResponse {
+    #[serde(rename = "responseResult")]
+    pub response_result: Option<ResponseStatus>,
+    pub render: Option<String>,
+}
+
 pub mod comment_list {
     use super::*;
 
@@ -476,6 +483,82 @@ pub fn comment_create(
                 if let Some(response_result) = create.response_result {
                     if response_result.succeeded {
                         // TODO check if this does really not return an id
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            CommentError,
+                        >(response_result));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<CommentError>(
+        response_body.errors,
+    ))
+}
+
+pub mod comment_update {
+    use super::*;
+
+    pub struct CommentUpdate;
+
+    pub const OPERATION_NAME: &str = "CommentUpdate";
+    pub const QUERY : & str = "mutation CommentUpdate($id: Int!, $content: String!) {\n  comments {\n    update (id: $id, content: $content) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      render\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        pub content: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub comments: Option<Comments>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Comments {
+        pub update: Option<CommentUpdateResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for CommentUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn comment_update(
+    client: &Client,
+    url: &str,
+    id: Int,
+    content: String,
+) -> Result<(), CommentError> {
+    let variables = comment_update::Variables { id, content };
+    let response =
+        post_graphql::<comment_update::CommentUpdate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(CommentError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(comments) = data.comments {
+            if let Some(update) = comments.update {
+                if let Some(response_result) = update.response_result {
+                    if response_result.succeeded {
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error::<
