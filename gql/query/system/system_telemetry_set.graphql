@@ -1,0 +1,12 @@
+mutation SystemExport($entities: [String!]!, $path: String!) {
+  system {
+    export(entities: $entities, path: $path) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

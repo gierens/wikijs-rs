@@ -1,0 +1,35 @@
+query SystemExportStatusGet {
+  system {
+    info {
+      configFile
+      cpuCores
+      currentVersion
+      dbHost
+      dbType
+      dbVersion
+      groupsTotal
+      hostname
+      httpPort
+      httpRedirection
+      httpsPort
+      latestVersion
+      latestVersionReleaseDate
+      nodeVersion
+      operatingSystem
+      pagesTotal
+      platform
+      ramTotal
+      sslDomain
+      sslExpirationDate
+      sslProvider
+      sslStatus
+      sslSubscriberEmail
+      tagsTotal
+      telemetry
+      telemetryClientId
+      upgradeCapable
+      usersTotal
+      workingDirectory
+    }
+  }
+}

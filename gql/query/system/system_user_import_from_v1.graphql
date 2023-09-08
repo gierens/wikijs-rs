@@ -1,0 +1,18 @@
+mutation SystemUserImportFromV1(
+  $mongoDbConnString: String!
+  $groupCode: SystemImportUsersGroupMode!
+) {
+  system {
+    importUsersFromV1(
+      mongoDbConnString: $mongoDbConnString
+      groupCode: $groupCode
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

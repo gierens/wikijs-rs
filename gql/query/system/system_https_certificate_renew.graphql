@@ -1,0 +1,12 @@
+mutation SystemHttpsCertificateRenew {
+  system {
+    renewHTTPSCertificate {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

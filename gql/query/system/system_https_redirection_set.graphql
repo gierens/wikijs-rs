@@ -1,0 +1,12 @@
+mutation SystemHttpsRedirectionSet($enabled: Boolean!) {
+  system {
+    setHTTPSRedirection(enabled: $enabled) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

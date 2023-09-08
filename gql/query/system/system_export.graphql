@@ -1,0 +1,12 @@
+mutation SystemTelemetrySet($enabled: Boolean!) {
+  system {
+    setTelemetry(enabled: $enabled) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

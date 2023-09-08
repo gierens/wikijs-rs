@@ -1,0 +1,10 @@
+query SystemExportStatusGet{
+  system {
+    exportStatus {
+      status
+      progress
+      message
+      startedAt
+    }
+  }
+}

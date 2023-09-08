@@ -1,0 +1,11 @@
+query SystemExtensionList {
+  system {
+    extensions {
+      key
+      title
+      description
+      isInstalled
+      isCompatible
+    }
+  }
+}
