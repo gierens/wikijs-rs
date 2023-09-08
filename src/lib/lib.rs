@@ -130,6 +130,15 @@ impl Api {
         asset::asset_delete(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    pub fn asset_temp_upload_flush(
+        &self,
+    ) -> Result<(), asset::AssetError> {
+        asset::asset_temp_upload_flush(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // page functions
     pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)

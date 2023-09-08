@@ -20,7 +20,7 @@ implemented and what is still to be done.
 - [x] `asset_folder_create`
 - [x] `asset_rename`
 - [x] `asset_delete`
-- [ ] `asset_flush_temp_uploads`
+- [x] `asset_flush_temp_uploads`
 - [ ] `asset_get` ... this needs the REST API
 - [ ] `asset_create` ... this needs the REST API
 

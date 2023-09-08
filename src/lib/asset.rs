@@ -513,3 +513,83 @@ pub fn asset_delete(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod asset_temp_upload_flush {
+    use super::*;
+
+    pub struct AssetTempUploadFlush;
+
+    pub const OPERATION_NAME: &str = "AssetTempUploadFlush";
+    pub const QUERY : & str = "mutation AssetTempUploadFlush {\n  assets {\n    flushTempUploads {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub assets: Option<Assets>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Assets {
+        #[serde(rename = "flushTempUploads")]
+        pub flush_temp_uploads:
+            Option<FlushTempUploads>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct FlushTempUploads {
+        #[serde(rename = "responseResult")]
+        pub response_result:
+            Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for AssetTempUploadFlush {
+        type Variables = asset_temp_upload_flush::Variables;
+        type ResponseData = asset_temp_upload_flush::ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: asset_temp_upload_flush::QUERY,
+                operation_name: asset_temp_upload_flush::OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn asset_temp_upload_flush(
+    client: &Client,
+    url: &str,
+) -> Result<(), AssetError> {
+    let variables = asset_temp_upload_flush::Variables;
+    let response = post_graphql::<
+        asset_temp_upload_flush::AssetTempUploadFlush,
+        _,
+    >(client, url, variables);
+    if response.is_err() {
+        return Err(AssetError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(assets) = data.assets {
+            if let Some(flush_temp_uploads) = assets.flush_temp_uploads {
+                if let Some(response_result) =
+                    flush_temp_uploads.response_result
+                {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
