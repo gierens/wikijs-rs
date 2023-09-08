@@ -101,7 +101,7 @@ implemented and what is still to be done.
 - [x] `page_convert`
 - [x] `page_move`
 - [x] `page_delete`
-- [ ] `page_tag_delete`
+- [x] `page_tag_delete`
 - [ ] `page_tag_update`
 - [ ] `page_flush_cache`
 - [ ] `page_migrate_to_locale`

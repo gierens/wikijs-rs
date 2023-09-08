@@ -391,6 +391,17 @@ impl Api {
         )
     }
 
+    pub fn page_tag_delete(
+        &self,
+        id: i64,
+    ) -> Result<(), page::PageError> {
+        page::page_tag_delete(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,

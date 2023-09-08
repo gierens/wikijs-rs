@@ -1701,3 +1701,82 @@ pub fn page_move(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_tag_delete {
+    use super::*;
+
+    pub struct PageTagDelete;
+
+    pub const OPERATION_NAME: &str = "PageTagDelete";
+    pub const QUERY : & str = "mutation PageTagDelete($id: Int!) {\n  pages {\n    deleteTag (id: $id) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        #[serde(rename = "deleteTag")]
+        pub delete_tag: Option<DeleteTag>,
+    }
+    #[derive(Deserialize)]
+    pub struct DeleteTag {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageTagDelete {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            ::graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_tag_delete(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<(), PageError> {
+    let variables = page_tag_delete::Variables { id };
+    let response =
+        post_graphql::<page_tag_delete::PageTagDelete, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(delete_tag) = pages.delete_tag {
+                if let Some(response_result) = delete_tag.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
