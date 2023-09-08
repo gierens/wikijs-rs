@@ -1,0 +1,18 @@
+mutation PageRestore(
+  $pageId: Int!
+  $versionId: Int!
+) {
+  pages {
+    restore (
+      pageId: $pageId
+      versionId: $versionId 
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

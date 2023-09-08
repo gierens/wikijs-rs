@@ -1,0 +1,11 @@
+query PageConflictCheck(
+  $id: Int!
+  $checkoutDate: Date!
+) {
+  pages {
+    checkConflicts (
+      id: $id
+      checkoutDate: $checkoutDate
+    )
+  }
+}

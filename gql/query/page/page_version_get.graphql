@@ -1,0 +1,31 @@
+query PageVersionGet(
+  $pageId: Int!
+  $versionId: Int!
+) {
+  pages {
+    version(
+      pageId: $pageId
+      versionId: $versionId
+    ) {
+      action
+      authorId
+      authorName
+      content
+      contentType
+      createdAt
+      versionDate
+      description
+      editor
+      isPrivate
+      isPublished
+      locale
+      pageId
+      path
+      publishEndDate
+      publishStartDate
+      tags
+      title
+      versionId
+    }
+  }
+}

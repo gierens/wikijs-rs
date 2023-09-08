@@ -1,0 +1,22 @@
+query PageConflictLatest (
+  $id: Int!
+) {
+  pages {
+    conflictLatest (
+      id: $id
+    ) {
+      id
+      authorId
+      authorName
+      content
+      createdAt
+      description
+      isPublished
+      locale
+      path
+      tags
+      title
+      updatedAt
+    }
+  }
+}

@@ -1,0 +1,16 @@
+mutation PageHistoryPurge(
+  $olderThan: String!
+) {
+  pages {
+    purgeHistory (
+      olderThan: $olderThan
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

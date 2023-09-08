@@ -1,4 +1,4 @@
-query PageTree(
+query PageTreeGet(
     $parent: Int!
     $mode: PageTreeMode!
     $includeAncestors: Boolean!

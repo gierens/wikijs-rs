@@ -1,0 +1,14 @@
+query PageLinkGet(
+    $locale: String!
+    ) {
+  pages {
+    links (
+      locale: $locale
+    ) {
+      id
+      path
+      title
+      links
+    }
+  }
+}

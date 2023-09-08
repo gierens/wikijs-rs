@@ -1,6 +1,22 @@
-query PageList {
+query PageList(
+  $limit: Int
+  $orderBy: PageOrderBy
+  $orderByDirection: PageOrderByDirection
+  $tags: [String!]
+  $locale: String
+  $creatorId: Int
+  $authorId: Int
+) {
   pages {
-    list (orderBy: TITLE) {
+    list (
+      limit: $limit
+      orderBy: $orderBy
+      orderByDirection: $orderByDirection
+      tags: $tags
+      locale: $locale
+      creatorId: $creatorId
+      authorId: $authorId
+    ) {
       id
       path
       locale

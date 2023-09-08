@@ -1,0 +1,12 @@
+mutation PageTagDelete($id: Int!) {
+  pages {
+    deleteTag (id: $id) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

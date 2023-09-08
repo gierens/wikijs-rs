@@ -1,0 +1,20 @@
+mutation PageTagUpdate(
+  $id: Int!
+  $tag: String!
+  $title: String!
+) {
+  pages {
+    updateTag (
+      id: $id
+      tag: $tag
+      title: $title
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

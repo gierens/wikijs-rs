@@ -1,0 +1,20 @@
+mutation PageMove(
+  $id: Int!
+  $destinationPath: String!
+  $destinationLocale: String!
+) {
+  pages {
+    move (
+      id: $id
+      destinationPath: $destinationPath
+      destinationLocale: $destinationLocale
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

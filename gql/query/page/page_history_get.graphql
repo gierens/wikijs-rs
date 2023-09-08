@@ -1,0 +1,24 @@
+query PageHistoryGet(
+  $id: Int!
+  $offsetPage: Int
+  $offsetSize: Int
+) {
+  pages {
+    history(
+      id: $id
+      offsetPage: $offsetPage
+      offsetSize: $offsetSize
+    ) {
+      trail {
+        versionId
+        versionDate
+        authorId
+        authorName
+        actionType
+        valueBefore
+        valueAfter
+      }
+      total
+    }
+  }
+}

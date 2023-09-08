@@ -1,0 +1,23 @@
+query PageSearch(
+  $query: String!
+  $path: String
+  $locale: String
+) {
+  pages {
+    search(
+      query: $query
+      path: $path
+      locale: $locale
+    ) {
+      results {
+        id
+        title
+        description
+        path
+        locale
+      }
+      suggestions
+      totalHits
+    }
+  }
+}

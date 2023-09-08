@@ -1,0 +1,12 @@
+mutation PageConvert($id: Int!, $editor: String!) {
+  pages {
+    convert (id: $id, editor: $editor) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}
