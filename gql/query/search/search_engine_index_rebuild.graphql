@@ -1,0 +1,12 @@
+mutation SearchEngineIndexRebuild {
+  search {
+    rebuildIndex {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}
