@@ -5,6 +5,20 @@ use tabled::{builder::Builder, settings::Style};
 use tempfile::Builder as TempFileBuilder;
 use wikijs::{Api, Credentials};
 
+mod analytics;
+mod asset;
+mod common;
+mod contribute;
+mod group;
+mod locale;
+mod page;
+mod system;
+mod theming;
+mod user;
+
+use crate::common::Execute;
+
+
 #[derive(Parser)]
 #[command(name = "wikijs-cli")]
 #[command(author = "Sandro-Alessio Gierens <sandro@gierens.de>")]
@@ -35,13 +49,13 @@ enum Command {
     #[clap(about = "Asset commands")]
     Asset {
         #[clap(subcommand)]
-        command: AssetCommand,
+        command: asset::AssetCommand,
     },
 
     #[clap(about = "Asset folder commands")]
     AssetFolder {
         #[clap(subcommand)]
-        command: AssetFolderCommand,
+        command: asset::AssetFolderCommand,
     },
 
     #[clap(about = "Page commands")]
@@ -102,21 +116,6 @@ enum Command {
     Theme {
         #[clap(subcommand)]
         command: ThemeCommand,
-    },
-}
-
-#[derive(Subcommand)]
-enum AssetCommand {
-    #[clap(about = "List assets")]
-    List {},
-}
-
-#[derive(Subcommand)]
-enum AssetFolderCommand {
-    #[clap(about = "List asset folders")]
-    List {
-        #[clap(help = "Parent folder ID")]
-        parent_folder_id: i64,
     },
 }
 
@@ -352,82 +351,12 @@ fn main() {
     let credentials = Credentials::Key(cli.key);
     let api = Api::new(cli.url, credentials);
 
+    // TODO each command should be in its own module
+    // TODO each subcommand should implement an Execute trait to call here
+
     match cli.command {
-        Command::Asset { command } => match command {
-            AssetCommand::List {} => match api
-                .asset_list(0, wikijs::asset::AssetKind::ALL)
-            {
-                Ok(assets) => {
-                    let mut builder = Builder::new();
-                    builder.push_record([
-                        "id",
-                        "filename",
-                        "ext",
-                        "kind",
-                        "mime",
-                        "file_size",
-                        "metadata",
-                        "created_at",
-                        "updated_at",
-                        // "folder",
-                        // "author",
-                    ]);
-                    for asset in assets {
-                        builder.push_record([
-                            asset.id.to_string().as_str(),
-                            asset.filename.as_str(),
-                            asset.ext.as_str(),
-                            asset.kind.to_string().as_str(),
-                            asset.mime.as_str(),
-                            asset.file_size.to_string().as_str(),
-                            asset.metadata.unwrap_or("".to_string()).as_str(),
-                            asset.created_at.to_string().as_str(),
-                            asset.updated_at.to_string().as_str(),
-                            // TODO
-                            // asset.folder.to_string().as_str(),
-                            // asset.author.unwrap_or(0).to_string().as_str(),
-                        ]);
-                    }
-                    println!("{}", builder.build().with(Style::rounded()));
-                }
-                Err(e) => {
-                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    std::process::exit(1);
-                }
-            },
-        },
-        Command::AssetFolder { command } => match command {
-            AssetFolderCommand::List { parent_folder_id } => {
-                match api.asset_folder_list(parent_folder_id) {
-                    Ok(asset_folders) => {
-                        let mut builder = Builder::new();
-                        builder.push_record([
-                            "id",
-                            "slug",
-                            "name",
-                        ]);
-                        for asset_folder in asset_folders {
-                            builder.push_record([
-                                asset_folder.id.to_string().as_str(),
-                                asset_folder.slug.as_str(),
-                                asset_folder
-                                    .name
-                                    .unwrap_or("".to_string())
-                                    .as_str(),
-                            ]);
-                        }
-                        println!(
-                            "{}",
-                            builder.build().with(Style::rounded())
-                        );
-                    }
-                    Err(e) => {
-                        eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                        std::process::exit(1);
-                    }
-                }
-            }
-        },
+        Command::Asset { command } => command.execute(api),
+        Command::AssetFolder { command } => command.execute(api),
         Command::Page { command } => match command {
             PageCommand::Get { id } => match api.page_get(id) {
                 Ok(page) => {
