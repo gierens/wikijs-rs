@@ -18,7 +18,7 @@ implemented and what is still to be done.
 - [x] `asset_list`
 - [x] `asset_folder_list`
 - [x] `asset_folder_create`
-- [ ] `asset_rename`
+- [x] `asset_rename`
 - [ ] `asset_delete`
 - [ ] `asset_flush_temp_uploads`
 - [ ] `asset_get` ... this needs the REST API
