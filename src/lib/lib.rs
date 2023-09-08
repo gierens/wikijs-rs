@@ -352,6 +352,17 @@ impl Api {
         )
     }
 
+    pub fn page_conflict_latest(
+        &self,
+        id: i64,
+    ) -> Result<page::PageConflictLatest, page::PageError> {
+        page::page_conflict_latest(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,

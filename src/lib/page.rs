@@ -282,6 +282,27 @@ pub struct PageLinkItem {
     pub links: Vec<Option<String>>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct PageConflictLatest {
+    pub id: Int,
+    #[serde(rename = "authorId")]
+    pub author_id: String,
+    #[serde(rename = "authorName")]
+    pub author_name: String,
+    pub content: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: Date,
+    pub description: String,
+    #[serde(rename = "isPublished")]
+    pub is_published: Boolean,
+    pub locale: String,
+    pub path: String,
+    pub tags: Option<Vec<Option<String>>>,
+    pub title: String,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: Date,
+}
+
 pub(crate) mod page_get {
     use super::*;
 
@@ -1444,6 +1465,69 @@ pub fn page_conflict_check(
     if let Some(data) = response_body.data {
         if let Some(pages) = data.pages {
             return Ok(pages.check_conflicts);
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod page_conflict_latest {
+    use super::*;
+
+    pub struct PageConflictLatestFunction;
+
+    pub const OPERATION_NAME: &str = "PageConflictLatest";
+    pub const QUERY : & str = "query PageConflictLatest (\n  $id: Int!\n) {\n  pages {\n    conflictLatest (\n      id: $id\n    ) {\n      id\n      authorId\n      authorName\n      content\n      createdAt\n      description\n      isPublished\n      locale\n      path\n      tags\n      title\n      updatedAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        #[serde(rename = "conflictLatest")]
+        pub conflict_latest: PageConflictLatest,
+    }
+
+    impl graphql_client::GraphQLQuery for PageConflictLatestFunction {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_conflict_latest(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<PageConflictLatest, PageError> {
+    let variables = page_conflict_latest::Variables { id };
+    let response =
+        post_graphql::<page_conflict_latest::PageConflictLatestFunction, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            return Ok(pages.conflict_latest);
         }
     }
     Err(classify_response_error(response_body.errors))
