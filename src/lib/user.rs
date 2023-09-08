@@ -1089,6 +1089,7 @@ pub fn user_create(
         if let Some(users) = data.users {
             if let Some(create) = users.create {
                 if create.response_result.succeeded {
+                    // TODO check that this really does not return the user
                     return Ok(());
                 } else {
                     return Err(classify_response_status_error::<UserError>(
