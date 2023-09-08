@@ -569,3 +569,85 @@ pub fn group_user_assign(
     }
     Err(classify_response_error::<GroupError>(response_body.errors))
 }
+
+pub mod group_user_unassign {
+    use super::*;
+
+    pub struct GroupUserUnassign;
+
+    pub const OPERATION_NAME: &str = "GroupUserUnassign";
+    pub const QUERY : & str = "mutation GroupUserUnassign(\n  $groupId: Int!\n  $userId: Int!\n) {\n  groups {\n    unassignUser(\n      groupId: $groupId\n      userId: $userId\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "groupId")]
+        pub group_id: Int,
+        #[serde(rename = "userId")]
+        pub user_id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub groups: Option<Groups>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Groups {
+        #[serde(rename = "unassignUser")]
+        pub unassign_user: Option<UnassignUser>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct UnassignUser {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for GroupUserUnassign {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn group_user_unassign(
+    client: &Client,
+    url: &str,
+    group_id: Int,
+    user_id: Int,
+) -> Result<(), GroupError> {
+    let variables = group_user_unassign::Variables { group_id, user_id };
+    let response = post_graphql::<group_user_unassign::GroupUserUnassign, _>(client, url, variables);
+    if response.is_err() {
+        return Err(GroupError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(groups) = data.groups {
+            if let Some(unassign_user) = groups.unassign_user {
+                if let Some(response_result) = unassign_user.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<GroupError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<GroupError>(response_body.errors))
+}

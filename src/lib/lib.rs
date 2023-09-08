@@ -775,6 +775,19 @@ impl Api {
         )
     }
 
+    pub fn group_user_unassign(
+        &self,
+        group_id: i64,
+        user_id: i64,
+    ) -> Result<(), group::GroupError> {
+        group::group_user_unassign(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            group_id,
+            user_id,
+        )
+    }
+
     // locale functions
     pub fn locale_list(
         &self,

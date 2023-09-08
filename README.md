@@ -60,7 +60,7 @@ implemented and what is still to be done.
 - [x] `group_update`
 - [x] `group_delete`
 - [x] `group_assign_user`
-- [ ] `group_unassign_user`
+- [x] `group_unassign_user`
 
 ### localization
 - [x] `locale_list`
