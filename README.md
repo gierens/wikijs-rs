@@ -42,7 +42,7 @@ implemented and what is still to be done.
 - [ ] `guest_user_reset`
 
 ### comment
-- [ ] `comment_provider_list`
+- [x] `comment_provider_list`
 - [x] `comment_list`
 - [ ] `comment_get`
 - [ ] `comment_provider_update`

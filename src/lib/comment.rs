@@ -5,6 +5,7 @@ use thiserror::Error;
 
 use crate::common::{
     classify_response_error, Date, Int, KnownErrorCodes, UnknownError,
+    Boolean, KeyValuePair,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -87,6 +88,20 @@ pub struct Comment {
     pub updated_at: Date,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct CommentProvider {
+    #[serde(rename = "isEnabled")]
+    pub is_enabled: Boolean,
+    pub key: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub logo: Option<String>,
+    pub website: Option<String>,
+    #[serde(rename = "isAvailable")]
+    pub is_available: Option<Boolean>,
+    pub config: Option<Vec<Option<KeyValuePair>>>,
+}
+
 pub mod comment_list {
     use super::*;
 
@@ -146,6 +161,69 @@ pub fn comment_list(
     if let Some(data) = response_body.data {
         if let Some(comments) = data.comments {
             return Ok(comments.list.into_iter().flatten().collect());
+        }
+    }
+    Err(classify_response_error::<CommentError>(
+        response_body.errors,
+    ))
+}
+
+pub mod comment_provider_list {
+    use super::*;
+
+    pub struct CommentProviderList;
+
+    pub const OPERATION_NAME: &str = "CommentProviderList";
+    pub const QUERY : & str = "query CommentProviderList {\n  comments {\n    providers {\n      isEnabled\n      key\n      title\n      description\n      logo\n      website\n      isAvailable\n      config {\n        key\n        value\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub comments: Option<Comments>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Comments {
+        pub providers: Option<Vec<Option<CommentProvider>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for CommentProviderList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn comment_provider_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<CommentProvider>, CommentError> {
+    let variables = comment_provider_list::Variables {};
+    let response =
+        post_graphql::<comment_provider_list::CommentProviderList, _>(
+            client, url, variables,
+        );
+    if response.is_err() {
+        return Err(CommentError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(comments) = data.comments {
+            if let Some(providers) = comments.providers {
+                return Ok(providers.into_iter().flatten().collect());
+            }
         }
     }
     Err(classify_response_error::<CommentError>(
