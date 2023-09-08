@@ -736,6 +736,25 @@ impl Api {
         )
     }
 
+    pub fn group_update(
+        &self,
+        id: i64,
+        name: String,
+        redirect_on_login: String,
+        permissions: Vec<String>,
+        page_rules: Vec<group::PageRuleInput>,
+    ) -> Result<(), group::GroupError> {
+        group::group_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            name,
+            redirect_on_login,
+            permissions,
+            page_rules,
+        )
+    }
+
     // locale functions
     pub fn locale_list(
         &self,

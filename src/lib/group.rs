@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Date, UnknownError, Boolean, Int, ResponseStatus
+    classify_response_error, Date, UnknownError, Boolean, Int, ResponseStatus,
+    classify_response_status_error, KnownErrorCodes,
 };
 use crate::user::UserMinimal;
 
@@ -36,6 +37,16 @@ impl UnknownError for GroupError {
     }
     fn unknown_error() -> Self {
         GroupError::UnknownError
+    }
+}
+
+impl KnownErrorCodes for GroupError {
+    fn known_error_codes() -> Vec<i64> {
+        Vec::new()
+    }
+
+    fn is_known_error_code(_code: i64) -> bool {
+        false
     }
 }
 
@@ -87,7 +98,7 @@ pub struct PageRule {
     pub locales: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct PageRuleInput {
     pub id: String,
     pub deny: Boolean,
@@ -97,7 +108,7 @@ pub struct PageRuleInput {
     pub locales: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub enum PageRuleMatch {
     START,
     EXACT,
@@ -301,6 +312,99 @@ pub fn group_create(
                         "Unknown error".to_string(),
                     ),
                 });
+            }
+        }
+    }
+    Err(classify_response_error::<GroupError>(response_body.errors))
+}
+
+pub mod group_update {
+    use super::*;
+
+    pub struct GroupUpdate;
+
+    pub const OPERATION_NAME: &str = "GroupUpdate";
+    pub const QUERY : & str = "mutation GroupUpdate(\n  $id: Int!\n  $name: String!\n  $redirectOnLogin: String!\n  $permissions: [String]!\n  $pageRules: [PageRuleInput]!\n) {\n  groups {\n    update(\n      id: $id\n      name: $name\n      redirectOnLogin: $redirectOnLogin\n      permissions: $permissions\n      pageRules: $pageRules \n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        pub name: String,
+        #[serde(rename = "redirectOnLogin")]
+        pub redirect_on_login: String,
+        pub permissions: Vec<Option<String>>,
+        #[serde(rename = "pageRules")]
+        pub page_rules: Vec<Option<PageRuleInput>>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub groups: Option<Groups>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Groups {
+        pub update: Option<Update>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Update {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for GroupUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn group_update(
+    client: &Client,
+    url: &str,
+    id: Int,
+    name: String,
+    redirect_on_login: String,
+    permissions: Vec<String>,
+    page_rules: Vec<PageRuleInput>,
+) -> Result<(), GroupError> {
+    let variables = group_update::Variables {
+        id,
+        name,
+        redirect_on_login,
+        permissions: permissions.into_iter().map(|p| Some(p)).collect(),
+        page_rules: page_rules.into_iter().map(|p| Some(p)).collect(),
+    };
+    let response = post_graphql::<group_update::GroupUpdate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(GroupError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(groups) = data.groups {
+            if let Some(update) = groups.update {
+                if let Some(response_result) = update.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<GroupError>(
+                            response_result,
+                        ));
+                    }
+                }
             }
         }
     }
