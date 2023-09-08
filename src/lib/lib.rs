@@ -376,6 +376,21 @@ impl Api {
         )
     }
 
+    pub fn page_move(
+        &self,
+        id: i64,
+        destination_path: String,
+        destination_locale: String,
+    ) -> Result<(), page::PageError> {
+        page::page_move(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            destination_path,
+            destination_locale,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,

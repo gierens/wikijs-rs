@@ -99,7 +99,7 @@ implemented and what is still to be done.
 - [x] `page_create`
 - [x] `page_update`
 - [x] `page_convert`
-- [ ] `page_move`
+- [x] `page_move`
 - [x] `page_delete`
 - [ ] `page_tag_delete`
 - [ ] `page_tag_update`

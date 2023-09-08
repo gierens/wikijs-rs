@@ -1612,3 +1612,92 @@ pub fn page_convert(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod page_move {
+    use super::*;
+
+    pub struct PageMove;
+
+    pub const OPERATION_NAME: &str = "PageMove";
+    pub const QUERY : & str = "mutation PageMove(\n  $id: Int!\n  $destinationPath: String!\n  $destinationLocale: String!\n) {\n  pages {\n    move (\n      id: $id\n      destinationPath: $destinationPath\n      destinationLocale: $destinationLocale\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        #[serde(rename = "destinationPath")]
+        pub destination_path: String,
+        #[serde(rename = "destinationLocale")]
+        pub destination_locale: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+    #[derive(Deserialize)]
+    pub struct Pages {
+        #[serde(rename = "move")]
+        pub move_: Option<Move>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Move {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageMove {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            ::graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_move(
+    client: &Client,
+    url: &str,
+    id: i64,
+    destination_path: String,
+    destination_locale: String,
+) -> Result<(), PageError> {
+    let variables = page_move::Variables {
+        id,
+        destination_path,
+        destination_locale,
+    };
+    let response =
+        post_graphql::<page_move::PageMove, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(move_) = pages.move_ {
+                if let Some(response_result) = move_.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
