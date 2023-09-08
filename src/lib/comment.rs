@@ -230,3 +230,69 @@ pub fn comment_provider_list(
         response_body.errors,
     ))
 }
+
+pub mod comment_get {
+    use super::*;
+
+    pub struct CommentGet;
+
+    pub const OPERATION_NAME: &str = "CommentGet";
+    pub const QUERY : & str = "query CommentGet($id: Int!) {\n  comments {\n    single (id: $id) {\n      id\n      content\n      render\n      authorId\n      authorName\n      authorEmail\n      authorIP\n      createdAt\n      updatedAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub comments: Option<Comments>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Comments {
+        pub single: Option<Comment>,
+    }
+
+    impl graphql_client::GraphQLQuery for CommentGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn comment_get(
+    client: &Client,
+    url: &str,
+    id: Int,
+) -> Result<Comment, CommentError> {
+    let variables = comment_get::Variables { id };
+    let response =
+        post_graphql::<comment_get::CommentGet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(CommentError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(comments) = data.comments {
+            if let Some(comment) = comments.single {
+                return Ok(comment);
+            }
+        }
+    }
+    Err(classify_response_error::<CommentError>(
+        response_body.errors,
+    ))
+}

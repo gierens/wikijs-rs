@@ -536,6 +536,13 @@ impl Api {
         )
     }
 
+    pub fn comment_get(
+        &self,
+        id: i64,
+    ) -> Result<comment::Comment, comment::CommentError> {
+        comment::comment_get(&self.client, &format!("{}/graphql", self.url), id)
+    }
+
     // user functions
     pub fn user_get(&self, id: i64) -> Result<user::User, user::UserError> {
         user::user_get(&self.client, &format!("{}/graphql", self.url), id)

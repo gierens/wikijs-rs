@@ -44,7 +44,7 @@ implemented and what is still to be done.
 ### comment
 - [x] `comment_provider_list`
 - [x] `comment_list`
-- [ ] `comment_get`
+- [x] `comment_get`
 - [ ] `comment_provider_update`
 - [ ] `comment_create`
 - [ ] `comment_update`
