@@ -223,6 +223,40 @@ pub struct PageHistory {
     pub value_after: Option<String>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct PageVersion {
+    pub action: String,
+    #[serde(rename = "authorId")]
+    pub author_id: String,
+    #[serde(rename = "authorName")]
+    pub author_name: String,
+    pub content: String,
+    #[serde(rename = "contentType")]
+    pub content_type: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: Date,
+    #[serde(rename = "versionDate")]
+    pub version_date: Date,
+    pub description: String,
+    pub editor: String,
+    #[serde(rename = "isPrivate")]
+    pub is_private: Boolean,
+    #[serde(rename = "isPublished")]
+    pub is_published: Boolean,
+    pub locale: String,
+    #[serde(rename = "pageId")]
+    pub page_id: Int,
+    pub path: String,
+    #[serde(rename = "publishEndDate")]
+    pub publish_end_date: Date,
+    #[serde(rename = "publishStartDate")]
+    pub publish_start_date: Date,
+    pub tags: Vec<Option<String>>,
+    pub title: String,
+    #[serde(rename = "versionId")]
+    pub version_id: Int,
+}
+
 pub(crate) mod page_get {
     use super::*;
 
@@ -1110,6 +1144,77 @@ pub fn page_history_get(
         if let Some(pages) = data.pages {
             if let Some(history) = pages.history {
                 return Ok(history);
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod page_version_get {
+    use super::*;
+
+    pub struct PageVersionGet;
+
+    pub const OPERATION_NAME: &str = "PageVersionGet";
+    pub const QUERY : & str = "query PageVersionGet(\n  $pageId: Int!\n  $versionId: Int!\n) {\n  pages {\n    version(\n      pageId: $pageId\n      versionId: $versionId\n    ) {\n      action\n      authorId\n      authorName\n      content\n      contentType\n      createdAt\n      versionDate\n      description\n      editor\n      isPrivate\n      isPublished\n      locale\n      pageId\n      path\n      publishEndDate\n      publishStartDate\n      tags\n      title\n      versionId\n    }\n  }\n}\n" ;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "pageId")]
+        pub page_id: Int,
+        #[serde(rename = "versionId")]
+        pub version_id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+    #[derive(Deserialize)]
+    pub struct Pages {
+        pub version: Option<PageVersion>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageVersionGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_version_get(
+    client: &Client,
+    url: &str,
+    page_id: i64,
+    version_id: i64,
+) -> Result<PageVersion, PageError> {
+    let variables = page_version_get::Variables {
+        page_id,
+        version_id,
+    };
+    let response =
+        post_graphql::<page_version_get::PageVersionGet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(version) = pages.version {
+                return Ok(version);
             }
         }
     }

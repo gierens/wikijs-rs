@@ -304,6 +304,19 @@ impl Api {
         )
     }
 
+    pub fn page_version_get(
+        &self,
+        id: i64,
+        version: i64,
+    ) -> Result<page::PageVersion, page::PageError> {
+        page::page_version_get(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            version,
+        )
+    }
+
     // authentication functions
     pub fn login(
         &self,
