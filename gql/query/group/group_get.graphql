@@ -1,0 +1,15 @@
+query GroupGet($id: Int!) {
+  groups {
+    single(id: $id) {
+      id
+      name
+      isSystem
+      redirectOnLogin
+      permissions
+      pageRules
+      users
+      createdAt
+      updatedAt
+    }
+  }
+}

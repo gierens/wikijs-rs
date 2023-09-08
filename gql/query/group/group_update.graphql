@@ -1,0 +1,24 @@
+mutation GroupUpdate(
+  $id: Int!
+  $name: String!
+  $redirectOnLogin: String!
+  $permissions: [String]!
+  $pageRules: [PageRuleInput]!
+) {
+  groups {
+    update(
+      id: $id
+      name: $name
+      redirectOnLogin: $redirectOnLogin
+      permissions: $permissions
+      pageRules: $pageRules 
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}
