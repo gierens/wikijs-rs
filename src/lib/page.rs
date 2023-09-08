@@ -274,6 +274,14 @@ pub struct PageSearchResult {
     pub locale: String,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct PageLinkItem {
+    pub id: Int,
+    pub path: String,
+    pub title: String,
+    pub links: Vec<Option<String>>,
+}
+
 pub(crate) mod page_get {
     use super::*;
 
@@ -1303,6 +1311,70 @@ pub fn page_search(
     if let Some(data) = response_body.data {
         if let Some(pages) = data.pages {
             return Ok(pages.search);
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod page_link_get {
+    use super::*;
+
+    pub struct PageLinkGet;
+
+    pub const OPERATION_NAME: &str = "PageLinkGet";
+    pub const QUERY : & str = "query PageLinkGet(\n    $locale: String!\n    ) {\n  pages {\n    links (\n      locale: $locale\n    ) {\n      id\n      path\n      title\n      links\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub locale: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        pub links: Option<Vec<Option<PageLinkItem>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageLinkGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn page_link_get(
+    client: &Client,
+    url: &str,
+    locale: String,
+) -> Result<Vec<PageLinkItem>, PageError> {
+    let variables = page_link_get::Variables { locale };
+    let response =
+        post_graphql::<page_link_get::PageLinkGet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(links) = pages.links {
+                return Ok(links.into_iter().flatten().collect());
+            }
         }
     }
     Err(classify_response_error(response_body.errors))

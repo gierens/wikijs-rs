@@ -332,6 +332,13 @@ impl Api {
         )
     }
 
+    pub fn page_link_get(
+        &self,
+        locale: String,
+    ) -> Result<Vec<page::PageLinkItem>, page::PageError> {
+        page::page_link_get(&self.client, &format!("{}/graphql", self.url), locale)
+    }
+
     // authentication functions
     pub fn login(
         &self,
