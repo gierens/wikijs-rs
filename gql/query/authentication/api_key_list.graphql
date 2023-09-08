@@ -1,0 +1,13 @@
+query ApiKeyList {
+  authentication {
+    apiKeys {
+      id
+      name
+      keyShort
+      expiration
+      createdAt
+      updatedAt
+      isRevoked
+    }
+  }
+}

@@ -1,0 +1,33 @@
+query AuthenticationActiveStrategyList($enabledOnly: Boolean) {
+  authentication {
+    activeStrategies(enabledOnly: $enabledOnly) {
+      key
+      strategy {
+        key
+        props {
+          key
+          value
+        }
+        title
+        description
+        isAvailable
+        useForm
+        usernameType
+        logo
+        color
+        website
+        icon
+      }
+      displayName
+      order
+      isEnabled
+      config {
+        key
+        value
+      }
+      selfRegistration
+      domainWhitelist
+      autoEnrollGroups
+    }
+  }
+}

@@ -1,0 +1,16 @@
+mutation ApiStateSet (
+  $enabled: Boolean!
+) {
+  authentication {
+    setApiState(
+      enabled: $enabled
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

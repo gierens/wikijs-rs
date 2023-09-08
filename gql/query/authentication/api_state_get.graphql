@@ -1,0 +1,5 @@
+query ApiStateGet {
+  authentication {
+    apiState
+  }
+}

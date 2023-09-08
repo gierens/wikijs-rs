@@ -1,0 +1,16 @@
+mutation ApiKeyRevoke (
+  $id: Int!
+) {
+  authentication {
+    revokeApiKey(
+      id: $id
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+    }
+  }
+}

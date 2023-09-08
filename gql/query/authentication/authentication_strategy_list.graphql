@@ -1,0 +1,20 @@
+query AuthenticationStrategyList {
+  authentication {
+    strategies {
+      key
+      props {
+        key
+        value
+      }
+      title
+      description
+      isAvailable
+      useForm
+      usernameType
+      logo
+      color
+      website
+      icon
+    }
+  }
+}

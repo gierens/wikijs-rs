@@ -1,0 +1,27 @@
+mutation LoginTfa(
+  $contrinuationToken: String!
+  $securityCode: String!
+  $setup: Boolean
+) {
+  authentication {
+    loginTFA(
+      continuationToken: $continuationToken
+      securityCode: $securityCode
+      setup: $setup
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+      jwt
+      mustChangePwd
+      mustProvideTFA
+      mustSetupTFA
+      continuationToken
+      redirect
+      tfaQRImage
+    }
+  }
+}

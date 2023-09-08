@@ -1,0 +1,23 @@
+mutation ApiKeyCreate (
+  $name: String!
+  $expiration: String
+  $fullAccess: Boolean!
+  $group: Int
+) {
+  authentication {
+    createApiKey(
+      name: $name
+      expiration: $expiration
+      fullAccess: $fullAccess
+      group: $group
+    ) {
+      responseResult {
+        succeeded
+        errorCode
+        slug
+        message
+      }
+      key
+    }
+  }
+}
