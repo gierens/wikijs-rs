@@ -1101,3 +1101,114 @@ pub fn user_create(
     }
     Err(classify_response_error::<UserError>(response_body.errors))
 }
+
+pub mod user_update {
+    use super::*;
+
+    pub struct UserUpdate;
+
+    pub const OPERATION_NAME: &str = "UserUpdate";
+    pub const QUERY : & str = "mutation UserUpdate(\n  $id: Int!\n  $email: String\n  $name: String\n  $newPassword: String\n  $groups: [Int]\n  $location: String\n  $jobTitle: String\n  $timezone: String\n  $dateFormat: String\n  $appearance: String\n) {\n  users {\n    update (\n      id: $id\n      email: $email\n      name: $name\n      newPassword: $newPassword\n      groups: $groups\n      location: $location\n      jobTitle: $jobTitle\n      timezone: $timezone\n      dateFormat: $dateFormat\n      appearance: $appearance\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+        pub email: Option<String>,
+        pub name: Option<String>,
+        #[serde(rename = "newPassword")]
+        pub new_password: Option<String>,
+        pub groups: Option<Vec<Option<Int>>>,
+        pub location: Option<String>,
+        #[serde(rename = "jobTitle")]
+        pub job_title: Option<String>,
+        pub timezone: Option<String>,
+        #[serde(rename = "dateFormat")]
+        pub date_format: Option<String>,
+        pub appearance: Option<String>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub users: Option<Users>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Users {
+        pub update: Option<Update>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Update {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for UserUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn user_update(
+    client: &Client,
+    url: &str,
+    id: i64,
+    email: Option<String>,
+    name: Option<String>,
+    new_password: Option<String>,
+    groups: Option<Vec<Option<i64>>>,
+    location: Option<String>,
+    job_title: Option<String>,
+    timezone: Option<String>,
+    date_format: Option<String>,
+    appearance: Option<String>,
+) -> Result<(), UserError> {
+    let variables = user_update::Variables {
+        id,
+        email,
+        name,
+        new_password,
+        groups,
+        location,
+        job_title,
+        timezone,
+        date_format,
+        appearance,
+    };
+    let response =
+        post_graphql::<user_update::UserUpdate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(users) = data.users {
+            if let Some(update) = users.update {
+                if let Some(response_result) = update.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<UserError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<UserError>(response_body.errors))
+}

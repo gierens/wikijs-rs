@@ -630,6 +630,35 @@ impl Api {
         )
     }
 
+    pub fn user_update(
+        &self,
+        id: i64,
+        email: Option<String>,
+        name: Option<String>,
+        new_password: Option<String>,
+        groups: Option<Vec<Option<i64>>>,
+        location: Option<String>,
+        job_title: Option<String>,
+        timezone: Option<String>,
+        date_format: Option<String>,
+        appearance: Option<String>,
+    ) -> Result<(), user::UserError> {
+        user::user_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            email,
+            name,
+            new_password,
+            groups,
+            location,
+            job_title,
+            timezone,
+            date_format,
+            appearance,
+        )
+    }
+
     // group functions
     pub fn group_list(
         &self,

@@ -155,7 +155,7 @@ implemented and what is still to be done.
 - [x] `user_profile_get`
 - [x] `user_last_login_list`
 - [x] `user_create`
-- [ ] `user_update`
+- [x] `user_update`
 - [x] `user_delete`
 - [x] `user_verify`
 - [x] `user_activate`
