@@ -128,6 +128,17 @@ pub struct SystemInfo {
     pub working_directory: Option<String>,
 }
 
+#[derive(Deserialize)]
+pub struct SystemExtension {
+    pub key: String,
+    pub title: String,
+    pub description: String,
+    #[serde(rename = "isInstalled")]
+    pub is_installed: Boolean,
+    #[serde(rename = "isCompatible")]
+    pub is_compatible: Boolean,
+}
+
 pub mod system_flag_list {
     use super::*;
 
@@ -253,6 +264,74 @@ pub fn system_info_get(
         if let Some(system) = data.system {
             if let Some(info) = system.info {
                 return Ok(info);
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
+}
+
+pub mod system_extension_list {
+    use super::*;
+
+    pub struct SystemExtensionList;
+
+    pub const OPERATION_NAME: &str = "SystemExtensionList";
+    pub const QUERY : & str = "query SystemExtensionList {\n  system {\n    extensions {\n      key\n      title\n      description\n      isInstalled\n      isCompatible\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub system: Option<System>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct System {
+        pub extensions:
+            Option<Vec<Option<SystemExtension>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for SystemExtensionList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn system_extension_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<SystemExtension>, SystemError> {
+    let variables = system_extension_list::Variables {};
+    let response = post_graphql::<system_extension_list::SystemExtensionList, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(extensions) = system.extensions {
+                return Ok(extensions
+                    .into_iter()
+                    .filter_map(|x| x)
+                    .collect::<Vec<_>>());
             }
         }
     }

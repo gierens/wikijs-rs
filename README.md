@@ -133,7 +133,7 @@ implemented and what is still to be done.
 ### system
 - [x] `system_flags_list`
 - [x] `system_info_get`
-- [ ] `system_extension_list`
+- [x] `system_extension_list`
 - [ ] `system_status_export`
 - [ ] `system_flags_update`
 - [ ] `telemetry_reset_client_id`

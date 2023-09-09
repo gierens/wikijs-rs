@@ -1089,6 +1089,15 @@ impl Api {
         system::system_info_get(&self.client, &format!("{}/graphql", self.url))
     }
 
+    pub fn system_extension_list(
+        &self,
+    ) -> Result<Vec<system::SystemExtension>, system::SystemError> {
+        system::system_extension_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // theming functions
     pub fn theme_list(
         &self,
