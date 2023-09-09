@@ -163,7 +163,7 @@ pub mod logger_update {
     }
 
     #[derive(Deserialize)]
-    pub struct LoggerUpdateLogging {
+    pub struct Logging {
         #[serde(rename = "updateLoggers")]
         pub update_loggers: Option<UpdateLoggers>,
     }
