@@ -18,6 +18,19 @@ pub(crate) enum AssetCommand {
         #[clap(help = "Destination path on disk")] 
         destination: Option<String>,
     },
+
+    #[clap(about = "Upload an asset")]
+    Upload {
+
+        #[clap(help = "Source path on disk")]
+        source: String,
+
+        #[clap(help = "Destination folder ID")]
+        folder: i64,
+
+        #[clap(help = "Destination name in wiki")]
+        name: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -34,6 +47,7 @@ impl Execute for AssetCommand {
         match self {
             AssetCommand::List {} => asset_list(api),
             AssetCommand::Download { source, destination } => asset_download(api, source.to_owned(), destination.to_owned()),
+            AssetCommand::Upload { source, folder, name } => asset_upload(api, source.to_owned(), folder.to_owned(), name.to_owned()),
         }
     }
 }
@@ -127,6 +141,19 @@ fn asset_download(api: wikijs::Api, source: String, destination: Option<String>)
             let mut file = File::create(destination.unwrap_or(source)).unwrap();
             file.write_all(&asset).unwrap();
             println!("{}: {}", "success".bold().green(), "asset downloaded");
+        }
+        Err(e) => {
+            eprintln!("{}: {}", "error".bold().red(), e.to_string());
+            std::process::exit(1);
+        }
+    }
+}
+
+fn asset_upload(api: wikijs::Api, source: String, folder: i64, name: String) {
+    let data = std::fs::read(source).unwrap();
+    match api.asset_upload(folder, name, data) {
+        Ok(_) => {
+            println!("{}: {}", "success".bold().green(), "asset uploaded");
         }
         Err(e) => {
             eprintln!("{}: {}", "error".bold().red(), e.to_string());
