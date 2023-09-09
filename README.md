@@ -34,7 +34,7 @@ implemented and what is still to be done.
 - [x] `login_tfa`
 - [x] `login_change_password`
 - [x] `forgot_password`
-- [ ] `register`
+- [x] `register`
 - [ ] `api_key_revoke`
 - [ ] `api_state_set`
 - [ ] `authentication_strategy_update`

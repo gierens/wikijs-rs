@@ -80,6 +80,13 @@ pub struct AuthenticationCreateApiKeyResponse {
     pub key: Option<String>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct AuthenticationRegisterResponse {
+    #[serde(rename = "responseResult")]
+    pub response_result: Option<ResponseStatus>,
+    pub jwt: Option<String>,
+}
+
 pub(crate) mod login_mod {
     use super::*;
 
@@ -700,6 +707,78 @@ pub fn password_forgot(
                                 ));
                     }
                 }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod register {
+    use super::*;
+
+    pub struct Register;
+
+    pub const OPERATION_NAME: &str = "Register";
+    pub const QUERY : & str = "mutation Register (\n  $email: String!\n  $password: String!\n  $name: String!\n) {\n  authentication {\n    register(\n      email: $email\n      password: $password\n      name: $name\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      jwt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub email: String,
+        pub password: String,
+        pub name: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        pub register: Option<AuthenticationRegisterResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for Register {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn register(
+    client: &Client,
+    url: &str,
+    email: String,
+    password: String,
+    name: String,
+) -> Result<AuthenticationRegisterResponse, UserError> {
+    let variables = register::Variables {
+        email,
+        password,
+        name,
+    };
+    let response = post_graphql::<register::Register, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(register) = authentication.register {
+                return Ok(register);
             }
         }
     }

@@ -576,6 +576,21 @@ impl Api {
         )
     }
 
+    pub fn register(
+        &self,
+        email: String,
+        password: String,
+        name: String,
+    ) -> Result<authentication::AuthenticationRegisterResponse, user::UserError> {
+        authentication::register(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            email,
+            password,
+            name,
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,
