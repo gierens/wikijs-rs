@@ -491,6 +491,12 @@ impl Api {
         )
     }
 
+    pub fn api_state_get(
+        &self,
+    ) -> Result<bool, user::UserError> {
+        authentication::api_state_get(&self.client, &format!("{}/graphql", self.url))
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,

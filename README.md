@@ -26,7 +26,7 @@ implemented and what is still to be done.
 
 ### authentication
 - [x] `api_key_list`
-- [ ] `api_state_get`
+- [x] `api_state_get`
 - [ ] `authentication_strategy_list`
 - [ ] `authentication_active_strategy_list`
 - [ ] `api_key_create`

@@ -164,3 +164,58 @@ pub fn api_key_list(client: &Client, url: &str) -> Result<Vec<ApiKey>, UserError
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod api_state_get {
+    use super::*;
+
+    pub struct ApiStateGet;
+
+    pub const OPERATION_NAME: &str = "ApiStateGet";
+    pub const QUERY: &str =
+        "query ApiStateGet {\n  authentication {\n    apiState\n  }\n}\n";
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "apiState")]
+        pub api_state: Boolean,
+    }
+
+    impl graphql_client::GraphQLQuery for ApiStateGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn api_state_get(client: &Client, url: &str) -> Result<Boolean, UserError> {
+    let variables = api_state_get::Variables {};
+    let response = post_graphql::<api_state_get::ApiStateGet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            return Ok(authentication.api_state);
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
