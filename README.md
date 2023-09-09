@@ -37,7 +37,7 @@ implemented and what is still to be done.
 - [x] `register`
 - [x] `api_key_revoke`
 - [x] `api_state_set`
-- [ ] `authentication_strategy_update`
+- [x] `authentication_strategy_update`
 - [ ] `certificate_regenerate`
 - [ ] `guest_user_reset`
 

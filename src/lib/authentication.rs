@@ -2,7 +2,7 @@ use graphql_client::reqwest::post_graphql_blocking as post_graphql;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::common::{classify_response_error, Boolean, Date, Int, ResponseStatus, KeyValuePair, classify_response_status_error};
+use crate::common::{classify_response_error, Boolean, Date, Int, ResponseStatus, KeyValuePair, classify_response_status_error, KeyValuePairInput};
 use crate::user::UserError;
 
 #[derive(Deserialize, Debug)]
@@ -85,6 +85,25 @@ pub struct AuthenticationRegisterResponse {
     #[serde(rename = "responseResult")]
     pub response_result: Option<ResponseStatus>,
     pub jwt: Option<String>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct AuthenticationStrategyInput {
+    pub key: String,
+    #[serde(rename = "strategyKey")]
+    pub strategy_key: String,
+    pub config: Option<Vec<Option<KeyValuePairInput>>>,
+    #[serde(rename = "displayName")]
+    pub display_name: String,
+    pub order: Int,
+    #[serde(rename = "isEnabled")]
+    pub is_enabled: Boolean,
+    #[serde(rename = "selfRegistration")]
+    pub self_registration: Boolean,
+    #[serde(rename = "domainWhitelist")]
+    pub domain_whitelist: Vec<Option<String>>,
+    #[serde(rename = "autoEnrollGroups")]
+    pub auto_enroll_groups: Vec<Option<Int>>,
 }
 
 pub(crate) mod login_mod {
@@ -937,6 +956,90 @@ pub fn api_state_set(
         if let Some(authentication) = data.authentication {
             if let Some(set_api_state) = authentication.set_api_state {
                 if let Some(response_result) = set_api_state.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                                response_result
+                                ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod authentication_strategy_update {
+    use super::*;
+
+    pub struct AuthenticationStrategyUpdate;
+
+    pub const OPERATION_NAME: &str = "AuthenticationStrategyUpdate";
+    pub const QUERY : & str = "mutation AuthenticationStrategyUpdate (\n  $strategies: [AuthenticationStrategyInput]!\n) {\n  authentication {\n    updateStrategies(\n      strategies: $strategies\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct KeyValuePairInput {
+        pub key: String,
+        pub value: String,
+    }
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub strategies: Vec<Option<AuthenticationStrategyInput>>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "updateStrategies")]
+        pub update_strategies: Option<UpdateStrategies>,
+    }
+    #[derive(Deserialize)]
+    pub struct UpdateStrategies {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for AuthenticationStrategyUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn authentication_strategy_update(
+    client: &Client,
+    url: &str,
+    strategies: Vec<AuthenticationStrategyInput>,
+) -> Result<(), UserError> {
+    let variables = authentication_strategy_update::Variables {
+        strategies: strategies.into_iter().map(|s| Some(s)).collect(),
+    };
+    let response = post_graphql::<authentication_strategy_update::AuthenticationStrategyUpdate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        })
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(update_strategies) = authentication.update_strategies {
+                if let Some(response_result) = update_strategies.response_result {
                     if response_result.succeeded {
                         return Ok(());
                     } else {

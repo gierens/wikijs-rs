@@ -613,6 +613,17 @@ impl Api {
         )
     }
 
+    pub fn authentication_strategy_update(
+        &self,
+        strategies: Vec<authentication::AuthenticationStrategyInput>,
+    ) -> Result<(), user::UserError> {
+        authentication::authentication_strategy_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            strategies,
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,
