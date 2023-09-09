@@ -1137,6 +1137,9 @@ pub mod guest_user_reset {
     pub const OPERATION_NAME: &str = "GuestUserReset";
     pub const QUERY : & str = "mutation GuestUserReset {\n  authentication {\n    resetGuestUser {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
 
+    #[derive(Serialize)]
+    pub struct Variables;
+
     #[derive(Deserialize)]
     pub struct ResponseData {
         pub authentication: Option<Authentication>,
@@ -1155,13 +1158,13 @@ pub mod guest_user_reset {
     }
     
     impl graphql_client::GraphQLQuery for GuestUserReset {
-        type Variables = ();
+        type Variables = Variables;
         type ResponseData = ResponseData;
         fn build_query(
             variables: Self::Variables,
         ) -> ::graphql_client::QueryBody<Self::Variables> {
             graphql_client::QueryBody {
-                variables: (),
+                variables,
                 query: QUERY,
                 operation_name: OPERATION_NAME,
             }
@@ -1173,7 +1176,8 @@ pub fn guest_user_reset(
     client: &Client,
     url: &str,
 ) -> Result<(), UserError> {
-    let response = post_graphql::<guest_user_reset::GuestUserReset, _>(client, url, ());
+    let variables = guest_user_reset::Variables {};
+    let response = post_graphql::<guest_user_reset::GuestUserReset, _>(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
