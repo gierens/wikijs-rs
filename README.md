@@ -25,7 +25,7 @@ implemented and what is still to be done.
 - [ ] `asset_create` ... this needs the REST API
 
 ### authentication
-- [ ] `api_key_list`
+- [x] `api_key_list`
 - [ ] `api_state_get`
 - [ ] `authentication_strategy_list`
 - [ ] `authentication_active_strategy_list`

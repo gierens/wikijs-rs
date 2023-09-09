@@ -481,6 +481,16 @@ impl Api {
         )
     }
 
+    pub fn api_key_list(
+        &self,
+    ) -> Result<Vec<authentication::ApiKey>, user::UserError>
+    {
+        authentication::api_key_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,
