@@ -1147,6 +1147,19 @@ impl Api {
         )
     }
 
+    pub fn system_user_import_from_v1(
+        &self,
+        mongo_db_conn_string: String,
+        group_code: system::SystemImportUsersGroupMode,
+    ) -> Result<(), system::SystemError> {
+        system::system_user_import_from_v1(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            mongo_db_conn_string,
+            group_code,
+        )
+    }
+
     // theming functions
     pub fn theme_list(
         &self,

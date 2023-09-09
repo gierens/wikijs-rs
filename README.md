@@ -139,7 +139,7 @@ implemented and what is still to be done.
 - [x] `telemetry_reset_client_id`
 - [x] `telemetry_set`
 - [x] `system_upgrade`
-- [ ] `user_import_from_v1`
+- [x] `user_import_from_v1`
 - [ ] `http_redirection_set`
 - [ ] `https_certificate_renew`
 - [ ] `system_export`

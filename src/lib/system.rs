@@ -753,3 +753,99 @@ pub fn system_upgrade_perform(
         response_body.errors,
     ))
 }
+
+pub mod system_user_import_from_v1 {
+    use super::*;
+
+    pub struct SystemUserImportFromV1;
+
+    pub const OPERATION_NAME: &str = "SystemUserImportFromV1";
+    pub const QUERY : & str = "mutation SystemUserImportFromV1(\n  $mongoDbConnString: String!\n  $groupCode: SystemImportUsersGroupMode!\n) {\n  system {\n    importUsersFromV1(\n      mongoDbConnString: $mongoDbConnString\n      groupCode: $groupCode\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "mongoDbConnString")]
+        pub mongo_db_conn_string: String,
+
+        #[serde(rename = "groupCode")]
+        pub group_code: SystemImportUsersGroupMode,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub system: Option<System>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct System {
+        #[serde(rename = "importUsersFromV1")]
+        pub import_users_from_v1: Option<ImportUsersFromV1>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct ImportUsersFromV1 {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for SystemUserImportFromV1 {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn system_user_import_from_v1(
+    client: &Client,
+    url: &str,
+    mongo_db_conn_string: String,
+    group_code: SystemImportUsersGroupMode,
+) -> Result<(), SystemError> {
+    let variables = system_user_import_from_v1::Variables {
+        mongo_db_conn_string,
+        group_code,
+    };
+    let response = post_graphql::<system_user_import_from_v1::SystemUserImportFromV1, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(import_users_from_v1) =
+                system.import_users_from_v1
+            {
+                if let Some(response_result) =
+                    import_users_from_v1.response_result
+                {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<SystemError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
+}
