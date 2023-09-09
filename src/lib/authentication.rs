@@ -784,3 +784,81 @@ pub fn register(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod api_key_revoke {
+    use super::*;
+
+    pub struct ApiKeyRevoke;
+
+    pub const OPERATION_NAME: &str = "ApiKeyRevoke";
+    pub const QUERY : & str = "mutation ApiKeyRevoke (\n  $id: Int!\n) {\n  authentication {\n    revokeApiKey(\n      id: $id\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "revokeApiKey")]
+        pub revoke_api_key: Option<RevokeApiKey>,
+    }
+    #[derive(Deserialize)]
+    pub struct RevokeApiKey {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for ApiKeyRevoke {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn api_key_revoke(
+    client: &Client,
+    url: &str,
+    id: Int,
+) -> Result<(), UserError> {
+    let variables = api_key_revoke::Variables { id };
+    let response = post_graphql::<api_key_revoke::ApiKeyRevoke, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        })
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(revoke_api_key) = authentication.revoke_api_key {
+                if let Some(response_result) = revoke_api_key.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                                response_result
+                                ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

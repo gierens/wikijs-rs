@@ -591,6 +591,17 @@ impl Api {
         )
     }
 
+    pub fn api_key_revoke(
+        &self,
+        id: i64,
+    ) -> Result<(), user::UserError> {
+        authentication::api_key_revoke(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,

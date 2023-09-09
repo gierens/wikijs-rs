@@ -35,7 +35,7 @@ implemented and what is still to be done.
 - [x] `login_change_password`
 - [x] `forgot_password`
 - [x] `register`
-- [ ] `api_key_revoke`
+- [x] `api_key_revoke`
 - [ ] `api_state_set`
 - [ ] `authentication_strategy_update`
 - [ ] `certificate_regenerate`
