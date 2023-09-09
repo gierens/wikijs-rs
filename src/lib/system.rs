@@ -503,3 +503,87 @@ pub fn system_flags_update(
         response_body.errors,
     ))
 }
+
+pub mod telemetry_client_id_reset {
+    // TODO the query file needs to be renamed to match this
+    use super::*;
+
+    pub struct TelemetryClientIdReset;
+
+    pub const OPERATION_NAME: &str = "TelemetryClientIdReset";
+    pub const QUERY : & str = "mutation TelemetryClientIdReset {\n  system {\n    resetTelemetryClientId {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub system: Option<System>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct System {
+        #[serde(rename = "resetTelemetryClientId")]
+        pub reset_telemetry_client_id: Option<ResetTelemetryClientId>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct ResetTelemetryClientId {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for TelemetryClientIdReset {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn telemetry_client_id_reset(
+    client: &Client,
+    url: &str,
+) -> Result<(), SystemError> {
+    let variables = telemetry_client_id_reset::Variables {};
+    let response = post_graphql::<telemetry_client_id_reset::TelemetryClientIdReset, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(reset_telemetry_client_id) =
+                system.reset_telemetry_client_id
+            {
+                if let Some(response_result) =
+                    reset_telemetry_client_id.response_result
+                {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<SystemError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
+}

@@ -1118,6 +1118,15 @@ impl Api {
         )
     }
 
+    pub fn telemetry_client_id_reset(
+        &self,
+    ) -> Result<(), system::SystemError> {
+        system::telemetry_client_id_reset(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // theming functions
     pub fn theme_list(
         &self,
