@@ -849,3 +849,95 @@ pub fn system_user_import_from_v1(
         response_body.errors,
     ))
 }
+
+// TODO this should be renamed
+pub mod system_https_redirection_set {
+    use super::*;
+
+    pub struct SystemHttpsRedirectionSet;
+
+    pub const OPERATION_NAME: &str = "SystemHttpsRedirectionSet";
+    pub const QUERY : & str = "mutation SystemHttpsRedirectionSet($enabled: Boolean!) {\n  system {\n    setHTTPSRedirection(enabled: $enabled) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub enabled: Boolean,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub system: Option<System>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct System {
+        #[serde(rename = "setHTTPSRedirection")]
+        pub set_https_redirection: Option<SetHttpsRedirection>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct SetHttpsRedirection {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for SystemHttpsRedirectionSet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn https_redirection_set(
+    client: &Client,
+    url: &str,
+    enabled: bool,
+) -> Result<(), SystemError> {
+    let variables = system_https_redirection_set::Variables {
+        enabled: enabled.into(),
+    };
+    let response = post_graphql::<system_https_redirection_set::SystemHttpsRedirectionSet, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(set_https_redirection) =
+                system.set_https_redirection
+            {
+                if let Some(response_result) =
+                    set_https_redirection.response_result
+                {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<SystemError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
+}

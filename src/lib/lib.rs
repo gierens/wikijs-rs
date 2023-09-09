@@ -1160,6 +1160,17 @@ impl Api {
         )
     }
 
+    pub fn https_redirection_set(
+        &self,
+        enabled: bool,
+    ) -> Result<(), system::SystemError> {
+        system::https_redirection_set(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            enabled,
+        )
+    }
+
     // theming functions
     pub fn theme_list(
         &self,
