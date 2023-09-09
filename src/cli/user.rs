@@ -32,7 +32,7 @@ impl Execute for UserCommand {
     }
 }
 
-pub(crate) fn user_get(api: wikijs::Api, id: i64) {
+fn user_get(api: wikijs::Api, id: i64) {
     match api.user_get(id) {
         Ok(user) => {
             let mut builder = Builder::new();
@@ -97,7 +97,7 @@ pub(crate) fn user_get(api: wikijs::Api, id: i64) {
     }
 }
 
-pub(crate) fn user_list(api: wikijs::Api, filter: Option<String>, order_by: Option<String>) {
+fn user_list(api: wikijs::Api, filter: Option<String>, order_by: Option<String>) {
     match api.user_list(filter, order_by) {
         Ok(users) => {
             let mut builder = Builder::new();
