@@ -16,13 +16,14 @@ implemented and what is still to be done.
 
 ### asset
 - [x] `asset_list`
+- [ ] `asset_get` ... doesn't exist in the API
 - [x] `asset_folder_list`
 - [x] `asset_folder_create`
 - [x] `asset_rename`
 - [x] `asset_delete`
 - [x] `asset_flush_temp_uploads`
-- [ ] `asset_get` ... this needs the REST API
-- [ ] `asset_create` ... this needs the REST API
+- [x] `asset_download` ... this needs the REST API
+- [ ] `asset_upload` ... this needs the REST API
 
 ### authentication
 - [x] `api_key_list`

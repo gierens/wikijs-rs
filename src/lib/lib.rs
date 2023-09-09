@@ -139,6 +139,13 @@ impl Api {
         )
     }
 
+    pub fn asset_download(
+        &self,
+        path: String,
+    ) -> Result<Vec<u8>, asset::AssetError> {
+        asset::asset_download(&self.client, self.url.as_str(), path)
+    }
+
     // page functions
     pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)

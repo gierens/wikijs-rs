@@ -593,3 +593,23 @@ pub fn asset_temp_upload_flush(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub fn asset_download(
+    client: &Client,
+    url: &str,
+    path: String,
+) -> Result<Vec<u8>, AssetError> {
+    let response = client
+        .get(format!("{}/{}", url, path).as_str())
+        .send();
+    if response.is_err() {
+        return Err(AssetError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if response_body.status().is_success() {
+        return Ok(response_body.bytes().unwrap().to_vec());
+    }
+    Err(AssetError::UnknownError)
+}
