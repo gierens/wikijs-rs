@@ -29,7 +29,7 @@ implemented and what is still to be done.
 - [x] `api_state_get`
 - [x] `authentication_strategy_list`
 - [x] `authentication_active_strategy_list`
-- [ ] `api_key_create`
+- [x] `api_key_create`
 - [x] `login`
 - [ ] `login_tfa`
 - [ ] `login_change_password`

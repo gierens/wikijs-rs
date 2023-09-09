@@ -2,7 +2,7 @@ use graphql_client::reqwest::post_graphql_blocking as post_graphql;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::common::{classify_response_error, Boolean, Date, Int, ResponseStatus, KeyValuePair};
+use crate::common::{classify_response_error, Boolean, Date, Int, ResponseStatus, KeyValuePair, classify_response_status_error};
 use crate::user::UserError;
 
 #[derive(Deserialize, Debug)]
@@ -56,7 +56,7 @@ pub struct AuthenticationStrategy {
     pub icon: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct AuthenticationActiveStrategy {
     pub key: String,
     pub strategy: AuthenticationStrategy,
@@ -71,6 +71,13 @@ pub struct AuthenticationActiveStrategy {
     pub domain_whitelist: Vec<Option<String>>,
     # [serde (rename = "autoEnrollGroups")]
     pub auto_enroll_groups: Vec<Option<Int>>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct AuthenticationCreateApiKeyResponse {
+    #[serde(rename = "responseResult")]
+    pub response_result: Option<ResponseStatus>,
+    pub key: Option<String>,
 }
 
 pub(crate) mod login_mod {
@@ -379,6 +386,96 @@ pub fn authentication_active_strategy_list(
         if let Some(authentication) = data.authentication {
             if let Some(active_strategies) = authentication.active_strategies {
                 return Ok(active_strategies.into_iter().flatten().collect());
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod api_key_create {
+    use super::*;
+
+    pub struct ApiKeyCreate;
+
+    pub const OPERATION_NAME: &str = "ApiKeyCreate";
+    pub const QUERY : & str = "mutation ApiKeyCreate (\n  $name: String!\n  $expiration: String\n  $fullAccess: Boolean!\n  $group: Int\n) {\n  authentication {\n    createApiKey(\n      name: $name\n      expiration: $expiration\n      fullAccess: $fullAccess\n      group: $group\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      key\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub name: String,
+        pub expiration: Option<String>,
+        #[serde(rename = "fullAccess")]
+        pub full_access: Boolean,
+        pub group: Option<Int>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "createApiKey")]
+        pub create_api_key: Option<AuthenticationCreateApiKeyResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for ApiKeyCreate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn api_key_create(
+    client: &Client,
+    url: &str,
+    name: String,
+    expiration: Option<String>,
+    full_access: Boolean,
+    group: Option<Int>,
+) -> Result<String, UserError> {
+    let variables = api_key_create::Variables {
+        name,
+        expiration,
+        full_access,
+        group,
+    };
+    let response = post_graphql::<api_key_create::ApiKeyCreate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(create_api_key) = authentication.create_api_key {
+                if let Some(response_result) = create_api_key.response_result {
+                    if response_result.succeeded {
+                        if let Some(key) = create_api_key.key {
+                            return Ok(key);
+                        } else {
+                            return Err(UserError::UnknownErrorMessage {
+                                message: "No key returned.".to_string(),
+                            });
+                        }
+                    } else {
+                        return Err(classify_response_status_error(
+                                response_result
+                                ));
+                    }
+                }
             }
         }
     }

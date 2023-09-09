@@ -519,6 +519,23 @@ impl Api {
         )
     }
 
+    pub fn api_key_create(
+        &self,
+        name: String,
+        expiration: Option<String>,
+        full_access: bool,
+        group: Option<i64>,
+    ) -> Result<String, user::UserError> {
+        authentication::api_key_create(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            name,
+            expiration,
+            full_access,
+            group,
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,
