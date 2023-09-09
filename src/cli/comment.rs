@@ -1,5 +1,5 @@
+use std::error::Error;
 use clap::Subcommand;
-use colored::Colorize;
 use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
 
@@ -16,50 +16,40 @@ pub(crate) enum CommentCommand {
 }
 
 impl Execute for CommentCommand {
-    fn execute(&self, api: wikijs::Api) {
+    fn execute(&self, api: wikijs::Api) -> Result<(), Box<dyn Error>> {
         match self {
             CommentCommand::List { locale, path } => comment_list(api, locale.to_string(), path.to_string()),
         }
     }
 }
 
-fn comment_list(api: wikijs::Api, locale: String, path: String) {
-    match api.comment_list(locale, path) {
-        Ok(comments) => {
-            let mut builder = Builder::new();
-            builder.push_record([
-                "id",
-                // "content",
-                // "render",
-                "author_id",
-                "author_name",
-                "author_email",
-                // "author_ip",
-                "created_at",
-                "updated_at",
-            ]);
-            for comment in comments {
-                builder.push_record([
-                    comment.id.to_string().as_str(),
-                    // comment.content.as_str(),
-                    // comment.render.as_str(),
-                    comment.author_id.to_string().as_str(),
-                    comment.author_name.as_str(),
-                    comment.author_email.as_str(),
-                    // comment.author_ip.as_str(),
-                    comment.created_at.to_string().as_str(),
-                    comment.updated_at.to_string().as_str(),
-                ]);
-            }
-            println!("{}", builder.build().with(Style::rounded()));
-        }
-        Err(e) => {
-            eprintln!(
-                "{}: {}",
-                "error".bold().red(),
-                e.to_string()
-            );
-            std::process::exit(1);
-        }
+fn comment_list(api: wikijs::Api, locale: String, path: String) -> Result<(), Box<dyn Error>> {
+    let comments = api.comment_list(locale, path)?;
+    let mut builder = Builder::new();
+    builder.push_record([
+        "id",
+        // "content",
+        // "render",
+        "author_id",
+        "author_name",
+        "author_email",
+        // "author_ip",
+        "created_at",
+        "updated_at",
+    ]);
+    for comment in comments {
+        builder.push_record([
+            comment.id.to_string().as_str(),
+            // comment.content.as_str(),
+            // comment.render.as_str(),
+            comment.author_id.to_string().as_str(),
+            comment.author_name.as_str(),
+            comment.author_email.as_str(),
+            // comment.author_ip.as_str(),
+            comment.created_at.to_string().as_str(),
+            comment.updated_at.to_string().as_str(),
+        ]);
     }
+    println!("{}", builder.build().with(Style::rounded()));
+    Ok(())
 }
