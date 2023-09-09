@@ -2,11 +2,22 @@ use clap::Subcommand;
 use colored::Colorize;
 use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
+use std::fs::File;
+use std::io::Write;
 
 #[derive(Subcommand)]
 pub(crate) enum AssetCommand {
     #[clap(about = "List assets")]
     List {},
+
+    #[clap(about = "Download an asset")]
+    Download {
+        #[clap(help = "Source path in wiki")]
+        source: String,
+
+        #[clap(help = "Destination path on disk")] 
+        destination: Option<String>,
+    },
 }
 
 #[derive(Subcommand)]
@@ -22,6 +33,7 @@ impl Execute for AssetCommand {
     fn execute(&self, api: wikijs::Api) {
         match self {
             AssetCommand::List {} => asset_list(api),
+            AssetCommand::Download { source, destination } => asset_download(api, source.to_owned(), destination.to_owned()),
         }
     }
 }
@@ -101,6 +113,20 @@ fn asset_folder_list(api: wikijs::Api, parent_folder_id: i64) {
                 "{}",
                 builder.build().with(Style::rounded())
             );
+        }
+        Err(e) => {
+            eprintln!("{}: {}", "error".bold().red(), e.to_string());
+            std::process::exit(1);
+        }
+    }
+}
+
+fn asset_download(api: wikijs::Api, source: String, destination: Option<String>) {
+    match api.asset_download(source.clone()) {
+        Ok(asset) => {
+            let mut file = File::create(destination.unwrap_or(source)).unwrap();
+            file.write_all(&asset).unwrap();
+            println!("{}: {}", "success".bold().green(), "asset downloaded");
         }
         Err(e) => {
             eprintln!("{}: {}", "error".bold().red(), e.to_string());
