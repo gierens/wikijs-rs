@@ -1053,3 +1053,78 @@ pub fn authentication_strategy_update(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod authentication_certificate_regenerate {
+    use super::*;
+
+    pub struct AuthenticationCertificateRegenerate;
+
+    pub const OPERATION_NAME: &str = "AuthenticationCertificateRegenerate";
+    pub const QUERY : & str = "mutation AuthenticationCertificateRegenerate {\n  authentication {\n    regenerateCertificates {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "regenerateCertificates")]
+        pub regenerate_certificates: Option<RegenerateCertificates>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct RegenerateCertificates {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for AuthenticationCertificateRegenerate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name:
+                    OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn authentication_certificate_regenerate(
+    client: &Client,
+    url: &str,
+) -> Result<(), UserError> {
+    let variables = authentication_certificate_regenerate::Variables {};
+    let response = post_graphql::<authentication_certificate_regenerate::AuthenticationCertificateRegenerate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        })
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(regenerate_certificates) = authentication.regenerate_certificates {
+                if let Some(response_result) = regenerate_certificates.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                                response_result
+                                ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

@@ -624,6 +624,15 @@ impl Api {
         )
     }
 
+    pub fn authentication_certificate_regenerate(
+        &self,
+    ) -> Result<(), user::UserError> {
+        authentication::authentication_certificate_regenerate(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,
