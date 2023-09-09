@@ -31,7 +31,7 @@ implemented and what is still to be done.
 - [x] `authentication_active_strategy_list`
 - [x] `api_key_create`
 - [x] `login`
-- [ ] `login_tfa`
+- [x] `login_tfa`
 - [ ] `login_change_password`
 - [ ] `forgot_password`
 - [ ] `register`

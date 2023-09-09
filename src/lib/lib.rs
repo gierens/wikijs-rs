@@ -536,6 +536,22 @@ impl Api {
         )
     }
 
+    pub fn login_tfa(
+        &self,
+        continuation_token: String,
+        security_code: String,
+        setup: Option<bool>,
+    ) -> Result<authentication::AuthenticationLoginResponse, user::UserError>
+    {
+        authentication::login_tfa(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            continuation_token,
+            security_code,
+            setup,
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,

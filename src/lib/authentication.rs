@@ -481,3 +481,77 @@ pub fn api_key_create(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod login_tfa {
+    use super::*;
+
+    pub struct LoginTfa;
+
+    pub const OPERATION_NAME: &str = "LoginTfa";
+    pub const QUERY : & str = "mutation LoginTfa(\n  $continuationToken: String!\n  $securityCode: String!\n  $setup: Boolean\n) {\n  authentication {\n    loginTFA(\n      continuationToken: $continuationToken\n      securityCode: $securityCode\n      setup: $setup\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      jwt\n      mustChangePwd\n      mustProvideTFA\n      mustSetupTFA\n      continuationToken\n      redirect\n      tfaQRImage\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "continuationToken")]
+        pub continuation_token: String,
+        #[serde(rename = "securityCode")]
+        pub security_code: String,
+        pub setup: Option<Boolean>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "loginTFA")]
+        pub login_tfa: Option<AuthenticationLoginResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for LoginTfa {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn login_tfa(
+    client: &Client,
+    url: &str,
+    continuation_token: String,
+    security_code: String,
+    setup: Option<Boolean>,
+) -> Result<AuthenticationLoginResponse, UserError> {
+    let variables = login_tfa::Variables {
+        continuation_token,
+        security_code,
+        setup,
+    };
+    let response = post_graphql::<login_tfa::LoginTfa, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(login_tfa) = authentication.login_tfa {
+                return Ok(login_tfa);
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
