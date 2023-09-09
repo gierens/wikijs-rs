@@ -1098,6 +1098,15 @@ impl Api {
         )
     }
 
+    pub fn system_export_status_get(
+        &self,
+    ) -> Result<(), system::SystemError> {
+        system::system_export_status_get(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // theming functions
     pub fn theme_list(
         &self,

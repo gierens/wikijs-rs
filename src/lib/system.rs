@@ -339,3 +339,74 @@ pub fn system_extension_list(
         response_body.errors,
     ))
 }
+
+pub mod system_export_status_get {
+    use super::*;
+
+    pub struct SystemExportStatusGet;
+
+    pub const OPERATION_NAME: &str = "SystemExportStatusGet";
+    pub const QUERY : & str = "query SystemExportStatusGet{\n  system {\n    exportStatus {\n      status\n      progress\n      message\n      startedAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub system: Option<System>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct System {
+        #[serde(rename = "exportStatus")]
+        pub export_status: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for SystemExportStatusGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn system_export_status_get(
+    client: &Client,
+    url: &str,
+) -> Result<(), SystemError> {
+    let variables = system_export_status_get::Variables {};
+    let response = post_graphql::<system_export_status_get::SystemExportStatusGet, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(export_status) = system.export_status {
+                if export_status.succeeded {
+                    return Ok(());
+                } else {
+                    return Err(classify_response_status_error::<SystemError>(
+                        export_status,
+                    ));
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
+}
