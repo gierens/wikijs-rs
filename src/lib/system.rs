@@ -145,6 +145,22 @@ pub struct SystemFlagInput {
     pub value: Boolean,
 }
 
+#[derive(Serialize, Debug)]
+pub enum SystemImportUsersGroupMode {
+    MULTI,
+    SINGLE,
+    NONE,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SystemExportStatus {
+    pub status: Option<String>,
+    pub progress: Option<Int>,
+    pub message: Option<String>,
+    #[serde(rename = "startedAt")]
+    pub started_at: Option<Date>,
+}
+
 pub mod system_flag_list {
     use super::*;
 
@@ -219,8 +235,6 @@ pub mod system_info_get {
 
     pub const OPERATION_NAME: &str = "SystemInfoGet";
     pub const QUERY : & str = "query SystemInfoGet {\n  system {\n    info {\n      configFile\n      cpuCores\n      currentVersion\n      dbHost\n      dbType\n      dbVersion\n      groupsTotal\n      hostname\n      httpPort\n      httpRedirection\n      httpsPort\n      latestVersion\n      latestVersionReleaseDate\n      nodeVersion\n      operatingSystem\n      pagesTotal\n      platform\n      ramTotal\n      sslDomain\n      sslExpirationDate\n      sslProvider\n      sslStatus\n      sslSubscriberEmail\n      tagsTotal\n      telemetry\n      telemetryClientId\n      upgradeCapable\n      usersTotal\n      workingDirectory\n    }\n  }\n}\n" ;
-    use super::*;
-    use serde::{Deserialize, Serialize};
 
     #[derive(Serialize)]
     pub struct Variables;
@@ -365,7 +379,7 @@ pub mod system_export_status_get {
     #[derive(Deserialize)]
     pub struct System {
         #[serde(rename = "exportStatus")]
-        pub export_status: Option<ResponseStatus>,
+        pub export_status: Option<SystemExportStatus>,
     }
 
     impl graphql_client::GraphQLQuery for SystemExportStatusGet {
@@ -386,7 +400,7 @@ pub mod system_export_status_get {
 pub fn system_export_status_get(
     client: &Client,
     url: &str,
-) -> Result<(), SystemError> {
+) -> Result<SystemExportStatus, SystemError> {
     let variables = system_export_status_get::Variables {};
     let response = post_graphql::<system_export_status_get::SystemExportStatusGet, _>(
         client,
@@ -402,13 +416,7 @@ pub fn system_export_status_get(
     if let Some(data) = response_body.data {
         if let Some(system) = data.system {
             if let Some(export_status) = system.export_status {
-                if export_status.succeeded {
-                    return Ok(());
-                } else {
-                    return Err(classify_response_status_error::<SystemError>(
-                        export_status,
-                    ));
-                }
+                return Ok(export_status);
             }
         }
     }

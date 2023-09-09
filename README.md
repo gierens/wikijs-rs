@@ -142,7 +142,7 @@ implemented and what is still to be done.
 - [x] `user_import_from_v1`
 - [x] `https_redirection_set`
 - [x] `https_certificate_renew`
-- [ ] `system_export`
+- [x] `system_export_status_get
 
 ### theming
 - [x] `theme_list`
