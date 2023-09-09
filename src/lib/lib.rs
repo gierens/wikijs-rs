@@ -146,6 +146,21 @@ impl Api {
         asset::asset_download(&self.client, self.url.as_str(), path)
     }
 
+    pub fn asset_upload(
+        &self,
+        folder: i64,
+        name: String,
+        data: Vec<u8>,
+    ) -> Result<(), asset::AssetError> {
+        asset::asset_upload(
+            &self.client,
+            self.url.as_str(),
+            folder,
+            name,
+            data,
+        )
+    }
+
     // page functions
     pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)

@@ -613,3 +613,40 @@ pub fn asset_download(
     }
     Err(AssetError::UnknownError)
 }
+
+pub fn asset_upload(
+    client: &Client,
+    url: &str,
+    folder: Int,
+    name: String,
+    data: Vec<u8>,
+) -> Result<(), AssetError> {
+    // NOTE: we can also set the mime type like this, but apparently it
+    //       also works without it.
+    // let part = match reqwest::blocking::multipart::Part::bytes(data)
+    //     .file_name(name)
+    //     .mime_str("image/jpeg") {
+    //         Ok(part) => part,
+    //         Err(_) => return Err(AssetError::UnknownError),
+    //     };
+    let part = reqwest::blocking::multipart::Part::bytes(data)
+        .file_name(name);
+    let form = reqwest::blocking::multipart::Form::new()
+        .text("mediaUpload", format!("{{\"folderId\":{}}}", folder))
+        .part("mediaUpload", part);
+    let response = client
+        .post(format!("{}/u", url).as_str())
+        .multipart(form)
+        .send();
+    println!("{:?}", response);
+    if response.is_err() {
+        return Err(AssetError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if response_body.status().is_success() {
+        return Ok(());
+    }
+    Err(AssetError::UnknownError)
+}

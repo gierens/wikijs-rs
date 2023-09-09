@@ -23,7 +23,7 @@ implemented and what is still to be done.
 - [x] `asset_delete`
 - [x] `asset_flush_temp_uploads`
 - [x] `asset_download` ... this needs the REST API
-- [ ] `asset_upload` ... this needs the REST API
+- [x] `asset_upload` ... this needs the REST API
 
 ### authentication
 - [x] `api_key_list`
