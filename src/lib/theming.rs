@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, UnknownError,
+    classify_response_error, UnknownError, Boolean,
+    classify_response_status_error
 };
 
 #[derive(Error, Debug, PartialEq)]
@@ -45,6 +46,21 @@ pub struct Theme {
     pub author: Option<String>,
 }
 
+#[derive(Deserialize)]
+pub struct ThemingConfig {
+    pub theme: String,
+    pub iconset: String,
+    #[serde(rename = "darkMode")]
+    pub dark_mode: Boolean,
+    #[serde(rename = "tocPosition")]
+    pub toc_position: Option<String>,
+    #[serde(rename = "injectCSS")]
+    pub inject_css: Option<String>,
+    #[serde(rename = "injectHead")]
+    pub inject_head: Option<String>,
+    #[serde(rename = "injectBody")]
+    pub inject_body: Option<String>,
+}
 
 pub mod theme_list {
     use super::*;
@@ -101,6 +117,66 @@ pub fn theme_list(
                     .into_iter()
                     .flatten()
                     .collect());
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod theme_config_get {
+    use super::*;
+
+    pub struct ThemeConfigGet;
+
+    pub const OPERATION_NAME: &str = "ThemeConfigGet";
+    pub const QUERY : & str = "query ThemeConfigGet {\n  theming {\n    config {\n      theme\n      iconset\n      darkMode\n      tocPosition\n      injectCSS\n      injectHead\n      injectBody\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub theming: Option<Theming>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Theming {
+        pub config: Option<ThemingConfig>,
+    }
+
+    impl graphql_client::GraphQLQuery for ThemeConfigGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn theme_config_get(
+    client: &Client,
+    url: &str,
+) -> Result<ThemingConfig, ThemeError> {
+    let variables = theme_config_get::Variables {};
+    let response = post_graphql::<theme_config_get::ThemeConfigGet, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(ThemeError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(theming) = data.theming {
+            if let Some(config) = theming.config {
+                return Ok(config);
             }
         }
     }

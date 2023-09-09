@@ -145,7 +145,7 @@ implemented and what is still to be done.
 
 ### theming
 - [x] `theme_list`
-- [ ] `theme_config_get`
+- [x] `theme_config_get`
 - [ ] `theme_config_set`
 
 ### user

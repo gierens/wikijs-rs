@@ -1051,4 +1051,10 @@ impl Api {
             &format!("{}/graphql", self.url),
         )
     }
+
+    pub fn theme_config_get(
+        &self,
+    ) -> Result<theming::ThemingConfig, theming::ThemeError> {
+        theming::theme_config_get(&self.client, &format!("{}/graphql", self.url))
+    }
 }
