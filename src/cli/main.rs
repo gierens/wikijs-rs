@@ -99,7 +99,7 @@ enum Command {
     #[clap(about = "System flag commands")]
     SystemFlag {
         #[clap(subcommand)]
-        command: SystemFlagCommand,
+        command: system::SystemFlagCommand,
     },
 
     #[clap(about = "Theme commands")]
@@ -131,12 +131,6 @@ enum LoggerCommand {
         #[clap(short, long, help = "Order loggers by this")]
         order_by: Option<String>,
     }
-}
-
-#[derive(Subcommand)]
-enum SystemFlagCommand {
-    #[clap(about = "List system flags")]
-    List {},
 }
 
 fn main() {
@@ -267,25 +261,7 @@ fn main() {
                 }
             }
         },
-        Command::SystemFlag { command } => match command {
-            SystemFlagCommand::List {} => match api.system_flag_list() {
-                Ok(flags) => {
-                    let mut builder = Builder::new();
-                    builder.push_record(["key", "value"]);
-                    for flag in flags {
-                        builder.push_record([
-                            flag.key.as_str(),
-                            flag.value.to_string().as_str(),
-                        ]);
-                    }
-                    println!("{}", builder.build().with(Style::rounded()));
-                }
-                Err(e) => {
-                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    std::process::exit(1);
-                }
-            },
-        },
+        Command::SystemFlag { command } => command.execute(api),
         Command::Theme { command } => command.execute(api),
     }
 }
