@@ -64,7 +64,7 @@ enum Command {
     #[clap(about = "Analytics provider commands")]
     AnalyticsProvider {
         #[clap(subcommand)]
-        command: AnalyticsProviderCommand,
+        command: analytics::AnalyticsProviderCommand,
     },
 
     #[clap(about = "Comment commands")]
@@ -110,12 +110,6 @@ enum Command {
     },
 }
 
-#[derive(Subcommand)]
-enum AnalyticsProviderCommand {
-    #[clap(about = "List analytics providers")]
-    List {},
-}
-
 fn main() {
     let cli = Cli::parse();
     let credentials = Credentials::Key(cli.key.clone());
@@ -129,48 +123,7 @@ fn main() {
         Command::AssetFolder { ref command } => command.execute(api),
         Command::Page { ref command } => command.execute(api),
         Command::Contributor { ref command } => command.execute(api),
-        Command::AnalyticsProvider { command } => match command {
-            AnalyticsProviderCommand::List {} => {
-                match api.analytics_provider_list() {
-                    Ok(providers) => {
-                        let mut builder = Builder::new();
-                        builder.push_record([
-                            "is_enabled",
-                            "key",
-                            // "props",
-                            "title",
-                            // "description",
-                            // "is_available",
-                            // "logo",
-                            // "website",
-                            // "config",
-                        ]);
-                        for provider in providers {
-                            builder.push_record([
-                                provider.is_enabled.to_string().as_str(),
-                                provider.key.as_str(),
-                                // provider.props.as_str(),
-                                provider.title.as_str(),
-                                // provider.description.as_str(),
-                                // provider.is_available.to_string().as_str(),
-                                // provider.logo.as_str(),
-                                // provider.website.as_str(),
-                                // provider.config.as_str(),
-                            ]);
-                        }
-                        println!("{}", builder.build().with(Style::rounded()));
-                    }
-                    Err(e) => {
-                        eprintln!(
-                            "{}: {}",
-                            "error".bold().red(),
-                            e.to_string()
-                        );
-                        std::process::exit(1);
-                    }
-                }
-            }
-        },
+        Command::AnalyticsProvider { command } => command.execute(api),
         Command::Comment { ref command } => command.execute(api),
         Command::User { ref command } => command.execute(api),
         Command::Group { command } => command.execute(api),
