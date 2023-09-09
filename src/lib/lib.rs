@@ -1057,4 +1057,27 @@ impl Api {
     ) -> Result<theming::ThemingConfig, theming::ThemeError> {
         theming::theme_config_get(&self.client, &format!("{}/graphql", self.url))
     }
+
+    pub fn theme_config_update(
+        &self,
+        theme: String,
+        iconset: String,
+        dark_mode: bool,
+        toc_position: Option<String>,
+        inject_css: Option<String>,
+        inject_head: Option<String>,
+        inject_body: Option<String>,
+    ) -> Result<(), theming::ThemeError> {
+        theming::theme_config_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            theme,
+            iconset,
+            dark_mode,
+            toc_position,
+            inject_css,
+            inject_head,
+            inject_body,
+        )
+    }
 }
