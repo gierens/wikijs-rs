@@ -134,7 +134,7 @@ implemented and what is still to be done.
 - [x] `system_flags_list`
 - [x] `system_info_get`
 - [x] `system_extension_list`
-- [x] `system_status_export` ... maybe this should be renamed
+- [x] `system_status_export_get` ... maybe this should be renamed
 - [x] `system_flags_update`
 - [x] `telemetry_reset_client_id`
 - [x] `telemetry_set`
@@ -142,7 +142,6 @@ implemented and what is still to be done.
 - [x] `user_import_from_v1`
 - [x] `https_redirection_set`
 - [x] `https_certificate_renew`
-- [x] `system_export_status_get
 
 ### theming
 - [x] `theme_list`
