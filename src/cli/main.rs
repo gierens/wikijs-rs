@@ -10,6 +10,7 @@ mod common;
 mod contribute;
 mod group;
 mod localization;
+mod logger;
 mod page;
 mod system;
 mod theming;
@@ -93,7 +94,7 @@ enum Command {
     #[clap(about = "Logger commands")]
     Logger {
         #[clap(subcommand)]
-        command: LoggerCommand,
+        command: logger::LoggerCommand,
     },
 
     #[clap(about = "System flag commands")]
@@ -113,18 +114,6 @@ enum Command {
 enum AnalyticsProviderCommand {
     #[clap(about = "List analytics providers")]
     List {},
-}
-
-#[derive(Subcommand)]
-enum LoggerCommand {
-    #[clap(about = "List loggers")]
-    List {
-        #[clap(short, long, help = "Filter loggers by this")]
-        filter: Option<String>,
-
-        #[clap(short, long, help = "Order loggers by this")]
-        order_by: Option<String>,
-    }
 }
 
 fn main() {
@@ -186,40 +175,7 @@ fn main() {
         Command::User { ref command } => command.execute(api),
         Command::Group { command } => command.execute(api),
         Command::Locale { command } => command.execute(api),
-        Command::Logger { command } => match command {
-            LoggerCommand::List { filter, order_by } => match api.logger_list(filter, order_by) {
-                Ok(loggers) => {
-                    let mut builder = Builder::new();
-                    builder.push_record([
-                        "is_enabled",
-                        "key",
-                        "title",
-                        // "description",
-                        // "logo",
-                        // "website",
-                        "level",
-                        // "config",
-                    ]);
-                    for logger in loggers {
-                        builder.push_record([
-                            logger.is_enabled.to_string().as_str(),
-                            logger.key.as_str(),
-                            logger.title.as_str(),
-                            // logger.description.as_str(),
-                            // logger.logo.as_str(),
-                            // logger.website.as_str(),
-                            logger.level.unwrap_or("".to_string()).as_str(),
-                            // logger.config.as_str(),
-                        ]);
-                    }
-                    println!("{}", builder.build().with(Style::rounded()));
-                }
-                Err(e) => {
-                    eprintln!("{}: {}", "error".bold().red(), e.to_string());
-                    std::process::exit(1);
-                }
-            }
-        },
+        Command::Logger { command } => command.execute(api),
         Command::SystemFlag { command } => command.execute(api),
         Command::Theme { command } => command.execute(api),
     }
