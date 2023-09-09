@@ -627,3 +627,81 @@ pub fn login_password_change(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod password_forgot {
+    use super::*;
+
+    pub struct PasswordForgot;
+
+    pub const OPERATION_NAME: &str = "PasswordForgot";
+    pub const QUERY : & str = "mutation PasswordForgot (\n  $email: String!\n) {\n  authentication {\n    forgotPassword(\n      email: $email \n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub email: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "forgotPassword")]
+        pub forgot_password: Option<ForgotPassword>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct ForgotPassword {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for PasswordForgot {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn password_forgot(
+    client: &Client,
+    url: &str,
+    email: String,
+) -> Result<(), UserError> {
+    let variables = password_forgot::Variables { email };
+    let response = post_graphql::<password_forgot::PasswordForgot, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(forgot_password) = authentication.forgot_password {
+                if let Some(response_result) = forgot_password.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                                response_result
+                                ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

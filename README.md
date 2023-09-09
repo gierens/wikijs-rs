@@ -33,7 +33,7 @@ implemented and what is still to be done.
 - [x] `login`
 - [x] `login_tfa`
 - [x] `login_change_password`
-- [ ] `forgot_password`
+- [x] `forgot_password`
 - [ ] `register`
 - [ ] `api_key_revoke`
 - [ ] `api_state_set`

@@ -565,6 +565,17 @@ impl Api {
         )
     }
 
+    pub fn password_forgot(
+        &self,
+        email: String,
+    ) -> Result<(), user::UserError> {
+        authentication::password_forgot(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            email,
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,
