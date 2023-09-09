@@ -497,6 +497,16 @@ impl Api {
         authentication::api_state_get(&self.client, &format!("{}/graphql", self.url))
     }
 
+    pub fn authentication_strategy_list(
+        &self,
+    ) -> Result<Vec<authentication::AuthenticationStrategy>, user::UserError>
+    {
+        authentication::authentication_strategy_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,

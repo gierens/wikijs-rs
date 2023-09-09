@@ -219,3 +219,64 @@ pub fn api_state_get(client: &Client, url: &str) -> Result<Boolean, UserError> {
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod authentication_strategy_list {
+    use super::*;
+
+    pub struct AuthenticationStrategyList;
+
+    pub const OPERATION_NAME: &str = "AuthenticationStrategyList";
+    pub const QUERY : & str = "query AuthenticationStrategyList {\n  authentication {\n    strategies {\n      key\n      props {\n        key\n        value\n      }\n      title\n      description\n      isAvailable\n      useForm\n      usernameType\n      logo\n      color\n      website\n      icon\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        pub strategies: Option<Vec<Option<AuthenticationStrategy>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for AuthenticationStrategyList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn authentication_strategy_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<AuthenticationStrategy>, UserError> {
+    let variables = authentication_strategy_list::Variables {};
+    let response =
+        post_graphql::<authentication_strategy_list::AuthenticationStrategyList, _>(
+            client, url, variables,
+        );
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(strategies) = authentication.strategies {
+                return Ok(strategies.into_iter().flatten().collect());
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
