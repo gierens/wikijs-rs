@@ -555,3 +555,75 @@ pub fn login_tfa(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod login_password_change {
+    use super::*;
+
+    pub struct LoginPasswordChange;
+
+    pub const OPERATION_NAME: &str = "LoginPasswordChange";
+    pub const QUERY : & str = "mutation LoginPasswordChange(\n  $continuationToken: String!\n  $newPassword: String!\n) {\n  authentication {\n    loginChangePassword(\n      continuationToken: $continuationToken\n      newPassword: $newPassword\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n      jwt\n      mustChangePwd\n      mustProvideTFA\n      mustSetupTFA\n      continuationToken\n      redirect\n      tfaQRImage\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "continuationToken")]
+        pub continuation_token: String,
+        #[serde(rename = "newPassword")]
+        pub new_password: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "loginChangePassword")]
+        pub login_change_password: Option<AuthenticationLoginResponse>,
+    }
+
+    impl graphql_client::GraphQLQuery for LoginPasswordChange {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn login_password_change(
+    client: &Client,
+    url: &str,
+    continuation_token: String,
+    new_password: String,
+) -> Result<AuthenticationLoginResponse, UserError> {
+    let variables = login_password_change::Variables {
+        continuation_token,
+        new_password,
+    };
+    let response =
+        post_graphql::<login_password_change::LoginPasswordChange, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(login_change_password) = authentication.login_change_password {
+                return Ok(login_change_password);
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

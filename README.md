@@ -32,7 +32,7 @@ implemented and what is still to be done.
 - [x] `api_key_create`
 - [x] `login`
 - [x] `login_tfa`
-- [ ] `login_change_password`
+- [x] `login_change_password`
 - [ ] `forgot_password`
 - [ ] `register`
 - [ ] `api_key_revoke`

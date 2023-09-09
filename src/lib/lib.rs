@@ -552,6 +552,19 @@ impl Api {
         )
     }
 
+    pub fn login_password_change(
+        &self,
+        continuation_token: String,
+        new_password: String,
+    ) -> Result<authentication::AuthenticationLoginResponse, user::UserError> {
+        authentication::login_password_change(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            continuation_token,
+            new_password,
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,
