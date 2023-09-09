@@ -139,6 +139,12 @@ pub struct SystemExtension {
     pub is_compatible: Boolean,
 }
 
+#[derive(Serialize, Debug)]
+pub struct SystemFlagInput {
+    pub key: String,
+    pub value: Boolean,
+}
+
 pub mod system_flag_list {
     use super::*;
 
@@ -402,6 +408,93 @@ pub fn system_export_status_get(
                     return Err(classify_response_status_error::<SystemError>(
                         export_status,
                     ));
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
+}
+
+pub mod system_flags_update {
+    use super::*;
+
+    pub struct SystemFlagsUpdate;
+
+    pub const OPERATION_NAME: &str = "SystemFlagsUpdate";
+    pub const QUERY : & str = "mutation SystemFlagsUpdate($flags: [SystemFlagInput]!) {\n  system {\n    updateFlags(flags: $flags) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub flags: Vec<Option<SystemFlagInput>>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub system: Option<System>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct System {
+        #[serde(rename = "updateFlags")]
+        pub update_flags: Option<UpdateFlags>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct UpdateFlags {
+        #[serde(rename = "responseResult")]
+        pub response_result:
+            Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for SystemFlagsUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn system_flags_update(
+    client: &Client,
+    url: &str,
+    flags: Vec<SystemFlagInput>,
+) -> Result<(), SystemError> {
+    let variables = system_flags_update::Variables {
+        flags: flags.into_iter().map(Some).collect(),
+    };
+    let response = post_graphql::<system_flags_update::SystemFlagsUpdate, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(update_flags) = system.update_flags {
+                if let Some(response_result) = update_flags.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<SystemError>(
+                            response_result,
+                        ));
+                    }
                 }
             }
         }

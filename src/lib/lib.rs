@@ -1107,6 +1107,17 @@ impl Api {
         )
     }
 
+    pub fn system_flags_update(
+        &self,
+        flags: Vec<system::SystemFlagInput>,
+    ) -> Result<(), system::SystemError> {
+        system::system_flags_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            flags,
+        )
+    }
+
     // theming functions
     pub fn theme_list(
         &self,
