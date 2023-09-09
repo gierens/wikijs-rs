@@ -602,6 +602,17 @@ impl Api {
         )
     }
 
+    pub fn api_state_set(
+        &self,
+        enabled: bool,
+    ) -> Result<(), user::UserError> {
+        authentication::api_state_set(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            enabled,
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,

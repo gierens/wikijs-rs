@@ -862,3 +862,91 @@ pub fn api_key_revoke(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod api_state_set {
+    use super::*;
+
+    pub struct ApiStateSet;
+
+    pub const OPERATION_NAME: &str = "ApiStateSet";
+    pub const QUERY : & str = "mutation ApiStateSet (\n  $enabled: Boolean!\n) {\n  authentication {\n    setApiState(\n      enabled: $enabled\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub enabled: Boolean,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "setApiState")]
+        pub set_api_state: Option<SetApiState>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct SetApiState {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct ApiStateSetAuthenticationSetApiStateResponseResult {
+        pub succeeded: Boolean,
+        #[serde(rename = "errorCode")]
+        pub error_code: Int,
+        pub slug: String,
+        pub message: Option<String>,
+    }
+    
+    impl graphql_client::GraphQLQuery for ApiStateSet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn api_state_set(
+    client: &Client,
+    url: &str,
+    enabled: Boolean,
+) -> Result<(), UserError> {
+    let variables = api_state_set::Variables { enabled };
+    let response = post_graphql::<api_state_set::ApiStateSet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        })
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(set_api_state) = authentication.set_api_state {
+                if let Some(response_result) = set_api_state.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                                response_result
+                                ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
