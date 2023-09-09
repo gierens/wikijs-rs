@@ -2,7 +2,7 @@ use graphql_client::reqwest::post_graphql_blocking as post_graphql;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::common::{classify_response_error, Boolean, Date, Int, ResponseStatus};
+use crate::common::{classify_response_error, Boolean, Date, Int, ResponseStatus, KeyValuePair};
 use crate::user::UserError;
 
 #[derive(Deserialize, Debug)]
@@ -36,6 +36,41 @@ pub struct ApiKey {
     pub updated_at: Date,
     #[serde(rename = "isRevoked")]
     pub is_revoked: Boolean,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct AuthenticationStrategy {
+    pub key: String,
+    pub props: Option<Vec<Option<KeyValuePair>>>,
+    pub title: String,
+    pub description: Option<String>,
+    #[serde(rename = "isAvailable")]
+    pub is_available: Option<Boolean>,
+    #[serde(rename = "useForm")]
+    pub use_form: Boolean,
+    #[serde(rename = "usernameType")]
+    pub username_type: Option<String>,
+    pub logo: Option<String>,
+    pub color: Option<String>,
+    pub website: Option<String>,
+    pub icon: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct AuthenticationActiveStrategy {
+    pub key: String,
+    pub strategy: AuthenticationStrategy,
+    #[serde(rename = "displayName")]
+    pub display_name : String,
+    pub order: Int,
+    # [serde (rename = "isEnabled")] pub is_enabled: Boolean,
+    pub config: Option<Vec<Option<KeyValuePair>>>,
+    # [serde (rename = "selfRegistration")]
+    pub self_registration: Boolean,
+    # [serde (rename = "domainWhitelist")]
+    pub domain_whitelist: Vec<Option<String>>,
+    # [serde (rename = "autoEnrollGroups")]
+    pub auto_enroll_groups: Vec<Option<Int>>,
 }
 
 pub(crate) mod login_mod {
@@ -275,6 +310,75 @@ pub fn authentication_strategy_list(
         if let Some(authentication) = data.authentication {
             if let Some(strategies) = authentication.strategies {
                 return Ok(strategies.into_iter().flatten().collect());
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub mod authentication_active_strategy_list {
+    use super::*;
+
+    pub struct AuthenticationActiveStrategyList;
+
+    pub const OPERATION_NAME: &str = "AuthenticationActiveStrategyList";
+    pub const QUERY : & str = "query AuthenticationActiveStrategyList($enabledOnly: Boolean) {\n  authentication {\n    activeStrategies(enabledOnly: $enabledOnly) {\n      key\n      strategy {\n        key\n        props {\n          key\n          value\n        }\n        title\n        description\n        isAvailable\n        useForm\n        usernameType\n        logo\n        color\n        website\n        icon\n      }\n      displayName\n      order\n      isEnabled\n      config {\n        key\n        value\n      }\n      selfRegistration\n      domainWhitelist\n      autoEnrollGroups\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "enabledOnly")]
+        pub enabled_only: Option<Boolean>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication:
+            Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde (rename = "activeStrategies")]
+        pub active_strategies : Option <Vec<Option<AuthenticationActiveStrategy>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for AuthenticationActiveStrategyList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn authentication_active_strategy_list(
+    client: &Client,
+    url: &str,
+    enabled_only: Option<Boolean>,
+) -> Result<Vec<AuthenticationActiveStrategy>, UserError> {
+    let variables = authentication_active_strategy_list::Variables { enabled_only };
+    let response = post_graphql::<
+        authentication_active_strategy_list::AuthenticationActiveStrategyList,
+        _,
+    >(client, url, variables);
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(active_strategies) = authentication.active_strategies {
+                return Ok(active_strategies.into_iter().flatten().collect());
             }
         }
     }

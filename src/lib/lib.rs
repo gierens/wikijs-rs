@@ -507,6 +507,18 @@ impl Api {
         )
     }
 
+    pub fn authentication_active_strategy_list(
+        &self,
+        enabled_only: Option<bool>,
+    ) -> Result<Vec<authentication::AuthenticationActiveStrategy>, user::UserError>
+    {
+        authentication::authentication_active_strategy_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            enabled_only,
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,
