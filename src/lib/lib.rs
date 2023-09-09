@@ -1138,6 +1138,15 @@ impl Api {
         )
     }
 
+    pub fn system_upgrade_perform(
+        &self,
+    ) -> Result<(), system::SystemError> {
+        system::system_upgrade_perform(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // theming functions
     pub fn theme_list(
         &self,

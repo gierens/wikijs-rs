@@ -673,3 +673,83 @@ pub fn telemetry_set(
         response_body.errors,
     ))
 }
+
+pub mod system_upgrade_perform {
+    use super::*;
+
+    pub struct SystemUpgradePerform;
+
+    pub const OPERATION_NAME: &str = "SystemUpgradePerform";
+    pub const QUERY : & str = "mutation SystemUpgradePerform {\n  system {\n    performUpgrade {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub system: Option<System>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct System {
+        #[serde(rename = "performUpgrade")]
+        pub perform_upgrade: Option<PerformUpgrade>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct PerformUpgrade {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for SystemUpgradePerform {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn system_upgrade_perform(
+    client: &Client,
+    url: &str,
+) -> Result<(), SystemError> {
+    let variables = system_upgrade_perform::Variables {};
+    let response = post_graphql::<system_upgrade_perform::SystemUpgradePerform, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(perform_upgrade) = system.perform_upgrade {
+                if let Some(response_result) = perform_upgrade.response_result
+                {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<SystemError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
+}

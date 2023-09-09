@@ -138,7 +138,7 @@ implemented and what is still to be done.
 - [x] `system_flags_update`
 - [x] `telemetry_reset_client_id`
 - [x] `telemetry_set`
-- [ ] `system_upgrade`
+- [x] `system_upgrade`
 - [ ] `user_import_from_v1`
 - [ ] `http_redirection_set`
 - [ ] `https_certificate_renew`
