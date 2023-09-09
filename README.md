@@ -39,7 +39,7 @@ implemented and what is still to be done.
 - [x] `api_state_set`
 - [x] `authentication_strategy_update`
 - [x] `certificate_regenerate`
-- [ ] `guest_user_reset`
+- [x] `guest_user_reset`
 
 ### comment
 - [x] `comment_provider_list`

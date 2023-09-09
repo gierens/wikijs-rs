@@ -1128,3 +1128,73 @@ pub fn authentication_certificate_regenerate(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub mod guest_user_reset {
+    use super::*;
+
+    pub struct GuestUserReset;
+
+    pub const OPERATION_NAME: &str = "GuestUserReset";
+    pub const QUERY : & str = "mutation GuestUserReset {\n  authentication {\n    resetGuestUser {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub authentication: Option<Authentication>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Authentication {
+        #[serde(rename = "resetGuestUser")]
+        pub reset_guest_user: Option<ResetGuestUser>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct ResetGuestUser {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+    
+    impl graphql_client::GraphQLQuery for GuestUserReset {
+        type Variables = ();
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables: (),
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn guest_user_reset(
+    client: &Client,
+    url: &str,
+) -> Result<(), UserError> {
+    let response = post_graphql::<guest_user_reset::GuestUserReset, _>(client, url, ());
+    if response.is_err() {
+        return Err(UserError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        })
+    }
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(authentication) = data.authentication {
+            if let Some(reset_guest_user) = authentication.reset_guest_user {
+                if let Some(response_result) = reset_guest_user.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error(
+                                response_result
+                                ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}

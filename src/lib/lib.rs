@@ -633,6 +633,15 @@ impl Api {
         )
     }
 
+    pub fn guest_user_reset(
+        &self,
+    ) -> Result<(), user::UserError> {
+        authentication::guest_user_reset(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // contribute functions
     pub fn contributor_list(
         &self,
