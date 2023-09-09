@@ -1127,6 +1127,17 @@ impl Api {
         )
     }
 
+    pub fn telemetry_set(
+        &self,
+        enabled: bool,
+    ) -> Result<(), system::SystemError> {
+        system::telemetry_set(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            enabled,
+        )
+    }
+
     // theming functions
     pub fn theme_list(
         &self,

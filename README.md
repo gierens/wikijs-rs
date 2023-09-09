@@ -137,7 +137,7 @@ implemented and what is still to be done.
 - [x] `system_status_export` ... maybe this should be renamed
 - [x] `system_flags_update`
 - [x] `telemetry_reset_client_id`
-- [ ] `telemetry_set`
+- [x] `telemetry_set`
 - [ ] `system_upgrade`
 - [ ] `user_import_from_v1`
 - [ ] `http_redirection_set`

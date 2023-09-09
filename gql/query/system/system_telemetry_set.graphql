@@ -1,6 +1,6 @@
-mutation SystemExport($entities: [String!]!, $path: String!) {
+mutation TelemetrySet($enabled: Boolean!) {
   system {
-    export(entities: $entities, path: $path) {
+    setTelemetry(enabled: $enabled) {
       responseResult {
         succeeded
         errorCode
