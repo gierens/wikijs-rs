@@ -1083,6 +1083,12 @@ impl Api {
         )
     }
 
+    pub fn system_info_get(
+        &self,
+    ) -> Result<system::SystemInfo, system::SystemError> {
+        system::system_info_get(&self.client, &format!("{}/graphql", self.url))
+    }
+
     // theming functions
     pub fn theme_list(
         &self,

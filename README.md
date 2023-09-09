@@ -132,7 +132,7 @@ implemented and what is still to be done.
 
 ### system
 - [x] `system_flags_list`
-- [ ] `system_info_get`
+- [x] `system_info_get`
 - [ ] `system_extension_list`
 - [ ] `system_status_export`
 - [ ] `system_flags_update`

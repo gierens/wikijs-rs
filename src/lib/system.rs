@@ -5,6 +5,7 @@ use thiserror::Error;
 
 use crate::common::{
     classify_response_error, KnownErrorCodes, UnknownError, Boolean,
+    classify_response_status_error, ResponseStatus, Int, Date,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -68,6 +69,65 @@ pub struct SystemFlag {
     pub value: Boolean,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct SystemInfo {
+    #[serde(rename = "configFile")]
+    pub config_file: Option<String>,
+    #[serde(rename = "cpuCores")]
+    pub cpu_cores: Option<Int>,
+    #[serde(rename = "currentVersion")]
+    pub current_version: Option<String>,
+    #[serde(rename = "dbHost")]
+    pub db_host: Option<String>,
+    #[serde(rename = "dbType")]
+    pub db_type: Option<String>,
+    #[serde(rename = "dbVersion")]
+    pub db_version: Option<String>,
+    #[serde(rename = "groupsTotal")]
+    pub groups_total: Option<Int>,
+    pub hostname: Option<String>,
+    #[serde(rename = "httpPort")]
+    pub http_port: Option<Int>,
+    #[serde(rename = "httpRedirection")]
+    pub http_redirection: Option<Boolean>,
+    #[serde(rename = "httpsPort")]
+    pub https_port: Option<Int>,
+    #[serde(rename = "latestVersion")]
+    pub latest_version: Option<String>,
+    #[serde(rename = "latestVersionReleaseDate")]
+    pub latest_version_release_date: Option<Date>,
+    #[serde(rename = "nodeVersion")]
+    pub node_version: Option<String>,
+    #[serde(rename = "operatingSystem")]
+    pub operating_system: Option<String>,
+    #[serde(rename = "pagesTotal")]
+    pub pages_total: Option<Int>,
+    pub platform: Option<String>,
+    #[serde(rename = "ramTotal")]
+    pub ram_total: Option<String>,
+    #[serde(rename = "sslDomain")]
+    pub ssl_domain: Option<String>,
+    #[serde(rename = "sslExpirationDate")]
+    pub ssl_expiration_date: Option<Date>,
+    #[serde(rename = "sslProvider")]
+    pub ssl_provider: Option<String>,
+    #[serde(rename = "sslStatus")]
+    pub ssl_status: Option<String>,
+    #[serde(rename = "sslSubscriberEmail")]
+    pub ssl_subscriber_email: Option<String>,
+    #[serde(rename = "tagsTotal")]
+    pub tags_total: Option<Int>,
+    pub telemetry: Option<Boolean>,
+    #[serde(rename = "telemetryClientId")]
+    pub telemetry_client_id: Option<String>,
+    #[serde(rename = "upgradeCapable")]
+    pub upgrade_capable: Option<Boolean>,
+    #[serde(rename = "usersTotal")]
+    pub users_total: Option<Int>,
+    #[serde(rename = "workingDirectory")]
+    pub working_directory: Option<String>,
+}
+
 pub mod system_flag_list {
     use super::*;
 
@@ -127,6 +187,72 @@ pub fn system_flag_list(
                     .into_iter()
                     .filter_map(|x| x)
                     .collect::<Vec<_>>());
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
+}
+
+pub mod system_info_get {
+    use super::*;
+
+    pub struct SystemInfoGet;
+
+    pub const OPERATION_NAME: &str = "SystemInfoGet";
+    pub const QUERY : & str = "query SystemInfoGet {\n  system {\n    info {\n      configFile\n      cpuCores\n      currentVersion\n      dbHost\n      dbType\n      dbVersion\n      groupsTotal\n      hostname\n      httpPort\n      httpRedirection\n      httpsPort\n      latestVersion\n      latestVersionReleaseDate\n      nodeVersion\n      operatingSystem\n      pagesTotal\n      platform\n      ramTotal\n      sslDomain\n      sslExpirationDate\n      sslProvider\n      sslStatus\n      sslSubscriberEmail\n      tagsTotal\n      telemetry\n      telemetryClientId\n      upgradeCapable\n      usersTotal\n      workingDirectory\n    }\n  }\n}\n" ;
+    use super::*;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub system: Option<System>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct System {
+        pub info: Option<SystemInfo>,
+    }
+
+    impl graphql_client::GraphQLQuery for SystemInfoGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn system_info_get(
+    client: &Client,
+    url: &str,
+) -> Result<SystemInfo, SystemError> {
+    let variables = system_info_get::Variables {};
+    let response = post_graphql::<system_info_get::SystemInfoGet, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(info) = system.info {
+                return Ok(info);
             }
         }
     }
