@@ -141,7 +141,7 @@ implemented and what is still to be done.
 - [x] `system_upgrade`
 - [x] `user_import_from_v1`
 - [x] `https_redirection_set`
-- [ ] `https_certificate_renew`
+- [x] `https_certificate_renew`
 - [ ] `system_export`
 
 ### theming

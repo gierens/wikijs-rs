@@ -941,3 +941,88 @@ pub fn https_redirection_set(
         response_body.errors,
     ))
 }
+
+// TODO this should be renamed
+pub mod system_https_certificate_renew {
+    use super::*;
+
+    pub struct SystemHttpsCertificateRenew;
+
+    pub const OPERATION_NAME: &str = "SystemHttpsCertificateRenew";
+    pub const QUERY : & str = "mutation SystemHttpsCertificateRenew {\n  system {\n    renewHTTPSCertificate {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData { pub system: Option<System>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct System {
+        #[serde(rename = "renewHTTPSCertificate")]
+        pub renew_https_certificate: Option<RenewHttpsCertificate>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct RenewHttpsCertificate {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for SystemHttpsCertificateRenew {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn https_certificate_renew(
+    client: &Client,
+    url: &str,
+) -> Result<(), SystemError> {
+    let variables = system_https_certificate_renew::Variables {};
+    let response = post_graphql::<system_https_certificate_renew::SystemHttpsCertificateRenew, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(SystemError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(system) = data.system {
+            if let Some(renew_https_certificate) =
+                system.renew_https_certificate
+            {
+                if let Some(response_result) =
+                    renew_https_certificate.response_result
+                {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<SystemError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<SystemError>(
+        response_body.errors,
+    ))
+}
