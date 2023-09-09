@@ -72,7 +72,7 @@ implemented and what is still to be done.
 
 ### logging
 - [x] `logger_list`
-- [ ] `logger_update`
+- [x] `logger_update`
 
 ### mail
 - [ ] `mail_config_get`

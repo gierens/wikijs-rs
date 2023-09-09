@@ -1061,6 +1061,18 @@ impl Api {
         )
     }
 
+    pub fn logger_update(
+        &self,
+        id: i64,
+        loggers: Vec<logging::LoggerInput>,
+    ) -> Result<(), logging::LoggingError> {
+        logging::logger_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            loggers,
+        )
+    }
+
     // system functions
     pub fn system_flag_list(
         &self,
