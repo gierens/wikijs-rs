@@ -5,7 +5,7 @@ mutation LocaleUpdate(
   $namespaces: [String]!
 ) {
   localization {
-    downloadLocale(
+    updateLocale(
       locale: $locale
       autoUpdate: $autoUpdate
       namespacing: $namespacing

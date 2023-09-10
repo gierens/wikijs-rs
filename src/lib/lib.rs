@@ -1080,6 +1080,23 @@ impl Api {
         )
     }
 
+    pub fn locale_update(
+        &self,
+        locale: String,
+        auto_update: bool,
+        namespacing: bool,
+        namespaces: Vec<String>,
+    ) -> Result<(), localization::LocaleError> {
+        localization::locale_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            locale,
+            auto_update,
+            namespacing,
+            namespaces,
+        )
+    }
+
     // logger functions
     pub fn logger_list(
         &self,

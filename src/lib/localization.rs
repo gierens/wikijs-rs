@@ -368,3 +368,95 @@ pub fn locale_download(
         response_body.errors,
     ))
 }
+
+pub mod locale_update {
+    use super::*;
+
+    pub struct LocaleUpdate;
+
+    pub const OPERATION_NAME: &str = "LocaleUpdate";
+    pub const QUERY : & str = "mutation LocaleUpdate(\n  $locale: String!\n  $autoUpdate: Boolean!\n  $namespacing: Boolean!\n  $namespaces: [String]!\n) {\n  localization {\n    updateLocale(\n      locale: $locale\n      autoUpdate: $autoUpdate\n      namespacing: $namespacing\n      namespaces: $namespaces\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub locale: String,
+        #[serde(rename = "autoUpdate")]
+        pub auto_update: Boolean,
+        pub namespacing: Boolean,
+        pub namespaces: Vec<Option<String>>,
+    }
+    
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub localization: Option<Localization>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Localization {
+        #[serde(rename = "updateLocale")]
+        pub update_locale: Option<UpdateLocale>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct UpdateLocale {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for LocaleUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn locale_update(
+    client: &Client,
+    url: &str,
+    locale: String,
+    auto_update: bool,
+    namespacing: bool,
+    namespaces: Vec<String>,
+) -> Result<(), LocaleError> {
+    let variables = locale_update::Variables {
+        locale,
+        auto_update,
+        namespacing,
+        namespaces: namespaces.into_iter().map(Some).collect(),
+    };
+    let response = post_graphql::<locale_update::LocaleUpdate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(LocaleError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(localization) = data.localization {
+            if let Some(update_locale) = localization.update_locale {
+                if let Some(response_result) = update_locale.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<LocaleError>(
+                            response_result,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<LocaleError>(
+        response_body.errors,
+    ))
+}
