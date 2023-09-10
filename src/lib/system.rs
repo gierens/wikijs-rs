@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, KnownErrorCodes, UnknownError, Boolean,
-    classify_response_status_error, ResponseStatus, Int, Date,
+    classify_response_error, classify_response_status_error, Boolean, Date,
+    Int, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -203,9 +203,7 @@ pub fn system_flag_list(
 ) -> Result<Vec<SystemFlag>, SystemError> {
     let variables = system_flag_list::Variables {};
     let response = post_graphql::<system_flag_list::SystemFlagList, _>(
-        client,
-        url,
-        variables,
+        client, url, variables,
     );
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
@@ -223,9 +221,7 @@ pub fn system_flag_list(
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 pub mod system_info_get {
@@ -270,9 +266,7 @@ pub fn system_info_get(
 ) -> Result<SystemInfo, SystemError> {
     let variables = system_info_get::Variables {};
     let response = post_graphql::<system_info_get::SystemInfoGet, _>(
-        client,
-        url,
-        variables,
+        client, url, variables,
     );
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
@@ -287,9 +281,7 @@ pub fn system_info_get(
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 pub mod system_extension_list {
@@ -310,8 +302,7 @@ pub mod system_extension_list {
 
     #[derive(Deserialize)]
     pub struct System {
-        pub extensions:
-            Option<Vec<Option<SystemExtension>>>,
+        pub extensions: Option<Vec<Option<SystemExtension>>>,
     }
 
     impl graphql_client::GraphQLQuery for SystemExtensionList {
@@ -335,9 +326,7 @@ pub fn system_extension_list(
 ) -> Result<Vec<SystemExtension>, SystemError> {
     let variables = system_extension_list::Variables {};
     let response = post_graphql::<system_extension_list::SystemExtensionList, _>(
-        client,
-        url,
-        variables,
+        client, url, variables,
     );
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
@@ -355,9 +344,7 @@ pub fn system_extension_list(
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 pub mod system_export_status_get {
@@ -402,11 +389,10 @@ pub fn system_export_status_get(
     url: &str,
 ) -> Result<SystemExportStatus, SystemError> {
     let variables = system_export_status_get::Variables {};
-    let response = post_graphql::<system_export_status_get::SystemExportStatusGet, _>(
-        client,
-        url,
-        variables,
-    );
+    let response = post_graphql::<
+        system_export_status_get::SystemExportStatusGet,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -420,9 +406,7 @@ pub fn system_export_status_get(
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 pub mod system_flags_update {
@@ -454,8 +438,7 @@ pub mod system_flags_update {
     #[derive(Deserialize)]
     pub struct UpdateFlags {
         #[serde(rename = "responseResult")]
-        pub response_result:
-            Option<ResponseStatus>,
+        pub response_result: Option<ResponseStatus>,
     }
 
     impl graphql_client::GraphQLQuery for SystemFlagsUpdate {
@@ -482,9 +465,7 @@ pub fn system_flags_update(
         flags: flags.into_iter().map(Some).collect(),
     };
     let response = post_graphql::<system_flags_update::SystemFlagsUpdate, _>(
-        client,
-        url,
-        variables,
+        client, url, variables,
     );
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
@@ -499,17 +480,15 @@ pub fn system_flags_update(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<SystemError>(
-                            response_result,
-                        ));
+                        return Err(classify_response_status_error::<
+                            SystemError,
+                        >(response_result));
                     }
                 }
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 pub mod telemetry_client_id_reset {
@@ -561,11 +540,10 @@ pub fn telemetry_client_id_reset(
     url: &str,
 ) -> Result<(), SystemError> {
     let variables = telemetry_client_id_reset::Variables {};
-    let response = post_graphql::<telemetry_client_id_reset::TelemetryClientIdReset, _>(
-        client,
-        url,
-        variables,
-    );
+    let response = post_graphql::<
+        telemetry_client_id_reset::TelemetryClientIdReset,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -583,17 +561,15 @@ pub fn telemetry_client_id_reset(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<SystemError>(
-                            response_result,
-                        ));
+                        return Err(classify_response_status_error::<
+                            SystemError,
+                        >(response_result));
                     }
                 }
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 pub mod telemetry_set {
@@ -651,11 +627,8 @@ pub fn telemetry_set(
     let variables = telemetry_set::Variables {
         enabled: enabled.into(),
     };
-    let response = post_graphql::<telemetry_set::TelemetrySet, _>(
-        client,
-        url,
-        variables,
-    );
+    let response =
+        post_graphql::<telemetry_set::TelemetrySet, _>(client, url, variables);
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -669,17 +642,15 @@ pub fn telemetry_set(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<SystemError>(
-                            response_result,
-                        ));
+                        return Err(classify_response_status_error::<
+                            SystemError,
+                        >(response_result));
                     }
                 }
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 pub mod system_upgrade_perform {
@@ -730,11 +701,10 @@ pub fn system_upgrade_perform(
     url: &str,
 ) -> Result<(), SystemError> {
     let variables = system_upgrade_perform::Variables {};
-    let response = post_graphql::<system_upgrade_perform::SystemUpgradePerform, _>(
-        client,
-        url,
-        variables,
-    );
+    let response = post_graphql::<
+        system_upgrade_perform::SystemUpgradePerform,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -744,22 +714,19 @@ pub fn system_upgrade_perform(
     if let Some(data) = response_body.data {
         if let Some(system) = data.system {
             if let Some(perform_upgrade) = system.perform_upgrade {
-                if let Some(response_result) = perform_upgrade.response_result
-                {
+                if let Some(response_result) = perform_upgrade.response_result {
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<SystemError>(
-                            response_result,
-                        ));
+                        return Err(classify_response_status_error::<
+                            SystemError,
+                        >(response_result));
                     }
                 }
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 pub mod system_user_import_from_v1 {
@@ -823,11 +790,10 @@ pub fn system_user_import_from_v1(
         mongo_db_conn_string,
         group_code,
     };
-    let response = post_graphql::<system_user_import_from_v1::SystemUserImportFromV1, _>(
-        client,
-        url,
-        variables,
-    );
+    let response = post_graphql::<
+        system_user_import_from_v1::SystemUserImportFromV1,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -836,26 +802,22 @@ pub fn system_user_import_from_v1(
     let response_body = response.unwrap();
     if let Some(data) = response_body.data {
         if let Some(system) = data.system {
-            if let Some(import_users_from_v1) =
-                system.import_users_from_v1
-            {
+            if let Some(import_users_from_v1) = system.import_users_from_v1 {
                 if let Some(response_result) =
                     import_users_from_v1.response_result
                 {
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<SystemError>(
-                            response_result,
-                        ));
+                        return Err(classify_response_status_error::<
+                            SystemError,
+                        >(response_result));
                     }
                 }
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 // TODO this should be renamed
@@ -914,11 +876,10 @@ pub fn https_redirection_set(
     let variables = system_https_redirection_set::Variables {
         enabled: enabled.into(),
     };
-    let response = post_graphql::<system_https_redirection_set::SystemHttpsRedirectionSet, _>(
-        client,
-        url,
-        variables,
-    );
+    let response = post_graphql::<
+        system_https_redirection_set::SystemHttpsRedirectionSet,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -928,26 +889,22 @@ pub fn https_redirection_set(
 
     if let Some(data) = response_body.data {
         if let Some(system) = data.system {
-            if let Some(set_https_redirection) =
-                system.set_https_redirection
-            {
+            if let Some(set_https_redirection) = system.set_https_redirection {
                 if let Some(response_result) =
                     set_https_redirection.response_result
                 {
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<SystemError>(
-                            response_result,
-                        ));
+                        return Err(classify_response_status_error::<
+                            SystemError,
+                        >(response_result));
                     }
                 }
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }
 
 // TODO this should be renamed
@@ -963,7 +920,8 @@ pub mod system_https_certificate_renew {
     pub struct Variables;
 
     #[derive(Deserialize)]
-    pub struct ResponseData { pub system: Option<System>,
+    pub struct ResponseData {
+        pub system: Option<System>,
     }
 
     #[derive(Deserialize)]
@@ -998,11 +956,10 @@ pub fn https_certificate_renew(
     url: &str,
 ) -> Result<(), SystemError> {
     let variables = system_https_certificate_renew::Variables {};
-    let response = post_graphql::<system_https_certificate_renew::SystemHttpsCertificateRenew, _>(
-        client,
-        url,
-        variables,
-    );
+    let response = post_graphql::<
+        system_https_certificate_renew::SystemHttpsCertificateRenew,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(SystemError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1022,15 +979,13 @@ pub fn https_certificate_renew(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<SystemError>(
-                            response_result,
-                        ));
+                        return Err(classify_response_status_error::<
+                            SystemError,
+                        >(response_result));
                     }
                 }
             }
         }
     }
-    Err(classify_response_error::<SystemError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<SystemError>(response_body.errors))
 }

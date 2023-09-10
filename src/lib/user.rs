@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Boolean, Date, Int, KnownErrorCodes,
-    ResponseStatus, UnknownError, classify_response_status_error
+    classify_response_error, classify_response_status_error, Boolean, Date,
+    Int, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 use crate::group::Group;
 
@@ -336,7 +336,8 @@ pub fn user_list(
     order_by: Option<String>,
 ) -> Result<Vec<UserMinimal>, UserError> {
     let variables = user_list::Variables { filter, order_by };
-    let response = post_graphql::<user_list::UserList, _>(client, url, variables);
+    let response =
+        post_graphql::<user_list::UserList, _>(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -420,9 +421,11 @@ pub fn user_activate(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<UserError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<UserError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -459,8 +462,7 @@ pub mod user_deactivate {
     #[derive(Deserialize)]
     pub struct Deactivate {
         #[serde(rename = "responseResult")]
-        pub response_result:
-            Option<ResponseStatus>,
+        pub response_result: Option<ResponseStatus>,
     }
 
     impl graphql_client::GraphQLQuery for UserDeactivate {
@@ -484,8 +486,9 @@ pub fn user_deactivate(
     id: i64,
 ) -> Result<(), UserError> {
     let variables = user_deactivate::Variables { id };
-    let response =
-        post_graphql::<user_deactivate::UserDeactivate, _>(client, url, variables);
+    let response = post_graphql::<user_deactivate::UserDeactivate, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -499,9 +502,11 @@ pub fn user_deactivate(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<UserError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<UserError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -581,9 +586,11 @@ pub fn user_delete(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<UserError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<UserError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -644,8 +651,9 @@ pub fn user_tfa_disable(
     id: i64,
 ) -> Result<(), UserError> {
     let variables = user_tfa_disable::Variables { id };
-    let response =
-        post_graphql::<user_tfa_disable::UserTfaDisable, _>(client, url, variables);
+    let response = post_graphql::<user_tfa_disable::UserTfaDisable, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -659,9 +667,11 @@ pub fn user_tfa_disable(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<UserError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<UserError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -723,8 +733,9 @@ pub fn user_tfa_enable(
     id: i64,
 ) -> Result<(), UserError> {
     let variables = user_tfa_enable::Variables { id };
-    let response =
-        post_graphql::<user_tfa_enable::UserTfaEnable, _>(client, url, variables);
+    let response = post_graphql::<user_tfa_enable::UserTfaEnable, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -738,9 +749,11 @@ pub fn user_tfa_enable(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<UserError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<UserError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -814,9 +827,11 @@ pub fn user_verify(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<UserError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<UserError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -929,8 +944,9 @@ pub fn user_profile_get(
     url: &str,
 ) -> Result<UserProfile, UserError> {
     let variables = user_profile_get::Variables {};
-    let response =
-        post_graphql::<user_profile_get::UserProfileGet, _>(client, url, variables);
+    let response = post_graphql::<user_profile_get::UserProfileGet, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -989,8 +1005,9 @@ pub fn user_last_login_list(
     url: &str,
 ) -> Result<Vec<UserLastLogin>, UserError> {
     let variables = user_last_login_list::Variables {};
-    let response =
-        post_graphql::<user_last_login_list::UserLastLoginList, _>(client, url, variables);
+    let response = post_graphql::<user_last_login_list::UserLastLoginList, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1202,9 +1219,11 @@ pub fn user_update(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<UserError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<UserError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -1279,8 +1298,9 @@ pub fn user_profile_update(
         date_format,
         appearance,
     };
-    let response =
-        post_graphql::<user_profile_update::UserProfileUpdate, _>(client, url, variables);
+    let response = post_graphql::<user_profile_update::UserProfileUpdate, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1353,8 +1373,9 @@ pub fn user_password_change(
     new: String,
 ) -> Result<Option<String>, UserError> {
     let variables = user_password_change::Variables { current, new };
-    let response =
-        post_graphql::<user_password_change::UserPasswordChange, _>(client, url, variables);
+    let response = post_graphql::<user_password_change::UserPasswordChange, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1385,7 +1406,7 @@ pub mod user_password_reset {
 
     pub const OPERATION_NAME: &str = "UserPasswordReset";
     pub const QUERY : & str = "mutation UserPasswordReset($id: Int!) {\n  users {\n    resetPassword(id: $id) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
-    
+
     #[derive(Serialize)]
     pub struct Variables {
         pub id: Int,
@@ -1430,8 +1451,9 @@ pub fn user_password_reset(
     id: i64,
 ) -> Result<(), UserError> {
     let variables = user_password_reset::Variables { id };
-    let response =
-        post_graphql::<user_password_reset::UserPasswordReset, _>(client, url, variables);
+    let response = post_graphql::<user_password_reset::UserPasswordReset, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1447,9 +1469,11 @@ pub fn user_password_reset(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<UserError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<UserError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }

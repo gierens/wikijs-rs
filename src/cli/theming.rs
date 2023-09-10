@@ -1,7 +1,7 @@
-use std::error::Error;
-use clap::Subcommand;
-use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
+use clap::Subcommand;
+use std::error::Error;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Subcommand)]
 pub(crate) enum ThemeCommand {
@@ -20,11 +20,7 @@ impl Execute for ThemeCommand {
 pub fn theme_list(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
     let themes = api.theme_list()?;
     let mut builder = Builder::new();
-    builder.push_record([
-        "key",
-        "title",
-        "author",
-    ]);
+    builder.push_record(["key", "title", "author"]);
     for theme in themes {
         builder.push_record([
             theme.key.unwrap_or("".to_string()).as_str(),

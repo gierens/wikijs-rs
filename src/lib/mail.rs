@@ -128,9 +128,7 @@ pub fn mail_config_get(
 ) -> Result<MailConfig, MailError> {
     let variables = mail_config_get::Variables {};
     let response = post_graphql::<mail_config_get::MailConfigGet, _>(
-        client,
-        url,
-        variables,
+        client, url, variables,
     );
     if response.is_err() {
         return Err(MailError::UnknownErrorMessage {
@@ -145,7 +143,5 @@ pub fn mail_config_get(
             }
         }
     }
-    Err(classify_response_error::<MailError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<MailError>(response_body.errors))
 }

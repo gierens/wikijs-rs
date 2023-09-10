@@ -17,7 +17,6 @@ mod user;
 
 use crate::common::Execute;
 
-
 #[derive(Parser)]
 #[command(name = "wikijs-cli")]
 #[command(author = "Sandro-Alessio Gierens <sandro@gierens.de>")]
@@ -117,22 +116,20 @@ fn main() {
     // TODO each command should be in its own module
     // TODO each subcommand should implement an Execute trait to call here
 
-    match 
-        match cli.command {
-            Command::Asset { ref command } => command.execute(api),
-            Command::AssetFolder { ref command } => command.execute(api),
-            Command::Page { ref command } => command.execute(api),
-            Command::Contributor { ref command } => command.execute(api),
-            Command::AnalyticsProvider { command } => command.execute(api),
-            Command::Comment { ref command } => command.execute(api),
-            Command::User { ref command } => command.execute(api),
-            Command::Group { command } => command.execute(api),
-            Command::Locale { command } => command.execute(api),
-            Command::Logger { command } => command.execute(api),
-            Command::SystemFlag { command } => command.execute(api),
-            Command::Theme { command } => command.execute(api),
-        }
-    {
+    match match cli.command {
+        Command::Asset { ref command } => command.execute(api),
+        Command::AssetFolder { ref command } => command.execute(api),
+        Command::Page { ref command } => command.execute(api),
+        Command::Contributor { ref command } => command.execute(api),
+        Command::AnalyticsProvider { command } => command.execute(api),
+        Command::Comment { ref command } => command.execute(api),
+        Command::User { ref command } => command.execute(api),
+        Command::Group { command } => command.execute(api),
+        Command::Locale { command } => command.execute(api),
+        Command::Logger { command } => command.execute(api),
+        Command::SystemFlag { command } => command.execute(api),
+        Command::Theme { command } => command.execute(api),
+    } {
         Ok(_) => {}
         Err(e) => {
             eprintln!("{}: {}", "error".bold().red(), e.to_string());

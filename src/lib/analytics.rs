@@ -4,8 +4,9 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Boolean, KeyValuePair, UnknownError, ResponseStatus,
-    KeyValuePairInput, classify_response_status_error, KnownErrorCodes,
+    classify_response_error, classify_response_status_error, Boolean,
+    KeyValuePair, KeyValuePairInput, KnownErrorCodes, ResponseStatus,
+    UnknownError,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -185,8 +186,8 @@ pub fn analytics_provider_update(
     url: &str,
     providers: Vec<AnalyticsProviderInput>,
 ) -> Result<(), AnalyticsError> {
-    let variables = analytics_provider_update::Variables { 
-        providers: providers.into_iter().map(|p| Some(p)).collect()
+    let variables = analytics_provider_update::Variables {
+        providers: providers.into_iter().map(|p| Some(p)).collect(),
     };
     let response = post_graphql::<
         analytics_provider_update::AnalyticsProviderUpdate,
@@ -201,13 +202,14 @@ pub fn analytics_provider_update(
     if let Some(data) = response_body.data {
         if let Some(analytics) = data.analytics {
             if let Some(update_providers) = analytics.update_providers {
-                if let Some(response_result) = update_providers.response_result {
+                if let Some(response_result) = update_providers.response_result
+                {
                     if response_result.succeeded {
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error(
-                                response_result
-                                ));
+                            response_result,
+                        ));
                     }
                 }
             }

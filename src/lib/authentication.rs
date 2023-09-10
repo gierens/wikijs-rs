@@ -2,7 +2,10 @@ use graphql_client::reqwest::post_graphql_blocking as post_graphql;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::common::{classify_response_error, Boolean, Date, Int, ResponseStatus, KeyValuePair, classify_response_status_error, KeyValuePairInput};
+use crate::common::{
+    classify_response_error, classify_response_status_error, Boolean, Date,
+    Int, KeyValuePair, KeyValuePairInput, ResponseStatus,
+};
 use crate::user::UserError;
 
 #[derive(Deserialize, Debug)]
@@ -61,15 +64,16 @@ pub struct AuthenticationActiveStrategy {
     pub key: String,
     pub strategy: AuthenticationStrategy,
     #[serde(rename = "displayName")]
-    pub display_name : String,
+    pub display_name: String,
     pub order: Int,
-    # [serde (rename = "isEnabled")] pub is_enabled: Boolean,
+    #[serde(rename = "isEnabled")]
+    pub is_enabled: Boolean,
     pub config: Option<Vec<Option<KeyValuePair>>>,
-    # [serde (rename = "selfRegistration")]
+    #[serde(rename = "selfRegistration")]
     pub self_registration: Boolean,
-    # [serde (rename = "domainWhitelist")]
+    #[serde(rename = "domainWhitelist")]
     pub domain_whitelist: Vec<Option<String>>,
-    # [serde (rename = "autoEnrollGroups")]
+    #[serde(rename = "autoEnrollGroups")]
     pub auto_enroll_groups: Vec<Option<Int>>,
 }
 
@@ -214,9 +218,13 @@ pub mod api_key_list {
     }
 }
 
-pub fn api_key_list(client: &Client, url: &str) -> Result<Vec<ApiKey>, UserError> {
+pub fn api_key_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<ApiKey>, UserError> {
     let variables = api_key_list::Variables {};
-    let response = post_graphql::<api_key_list::ApiKeyList, _>(client, url, variables);
+    let response =
+        post_graphql::<api_key_list::ApiKeyList, _>(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -273,7 +281,8 @@ pub mod api_state_get {
 
 pub fn api_state_get(client: &Client, url: &str) -> Result<Boolean, UserError> {
     let variables = api_state_get::Variables {};
-    let response = post_graphql::<api_state_get::ApiStateGet, _>(client, url, variables);
+    let response =
+        post_graphql::<api_state_get::ApiStateGet, _>(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -329,10 +338,10 @@ pub fn authentication_strategy_list(
     url: &str,
 ) -> Result<Vec<AuthenticationStrategy>, UserError> {
     let variables = authentication_strategy_list::Variables {};
-    let response =
-        post_graphql::<authentication_strategy_list::AuthenticationStrategyList, _>(
-            client, url, variables,
-        );
+    let response = post_graphql::<
+        authentication_strategy_list::AuthenticationStrategyList,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -367,14 +376,14 @@ pub mod authentication_active_strategy_list {
 
     #[derive(Deserialize)]
     pub struct ResponseData {
-        pub authentication:
-            Option<Authentication>,
+        pub authentication: Option<Authentication>,
     }
 
     #[derive(Deserialize)]
     pub struct Authentication {
-        #[serde (rename = "activeStrategies")]
-        pub active_strategies : Option <Vec<Option<AuthenticationActiveStrategy>>>,
+        #[serde(rename = "activeStrategies")]
+        pub active_strategies:
+            Option<Vec<Option<AuthenticationActiveStrategy>>>,
     }
 
     impl graphql_client::GraphQLQuery for AuthenticationActiveStrategyList {
@@ -397,7 +406,8 @@ pub fn authentication_active_strategy_list(
     url: &str,
     enabled_only: Option<Boolean>,
 ) -> Result<Vec<AuthenticationActiveStrategy>, UserError> {
-    let variables = authentication_active_strategy_list::Variables { enabled_only };
+    let variables =
+        authentication_active_strategy_list::Variables { enabled_only };
     let response = post_graphql::<
         authentication_active_strategy_list::AuthenticationActiveStrategyList,
         _,
@@ -477,7 +487,8 @@ pub fn api_key_create(
         full_access,
         group,
     };
-    let response = post_graphql::<api_key_create::ApiKeyCreate, _>(client, url, variables);
+    let response =
+        post_graphql::<api_key_create::ApiKeyCreate, _>(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -498,8 +509,8 @@ pub fn api_key_create(
                         }
                     } else {
                         return Err(classify_response_status_error(
-                                response_result
-                                ));
+                            response_result,
+                        ));
                     }
                 }
             }
@@ -565,7 +576,8 @@ pub fn login_tfa(
         security_code,
         setup,
     };
-    let response = post_graphql::<login_tfa::LoginTfa, _>(client, url, variables);
+    let response =
+        post_graphql::<login_tfa::LoginTfa, _>(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -636,8 +648,9 @@ pub fn login_password_change(
         continuation_token,
         new_password,
     };
-    let response =
-        post_graphql::<login_password_change::LoginPasswordChange, _>(client, url, variables);
+    let response = post_graphql::<login_password_change::LoginPasswordChange, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -646,7 +659,9 @@ pub fn login_password_change(
     let response_body = response.unwrap();
     if let Some(data) = response_body.data {
         if let Some(authentication) = data.authentication {
-            if let Some(login_change_password) = authentication.login_change_password {
+            if let Some(login_change_password) =
+                authentication.login_change_password
+            {
                 return Ok(login_change_password);
             }
         }
@@ -706,7 +721,9 @@ pub fn password_forgot(
     email: String,
 ) -> Result<(), UserError> {
     let variables = password_forgot::Variables { email };
-    let response = post_graphql::<password_forgot::PasswordForgot, _>(client, url, variables);
+    let response = post_graphql::<password_forgot::PasswordForgot, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -722,8 +739,8 @@ pub fn password_forgot(
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error(
-                                response_result
-                                ));
+                            response_result,
+                        ));
                     }
                 }
             }
@@ -786,7 +803,8 @@ pub fn register(
         password,
         name,
     };
-    let response = post_graphql::<register::Register, _>(client, url, variables);
+    let response =
+        post_graphql::<register::Register, _>(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -856,11 +874,12 @@ pub fn api_key_revoke(
     id: Int,
 ) -> Result<(), UserError> {
     let variables = api_key_revoke::Variables { id };
-    let response = post_graphql::<api_key_revoke::ApiKeyRevoke, _>(client, url, variables);
+    let response =
+        post_graphql::<api_key_revoke::ApiKeyRevoke, _>(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
-        })
+        });
     }
     let response_body = response.unwrap();
 
@@ -872,8 +891,8 @@ pub fn api_key_revoke(
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error(
-                                response_result
-                                ));
+                            response_result,
+                        ));
                     }
                 }
             }
@@ -922,7 +941,7 @@ pub mod api_state_set {
         pub slug: String,
         pub message: Option<String>,
     }
-    
+
     impl graphql_client::GraphQLQuery for ApiStateSet {
         type Variables = Variables;
         type ResponseData = ResponseData;
@@ -944,11 +963,12 @@ pub fn api_state_set(
     enabled: Boolean,
 ) -> Result<(), UserError> {
     let variables = api_state_set::Variables { enabled };
-    let response = post_graphql::<api_state_set::ApiStateSet, _>(client, url, variables);
+    let response =
+        post_graphql::<api_state_set::ApiStateSet, _>(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
-        })
+        });
     }
     let response_body = response.unwrap();
 
@@ -960,8 +980,8 @@ pub fn api_state_set(
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error(
-                                response_result
-                                ));
+                            response_result,
+                        ));
                     }
                 }
             }
@@ -1028,24 +1048,28 @@ pub fn authentication_strategy_update(
     let variables = authentication_strategy_update::Variables {
         strategies: strategies.into_iter().map(|s| Some(s)).collect(),
     };
-    let response = post_graphql::<authentication_strategy_update::AuthenticationStrategyUpdate, _>(client, url, variables);
+    let response = post_graphql::<
+        authentication_strategy_update::AuthenticationStrategyUpdate,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
-        })
+        });
     }
     let response_body = response.unwrap();
 
     if let Some(data) = response_body.data {
         if let Some(authentication) = data.authentication {
             if let Some(update_strategies) = authentication.update_strategies {
-                if let Some(response_result) = update_strategies.response_result {
+                if let Some(response_result) = update_strategies.response_result
+                {
                     if response_result.succeeded {
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error(
-                                response_result
-                                ));
+                            response_result,
+                        ));
                     }
                 }
             }
@@ -1091,8 +1115,7 @@ pub mod authentication_certificate_regenerate {
             graphql_client::QueryBody {
                 variables,
                 query: QUERY,
-                operation_name:
-                    OPERATION_NAME,
+                operation_name: OPERATION_NAME,
             }
         }
     }
@@ -1107,20 +1130,24 @@ pub fn authentication_certificate_regenerate(
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
-        })
+        });
     }
     let response_body = response.unwrap();
 
     if let Some(data) = response_body.data {
         if let Some(authentication) = data.authentication {
-            if let Some(regenerate_certificates) = authentication.regenerate_certificates {
-                if let Some(response_result) = regenerate_certificates.response_result {
+            if let Some(regenerate_certificates) =
+                authentication.regenerate_certificates
+            {
+                if let Some(response_result) =
+                    regenerate_certificates.response_result
+                {
                     if response_result.succeeded {
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error(
-                                response_result
-                                ));
+                            response_result,
+                        ));
                     }
                 }
             }
@@ -1156,7 +1183,7 @@ pub mod guest_user_reset {
         #[serde(rename = "responseResult")]
         pub response_result: Option<ResponseStatus>,
     }
-    
+
     impl graphql_client::GraphQLQuery for GuestUserReset {
         type Variables = Variables;
         type ResponseData = ResponseData;
@@ -1172,29 +1199,29 @@ pub mod guest_user_reset {
     }
 }
 
-pub fn guest_user_reset(
-    client: &Client,
-    url: &str,
-) -> Result<(), UserError> {
+pub fn guest_user_reset(client: &Client, url: &str) -> Result<(), UserError> {
     let variables = guest_user_reset::Variables {};
-    let response = post_graphql::<guest_user_reset::GuestUserReset, _>(client, url, variables);
+    let response = post_graphql::<guest_user_reset::GuestUserReset, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(UserError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
-        })
+        });
     }
     let response_body = response.unwrap();
 
     if let Some(data) = response_body.data {
         if let Some(authentication) = data.authentication {
             if let Some(reset_guest_user) = authentication.reset_guest_user {
-                if let Some(response_result) = reset_guest_user.response_result {
+                if let Some(response_result) = reset_guest_user.response_result
+                {
                     if response_result.succeeded {
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error(
-                                response_result
-                                ));
+                            response_result,
+                        ));
                     }
                 }
             }

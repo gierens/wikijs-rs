@@ -1,7 +1,7 @@
-use std::error::Error;
-use clap::Subcommand;
-use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
+use clap::Subcommand;
+use std::error::Error;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Subcommand)]
 pub(crate) enum GroupCommand {
@@ -25,7 +25,11 @@ impl Execute for GroupCommand {
     }
 }
 
-fn group_list(api: wikijs::Api, filter: Option<String>, order_by: Option<String>)  -> Result<(), Box<dyn Error>> {
+fn group_list(
+    api: wikijs::Api,
+    filter: Option<String>,
+    order_by: Option<String>,
+) -> Result<(), Box<dyn Error>> {
     let groups = api.group_list(filter, order_by)?;
     let mut builder = Builder::new();
     builder.push_record([

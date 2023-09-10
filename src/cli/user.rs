@@ -1,7 +1,7 @@
-use std::error::Error;
-use clap::Subcommand;
-use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
+use clap::Subcommand;
+use std::error::Error;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Subcommand)]
 pub(crate) enum UserCommand {
@@ -39,10 +39,7 @@ fn user_get(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
     builder.push_record(["id", user.id.to_string().as_str()]);
     builder.push_record(["name", user.name.as_str()]);
     builder.push_record(["email", user.email.as_str()]);
-    builder.push_record([
-        "provider_key",
-        user.provider_key.as_str(),
-    ]);
+    builder.push_record(["provider_key", user.provider_key.as_str()]);
     builder.push_record([
         "provider_name",
         user.provider_name.unwrap_or("".to_string()).as_str(),
@@ -52,35 +49,16 @@ fn user_get(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
         user.provider_id.unwrap_or("".to_string()).as_str(),
     ]);
     // providerIs2FACapable
-    builder.push_record([
-        "is_system",
-        user.is_system.to_string().as_str(),
-    ]);
-    builder.push_record([
-        "is_active",
-        user.is_active.to_string().as_str(),
-    ]);
-    builder.push_record([
-        "is_verified",
-        user.is_verified.to_string().as_str(),
-    ]);
+    builder.push_record(["is_system", user.is_system.to_string().as_str()]);
+    builder.push_record(["is_active", user.is_active.to_string().as_str()]);
+    builder.push_record(["is_verified", user.is_verified.to_string().as_str()]);
     builder.push_record(["location", user.location.as_str()]);
     builder.push_record(["job_title", user.job_title.as_str()]);
     builder.push_record(["timezone", user.timezone.as_str()]);
-    builder.push_record([
-        "date_format",
-        user.date_format.as_str(),
-    ]);
-    builder
-        .push_record(["appearance", user.appearance.as_str()]);
-    builder.push_record([
-        "created_at",
-        user.created_at.to_string().as_str(),
-    ]);
-    builder.push_record([
-        "updated_at",
-        user.updated_at.to_string().as_str(),
-    ]);
+    builder.push_record(["date_format", user.date_format.as_str()]);
+    builder.push_record(["appearance", user.appearance.as_str()]);
+    builder.push_record(["created_at", user.created_at.to_string().as_str()]);
+    builder.push_record(["updated_at", user.updated_at.to_string().as_str()]);
     builder.push_record([
         "last_login_at",
         user.last_login_at.unwrap_or("".to_string()).as_str(),
@@ -91,7 +69,11 @@ fn user_get(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn user_list(api: wikijs::Api, filter: Option<String>, order_by: Option<String>) -> Result<(), Box<dyn Error>> {
+fn user_list(
+    api: wikijs::Api,
+    filter: Option<String>,
+    order_by: Option<String>,
+) -> Result<(), Box<dyn Error>> {
     let users = api.user_list(filter, order_by)?;
     let mut builder = Builder::new();
     builder.push_record([

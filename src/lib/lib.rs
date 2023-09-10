@@ -123,16 +123,11 @@ impl Api {
         )
     }
 
-    pub fn asset_delete(
-        &self,
-        id: i64,
-    ) -> Result<(), asset::AssetError> {
+    pub fn asset_delete(&self, id: i64) -> Result<(), asset::AssetError> {
         asset::asset_delete(&self.client, &format!("{}/graphql", self.url), id)
     }
 
-    pub fn asset_temp_upload_flush(
-        &self,
-    ) -> Result<(), asset::AssetError> {
+    pub fn asset_temp_upload_flush(&self) -> Result<(), asset::AssetError> {
         asset::asset_temp_upload_flush(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -152,13 +147,7 @@ impl Api {
         name: String,
         data: Vec<u8>,
     ) -> Result<(), asset::AssetError> {
-        asset::asset_upload(
-            &self.client,
-            self.url.as_str(),
-            folder,
-            name,
-            data,
-        )
+        asset::asset_upload(&self.client, self.url.as_str(), folder, name, data)
     }
 
     // page functions
@@ -377,7 +366,11 @@ impl Api {
         &self,
         locale: String,
     ) -> Result<Vec<page::PageLinkItem>, page::PageError> {
-        page::page_link_get(&self.client, &format!("{}/graphql", self.url), locale)
+        page::page_link_get(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            locale,
+        )
     }
 
     pub fn page_conflict_check(
@@ -432,10 +425,7 @@ impl Api {
         )
     }
 
-    pub fn page_tag_delete(
-        &self,
-        id: i64,
-    ) -> Result<(), page::PageError> {
+    pub fn page_tag_delete(&self, id: i64) -> Result<(), page::PageError> {
         page::page_tag_delete(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -475,9 +465,7 @@ impl Api {
         )
     }
 
-    pub fn page_tree_rebuild(
-        &self,
-    ) -> Result<(), page::PageError> {
+    pub fn page_tree_rebuild(&self) -> Result<(), page::PageError> {
         page::page_tree_rebuild(&self.client, &format!("{}/graphql", self.url))
     }
 
@@ -524,18 +512,18 @@ impl Api {
 
     pub fn api_key_list(
         &self,
-    ) -> Result<Vec<authentication::ApiKey>, user::UserError>
-    {
+    ) -> Result<Vec<authentication::ApiKey>, user::UserError> {
         authentication::api_key_list(
             &self.client,
             &format!("{}/graphql", self.url),
         )
     }
 
-    pub fn api_state_get(
-        &self,
-    ) -> Result<bool, user::UserError> {
-        authentication::api_state_get(&self.client, &format!("{}/graphql", self.url))
+    pub fn api_state_get(&self) -> Result<bool, user::UserError> {
+        authentication::api_state_get(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
     }
 
     pub fn authentication_strategy_list(
@@ -551,8 +539,10 @@ impl Api {
     pub fn authentication_active_strategy_list(
         &self,
         enabled_only: Option<bool>,
-    ) -> Result<Vec<authentication::AuthenticationActiveStrategy>, user::UserError>
-    {
+    ) -> Result<
+        Vec<authentication::AuthenticationActiveStrategy>,
+        user::UserError,
+    > {
         authentication::authentication_active_strategy_list(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -597,7 +587,8 @@ impl Api {
         &self,
         continuation_token: String,
         new_password: String,
-    ) -> Result<authentication::AuthenticationLoginResponse, user::UserError> {
+    ) -> Result<authentication::AuthenticationLoginResponse, user::UserError>
+    {
         authentication::login_password_change(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -622,7 +613,8 @@ impl Api {
         email: String,
         password: String,
         name: String,
-    ) -> Result<authentication::AuthenticationRegisterResponse, user::UserError> {
+    ) -> Result<authentication::AuthenticationRegisterResponse, user::UserError>
+    {
         authentication::register(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -632,10 +624,7 @@ impl Api {
         )
     }
 
-    pub fn api_key_revoke(
-        &self,
-        id: i64,
-    ) -> Result<(), user::UserError> {
+    pub fn api_key_revoke(&self, id: i64) -> Result<(), user::UserError> {
         authentication::api_key_revoke(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -643,10 +632,7 @@ impl Api {
         )
     }
 
-    pub fn api_state_set(
-        &self,
-        enabled: bool,
-    ) -> Result<(), user::UserError> {
+    pub fn api_state_set(&self, enabled: bool) -> Result<(), user::UserError> {
         authentication::api_state_set(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -674,9 +660,7 @@ impl Api {
         )
     }
 
-    pub fn guest_user_reset(
-        &self,
-    ) -> Result<(), user::UserError> {
+    pub fn guest_user_reset(&self) -> Result<(), user::UserError> {
         authentication::guest_user_reset(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -788,11 +772,12 @@ impl Api {
         )
     }
 
-    pub fn comment_delete(
-        &self,
-        id: i64,
-    ) -> Result<(), comment::CommentError> {
-        comment::comment_delete(&self.client, &format!("{}/graphql", self.url), id)
+    pub fn comment_delete(&self, id: i64) -> Result<(), comment::CommentError> {
+        comment::comment_delete(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+        )
     }
 
     // user functions
@@ -813,18 +798,16 @@ impl Api {
         )
     }
 
-    pub fn user_activate(
-        &self,
-        id: i64,
-    ) -> Result<(), user::UserError> {
+    pub fn user_activate(&self, id: i64) -> Result<(), user::UserError> {
         user::user_activate(&self.client, &format!("{}/graphql", self.url), id)
     }
 
-    pub fn user_deactivate(
-        &self,
-        id: i64,
-    ) -> Result<(), user::UserError> {
-        user::user_deactivate(&self.client, &format!("{}/graphql", self.url), id)
+    pub fn user_deactivate(&self, id: i64) -> Result<(), user::UserError> {
+        user::user_deactivate(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+        )
     }
 
     pub fn user_delete(
@@ -832,27 +815,31 @@ impl Api {
         id: i64,
         replace_id: i64,
     ) -> Result<(), user::UserError> {
-        user::user_delete(&self.client, &format!("{}/graphql", self.url), id, replace_id)
+        user::user_delete(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+            replace_id,
+        )
     }
 
-    pub fn user_tfa_disable(
-        &self,
-        id: i64,
-    ) -> Result<(), user::UserError> {
-        user::user_tfa_disable(&self.client, &format!("{}/graphql", self.url), id)
+    pub fn user_tfa_disable(&self, id: i64) -> Result<(), user::UserError> {
+        user::user_tfa_disable(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+        )
     }
 
-    pub fn user_tfa_enable(
-        &self,
-        id: i64,
-    ) -> Result<(), user::UserError> {
-        user::user_tfa_enable(&self.client, &format!("{}/graphql", self.url), id)
+    pub fn user_tfa_enable(&self, id: i64) -> Result<(), user::UserError> {
+        user::user_tfa_enable(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+        )
     }
 
-    pub fn user_verify(
-        &self,
-        id: i64,
-    ) -> Result<(), user::UserError> {
+    pub fn user_verify(&self, id: i64) -> Result<(), user::UserError> {
         user::user_verify(&self.client, &format!("{}/graphql", self.url), id)
     }
 
@@ -872,7 +859,10 @@ impl Api {
     pub fn user_last_login_list(
         &self,
     ) -> Result<Vec<user::UserLastLogin>, user::UserError> {
-        user::user_last_login_list(&self.client, &format!("{}/graphql", self.url))
+        user::user_last_login_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
     }
 
     pub fn user_create(
@@ -961,10 +951,7 @@ impl Api {
         )
     }
 
-    pub fn user_password_reset(
-        &self,
-        id: i64,
-    ) -> Result<(), user::UserError> {
+    pub fn user_password_reset(&self, id: i64) -> Result<(), user::UserError> {
         user::user_password_reset(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -993,10 +980,7 @@ impl Api {
         group::group_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
-    pub fn group_create(
-        &self,
-        name: String,
-    ) -> Result<(), group::GroupError> {
+    pub fn group_create(&self, name: String) -> Result<(), group::GroupError> {
         group::group_create(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -1023,10 +1007,7 @@ impl Api {
         )
     }
 
-    pub fn group_delete(
-        &self,
-        id: i64,
-    ) -> Result<(), group::GroupError> {
+    pub fn group_delete(&self, id: i64) -> Result<(), group::GroupError> {
         group::group_delete(&self.client, &format!("{}/graphql", self.url), id)
     }
 
@@ -1142,9 +1123,7 @@ impl Api {
     }
 
     // mail functions
-    pub fn mail_config_get(
-        &self,
-    ) -> Result<mail::MailConfig, mail::MailError> {
+    pub fn mail_config_get(&self) -> Result<mail::MailConfig, mail::MailError> {
         mail::mail_config_get(&self.client, &format!("{}/graphql", self.url))
     }
 
@@ -1152,10 +1131,7 @@ impl Api {
     pub fn system_flag_list(
         &self,
     ) -> Result<Vec<system::SystemFlag>, system::SystemError> {
-        system::system_flag_list(
-            &self.client,
-            &format!("{}/graphql", self.url),
-        )
+        system::system_flag_list(&self.client, &format!("{}/graphql", self.url))
     }
 
     pub fn system_info_get(
@@ -1193,9 +1169,7 @@ impl Api {
         )
     }
 
-    pub fn telemetry_client_id_reset(
-        &self,
-    ) -> Result<(), system::SystemError> {
+    pub fn telemetry_client_id_reset(&self) -> Result<(), system::SystemError> {
         system::telemetry_client_id_reset(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -1213,9 +1187,7 @@ impl Api {
         )
     }
 
-    pub fn system_upgrade_perform(
-        &self,
-    ) -> Result<(), system::SystemError> {
+    pub fn system_upgrade_perform(&self) -> Result<(), system::SystemError> {
         system::system_upgrade_perform(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -1246,9 +1218,7 @@ impl Api {
         )
     }
 
-    pub fn https_certificate_renew(
-        &self,
-    ) -> Result<(), system::SystemError> {
+    pub fn https_certificate_renew(&self) -> Result<(), system::SystemError> {
         system::https_certificate_renew(
             &self.client,
             &format!("{}/graphql", self.url),
@@ -1259,16 +1229,16 @@ impl Api {
     pub fn theme_list(
         &self,
     ) -> Result<Vec<theming::Theme>, theming::ThemeError> {
-        theming::theme_list(
-            &self.client,
-            &format!("{}/graphql", self.url),
-        )
+        theming::theme_list(&self.client, &format!("{}/graphql", self.url))
     }
 
     pub fn theme_config_get(
         &self,
     ) -> Result<theming::ThemingConfig, theming::ThemeError> {
-        theming::theme_config_get(&self.client, &format!("{}/graphql", self.url))
+        theming::theme_config_get(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
     }
 
     pub fn theme_config_update(

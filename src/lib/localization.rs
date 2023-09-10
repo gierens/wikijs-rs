@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Date, Int, KnownErrorCodes, UnknownError, Boolean,
-    ResponseStatus, classify_response_status_error
+    classify_response_error, classify_response_status_error, Boolean, Date,
+    Int, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -132,7 +132,8 @@ pub fn locale_list(
     url: &str,
 ) -> Result<Vec<Locale>, LocaleError> {
     let variables = locale_list::Variables {};
-    let response = post_graphql::<locale_list::LocaleList, _>(client, url, variables);
+    let response =
+        post_graphql::<locale_list::LocaleList, _>(client, url, variables);
     if response.is_err() {
         return Err(LocaleError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -142,16 +143,11 @@ pub fn locale_list(
     if let Some(data) = response_body.data {
         if let Some(localization) = data.localization {
             if let Some(locales) = localization.locales {
-                return Ok(locales
-                    .into_iter()
-                    .flatten()
-                    .collect());
+                return Ok(locales.into_iter().flatten().collect());
             }
         }
     }
-    Err(classify_response_error::<LocaleError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<LocaleError>(response_body.errors))
 }
 
 // TODO the corresponding query file should be renamed as well
@@ -196,7 +192,9 @@ pub fn locale_config_get(
     url: &str,
 ) -> Result<LocaleConfig, LocaleError> {
     let variables = locale_config_get::Variables {};
-    let response = post_graphql::<locale_config_get::LocaleConfigGet, _>(client, url, variables);
+    let response = post_graphql::<locale_config_get::LocaleConfigGet, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(LocaleError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -210,9 +208,7 @@ pub fn locale_config_get(
             }
         }
     }
-    Err(classify_response_error::<LocaleError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<LocaleError>(response_body.errors))
 }
 
 pub mod translation_list {
@@ -239,7 +235,7 @@ pub mod translation_list {
     pub struct Localization {
         pub translations: Option<Vec<Option<Translation>>>,
     }
-    
+
     impl graphql_client::GraphQLQuery for TranslationList {
         type Variables = Variables;
         type ResponseData = ResponseData;
@@ -261,11 +257,10 @@ pub fn translation_list(
     locale: String,
     namespace: String,
 ) -> Result<Vec<Translation>, LocaleError> {
-    let variables = translation_list::Variables {
-        locale,
-        namespace,
-    };
-    let response = post_graphql::<translation_list::TranslationList, _>(client, url, variables);
+    let variables = translation_list::Variables { locale, namespace };
+    let response = post_graphql::<translation_list::TranslationList, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(LocaleError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -275,16 +270,11 @@ pub fn translation_list(
     if let Some(data) = response_body.data {
         if let Some(localization) = data.localization {
             if let Some(translations) = localization.translations {
-                return Ok(translations
-                    .into_iter()
-                    .flatten()
-                    .collect());
+                return Ok(translations.into_iter().flatten().collect());
             }
         }
     }
-    Err(classify_response_error::<LocaleError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<LocaleError>(response_body.errors))
 }
 
 pub mod locale_download {
@@ -339,10 +329,10 @@ pub fn locale_download(
     url: &str,
     locale: String,
 ) -> Result<(), LocaleError> {
-    let variables = locale_download::Variables {
-        locale,
-    };
-    let response = post_graphql::<locale_download::LocaleDownload, _>(client, url, variables);
+    let variables = locale_download::Variables { locale };
+    let response = post_graphql::<locale_download::LocaleDownload, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(LocaleError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -356,17 +346,15 @@ pub fn locale_download(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<LocaleError>(
-                            response_result,
-                        ));
+                        return Err(classify_response_status_error::<
+                            LocaleError,
+                        >(response_result));
                     }
                 }
             }
         }
     }
-    Err(classify_response_error::<LocaleError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<LocaleError>(response_body.errors))
 }
 
 pub mod locale_update {
@@ -385,7 +373,7 @@ pub mod locale_update {
         pub namespacing: Boolean,
         pub namespaces: Vec<Option<String>>,
     }
-    
+
     impl Variables {}
 
     #[derive(Deserialize)]
@@ -434,7 +422,8 @@ pub fn locale_update(
         namespacing,
         namespaces: namespaces.into_iter().map(Some).collect(),
     };
-    let response = post_graphql::<locale_update::LocaleUpdate, _>(client, url, variables);
+    let response =
+        post_graphql::<locale_update::LocaleUpdate, _>(client, url, variables);
     if response.is_err() {
         return Err(LocaleError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -448,15 +437,13 @@ pub fn locale_update(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<LocaleError>(
-                            response_result,
-                        ));
+                        return Err(classify_response_status_error::<
+                            LocaleError,
+                        >(response_result));
                     }
                 }
             }
         }
     }
-    Err(classify_response_error::<LocaleError>(
-        response_body.errors,
-    ))
+    Err(classify_response_error::<LocaleError>(response_body.errors))
 }

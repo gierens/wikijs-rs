@@ -1,7 +1,7 @@
-use std::error::Error;
-use clap::Subcommand;
-use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
+use clap::Subcommand;
+use std::error::Error;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Subcommand)]
 pub(crate) enum ContributorCommand {

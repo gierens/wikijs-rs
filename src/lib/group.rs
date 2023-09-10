@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Date, UnknownError, Boolean, Int, ResponseStatus,
-    classify_response_status_error, KnownErrorCodes,
+    classify_response_error, classify_response_status_error, Boolean, Date,
+    Int, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 use crate::user::UserMinimal;
 
@@ -166,7 +166,8 @@ pub fn group_list(
     order_by: Option<String>,
 ) -> Result<Vec<GroupMinimal>, GroupError> {
     let variables = group_list::Variables { filter, order_by };
-    let response = post_graphql::<group_list::GroupList, _>(client, url, variables);
+    let response =
+        post_graphql::<group_list::GroupList, _>(client, url, variables);
     if response.is_err() {
         return Err(GroupError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -229,7 +230,8 @@ pub fn group_get(
     id: Int,
 ) -> Result<Group, GroupError> {
     let variables = group_get::Variables { id };
-    let response = post_graphql::<group_get::GroupGet, _>(client, url, variables);
+    let response =
+        post_graphql::<group_get::GroupGet, _>(client, url, variables);
     if response.is_err() {
         return Err(GroupError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -292,7 +294,8 @@ pub fn group_create(
     name: String,
 ) -> Result<(), GroupError> {
     let variables = group_create::Variables { name };
-    let response = post_graphql::<group_create::GroupCreate, _>(client, url, variables);
+    let response =
+        post_graphql::<group_create::GroupCreate, _>(client, url, variables);
     if response.is_err() {
         return Err(GroupError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -308,9 +311,10 @@ pub fn group_create(
                 }
                 return Err(GroupError::UnknownErrorCode {
                     code: create.response_result.error_code,
-                    message: create.response_result.message.unwrap_or(
-                        "Unknown error".to_string(),
-                    ),
+                    message: create
+                        .response_result
+                        .message
+                        .unwrap_or("Unknown error".to_string()),
                 });
             }
         }
@@ -386,7 +390,8 @@ pub fn group_update(
         permissions: permissions.into_iter().map(|p| Some(p)).collect(),
         page_rules: page_rules.into_iter().map(|p| Some(p)).collect(),
     };
-    let response = post_graphql::<group_update::GroupUpdate, _>(client, url, variables);
+    let response =
+        post_graphql::<group_update::GroupUpdate, _>(client, url, variables);
     if response.is_err() {
         return Err(GroupError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -400,9 +405,11 @@ pub fn group_update(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<GroupError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<GroupError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -463,7 +470,8 @@ pub fn group_delete(
     id: Int,
 ) -> Result<(), GroupError> {
     let variables = group_delete::Variables { id };
-    let response = post_graphql::<group_delete::GroupDelete, _>(client, url, variables);
+    let response =
+        post_graphql::<group_delete::GroupDelete, _>(client, url, variables);
     if response.is_err() {
         return Err(GroupError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -477,9 +485,11 @@ pub fn group_delete(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<GroupError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<GroupError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -545,7 +555,9 @@ pub fn group_user_assign(
     user_id: Int,
 ) -> Result<(), GroupError> {
     let variables = group_user_assign::Variables { group_id, user_id };
-    let response = post_graphql::<group_user_assign::GroupUserAssign, _>(client, url, variables);
+    let response = post_graphql::<group_user_assign::GroupUserAssign, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(GroupError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -559,9 +571,11 @@ pub fn group_user_assign(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<GroupError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<GroupError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
@@ -627,7 +641,9 @@ pub fn group_user_unassign(
     user_id: Int,
 ) -> Result<(), GroupError> {
     let variables = group_user_unassign::Variables { group_id, user_id };
-    let response = post_graphql::<group_user_unassign::GroupUserUnassign, _>(client, url, variables);
+    let response = post_graphql::<group_user_unassign::GroupUserUnassign, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(GroupError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -641,9 +657,11 @@ pub fn group_user_unassign(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<GroupError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<GroupError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }

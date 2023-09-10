@@ -1,7 +1,7 @@
-use std::error::Error;
-use clap::Subcommand;
-use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
+use clap::Subcommand;
+use std::error::Error;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Subcommand)]
 pub(crate) enum CommentCommand {
@@ -18,12 +18,18 @@ pub(crate) enum CommentCommand {
 impl Execute for CommentCommand {
     fn execute(&self, api: wikijs::Api) -> Result<(), Box<dyn Error>> {
         match self {
-            CommentCommand::List { locale, path } => comment_list(api, locale.to_string(), path.to_string()),
+            CommentCommand::List { locale, path } => {
+                comment_list(api, locale.to_string(), path.to_string())
+            }
         }
     }
 }
 
-fn comment_list(api: wikijs::Api, locale: String, path: String) -> Result<(), Box<dyn Error>> {
+fn comment_list(
+    api: wikijs::Api,
+    locale: String,
+    path: String,
+) -> Result<(), Box<dyn Error>> {
     let comments = api.comment_list(locale, path)?;
     let mut builder = Builder::new();
     builder.push_record([

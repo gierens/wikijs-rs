@@ -1,13 +1,12 @@
-use std::error::Error;
-use clap::Subcommand;
-use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
+use clap::Subcommand;
+use std::error::Error;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Subcommand)]
 pub(crate) enum LocaleCommand {
     #[clap(about = "List locales")]
-    List
-
+    List,
 }
 
 impl Execute for LocaleCommand {
@@ -30,7 +29,7 @@ fn locale_list(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
         "is_rtl",
         "name",
         "native_name",
-        "updated_at"
+        "updated_at",
     ]);
     for locale in locales {
         builder.push_record([

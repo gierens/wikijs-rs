@@ -1,7 +1,7 @@
-use std::error::Error;
-use clap::Subcommand;
-use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
+use clap::Subcommand;
+use std::error::Error;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Subcommand)]
 pub(crate) enum SystemFlagCommand {
@@ -22,10 +22,8 @@ fn system_flag_list(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
     let mut builder = Builder::new();
     builder.push_record(["key", "value"]);
     for flag in flags {
-        builder.push_record([
-            flag.key.as_str(),
-            flag.value.to_string().as_str(),
-        ]);
+        builder
+            .push_record([flag.key.as_str(), flag.value.to_string().as_str()]);
     }
     println!("{}", builder.build().with(Style::rounded()));
     Ok(())

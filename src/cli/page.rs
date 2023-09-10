@@ -1,12 +1,11 @@
-use std::error::Error;
-use std::io::Error as IoError;
+use crate::common::Execute;
 use clap::Subcommand;
 use colored::Colorize;
-use tabled::{builder::Builder, settings::Style};
-use crate::common::Execute;
+use std::error::Error;
+use std::io::Error as IoError;
 use std::io::Write;
+use tabled::{builder::Builder, settings::Style};
 use tempfile::Builder as TempFileBuilder;
-
 
 #[derive(Subcommand)]
 pub(crate) enum PageCommand {
@@ -48,38 +47,38 @@ pub(crate) enum PageCommand {
             help = "Page is private",
             default_value = "false"
         )]
-            is_private: bool,
+        is_private: bool,
 
-            #[clap(
-                short = 'P',
-                long,
-                help = "Page is published",
-                default_value = "true"
-            )]
-                is_published: bool,
+        #[clap(
+            short = 'P',
+            long,
+            help = "Page is published",
+            default_value = "true"
+        )]
+        is_published: bool,
 
-                #[clap(short, long, help = "Page locale", default_value = "en")]
-                locale: String,
+        #[clap(short, long, help = "Page locale", default_value = "en")]
+        locale: String,
 
-                #[clap(help = "Page path")]
-                path: String,
+        #[clap(help = "Page path")]
+        path: String,
 
-                // #[clap(help = "Page publish start date")]
-                // publish_start_date: Option<String>,
+        // #[clap(help = "Page publish start date")]
+        // publish_start_date: Option<String>,
 
-                // #[clap(help = "Page publish end date")]
-                // publish_end_date: Option<String>,
+        // #[clap(help = "Page publish end date")]
+        // publish_end_date: Option<String>,
 
-                // #[clap(help = "Page CSS script")]
-                // script_css: Option<String>,
+        // #[clap(help = "Page CSS script")]
+        // script_css: Option<String>,
 
-                // #[clap(help = "Page JS script")]
-                // script_js: Option<String>,
-                #[clap(short = 'T', long, help = "Page tags")]
-                tags: Vec<String>,
+        // #[clap(help = "Page JS script")]
+        // script_js: Option<String>,
+        #[clap(short = 'T', long, help = "Page tags")]
+        tags: Vec<String>,
 
-                #[clap(short, long, help = "Page title")]
-                title: Option<String>,
+        #[clap(short, long, help = "Page title")]
+        title: Option<String>,
     },
 
     #[clap(about = "Update a page")]
@@ -129,10 +128,10 @@ pub(crate) enum PageCommand {
             action,
             conflicts_with = "tags"
         )]
-            no_tags: bool,
+        no_tags: bool,
 
-            #[clap(short, long, help = "Page title")]
-            title: Option<String>,
+        #[clap(short, long, help = "Page title")]
+        title: Option<String>,
     },
 
     #[clap(about = "Update a page's content")]
@@ -156,7 +155,7 @@ pub(crate) enum PageCommand {
             default_value = "vi",
             env = "EDITOR"
         )]
-            editor: String,
+        editor: String,
     },
 }
 
@@ -234,7 +233,9 @@ impl Execute for PageCommand {
             PageCommand::UpdateContent { id, content } => {
                 page_update_content(api, *id, content.to_string())
             }
-            PageCommand::Edit { id, editor } => page_edit(api, *id, editor.to_string()),
+            PageCommand::Edit { id, editor } => {
+                page_edit(api, *id, editor.to_string())
+            }
         }
     }
 }
@@ -244,20 +245,13 @@ fn page_get(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
     let mut builder = Builder::new();
     builder.push_record(["key", "value"]);
     builder.push_record(["id", page.id.to_string().as_str()]);
-    builder
-        .push_record(["path", page.path.to_string().as_str()]);
-    builder
-        .push_record(["hash", page.hash.to_string().as_str()]);
+    builder.push_record(["path", page.path.to_string().as_str()]);
+    builder.push_record(["hash", page.hash.to_string().as_str()]);
     builder.push_record(["title", page.title.as_str()]);
     // TODO description
-    builder.push_record([
-        "is_private",
-        page.is_private.to_string().as_str(),
-    ]);
-    builder.push_record([
-        "is_published",
-        page.is_published.to_string().as_str(),
-    ]);
+    builder.push_record(["is_private", page.is_private.to_string().as_str()]);
+    builder
+        .push_record(["is_published", page.is_published.to_string().as_str()]);
     builder.push_record([
         "private_ns",
         page.private_ns.unwrap_or("".to_string()).as_str(),
@@ -266,54 +260,25 @@ fn page_get(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
         "publish_start_date",
         &page.publish_start_date.to_string(),
     ]);
-    builder.push_record([
-        "publish_end_date",
-        &page.publish_end_date.to_string(),
-    ]);
+    builder
+        .push_record(["publish_end_date", &page.publish_end_date.to_string()]);
     // TODO tags
     // TODO content
     // TODO toc
     // TODO render
-    builder.push_record([
-        "content_type",
-        page.content_type.as_str(),
-    ]);
-    builder.push_record([
-        "created_at",
-        &page.created_at.to_string(),
-    ]);
-    builder.push_record([
-        "updated_at",
-        &page.updated_at.to_string(),
-    ]);
+    builder.push_record(["content_type", page.content_type.as_str()]);
+    builder.push_record(["created_at", &page.created_at.to_string()]);
+    builder.push_record(["updated_at", &page.updated_at.to_string()]);
     builder.push_record(["editor", page.editor.as_str()]);
     builder.push_record(["locale", page.locale.as_str()]);
     // TODO script_css
     // TODO script_js
-    builder.push_record([
-        "author_id",
-        page.author_id.to_string().as_str(),
-    ]);
-    builder.push_record([
-        "author_name",
-        page.author_name.as_str(),
-    ]);
-    builder.push_record([
-        "author_email",
-        page.author_email.as_str(),
-    ]);
-    builder.push_record([
-        "creator_id",
-        page.creator_id.to_string().as_str(),
-    ]);
-    builder.push_record([
-        "creator_name",
-        page.creator_name.as_str(),
-    ]);
-    builder.push_record([
-        "creator_email",
-        page.creator_email.as_str(),
-    ]);
+    builder.push_record(["author_id", page.author_id.to_string().as_str()]);
+    builder.push_record(["author_name", page.author_name.as_str()]);
+    builder.push_record(["author_email", page.author_email.as_str()]);
+    builder.push_record(["creator_id", page.creator_id.to_string().as_str()]);
+    builder.push_record(["creator_name", page.creator_name.as_str()]);
+    builder.push_record(["creator_email", page.creator_email.as_str()]);
     println!("{}", builder.build().with(Style::rounded()));
     Ok(())
 }
@@ -361,11 +326,7 @@ fn page_delete(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
 
 fn page_render(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
     api.page_render(id)?;
-    println!(
-        "{}: {}",
-        "success".bold().green(),
-        "Page rendered"
-    );
+    println!("{}: {}", "success".bold().green(), "Page rendered");
     Ok(())
 }
 
@@ -441,38 +402,39 @@ fn page_update(
             match tags {
                 Some(tags) => Some(
                     tags.iter()
-                    .map(|s| Some(s.clone()))
-                    .collect::<Vec<Option<String>>>(),
+                        .map(|s| Some(s.clone()))
+                        .collect::<Vec<Option<String>>>(),
                 ),
                 None => None,
             }
         },
         title,
-        )?;
+    )?;
     println!("{}: {}", "success".bold().green(), "Page updated");
     Ok(())
 }
 
-fn page_update_content(api: wikijs::Api, id: i64, content: String) -> Result<(), Box<dyn Error>> {
+fn page_update_content(
+    api: wikijs::Api,
+    id: i64,
+    content: String,
+) -> Result<(), Box<dyn Error>> {
     api.page_update_content(id, content)?;
-    println!(
-        "{}: {}",
-        "success".bold().green(),
-        "Page content updated"
-    );
+    println!("{}: {}", "success".bold().green(), "Page content updated");
     Ok(())
 }
 
-fn page_edit(api: wikijs::Api, id: i64, editor: String) -> Result<(), Box<dyn Error>> {
+fn page_edit(
+    api: wikijs::Api,
+    id: i64,
+    editor: String,
+) -> Result<(), Box<dyn Error>> {
     let page = api.page_get(id)?;
     let file = match page.editor.as_str() {
-        "markdown" => TempFileBuilder::new()
-            .suffix(".md")
-            .tempfile(),
-        _ => TempFileBuilder::new().tempfile()
+        "markdown" => TempFileBuilder::new().suffix(".md").tempfile(),
+        _ => TempFileBuilder::new().tempfile(),
     }?;
-    file.reopen()?
-        .write_all(page.content.as_bytes())?;
+    file.reopen()?.write_all(page.content.as_bytes())?;
     let mut child = std::process::Command::new(editor)
         .arg(file.path())
         .spawn()?;
@@ -485,10 +447,6 @@ fn page_edit(api: wikijs::Api, id: i64, editor: String) -> Result<(), Box<dyn Er
     }
     let content = std::fs::read_to_string(file.path())?;
     api.page_update_content(id, content)?;
-    println!(
-        "{}: {}",
-        "success".bold().green(),
-        "Page content updated"
-    );
+    println!("{}: {}", "success".bold().green(), "Page content updated");
     Ok(())
 }

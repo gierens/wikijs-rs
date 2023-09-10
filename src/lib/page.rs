@@ -1178,8 +1178,9 @@ pub fn page_history_get(
         offset_page,
         offset_size,
     };
-    let response =
-        post_graphql::<page_history_get::PageHistoryGet, _>(client, url, variables);
+    let response = post_graphql::<page_history_get::PageHistoryGet, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1249,8 +1250,9 @@ pub fn page_version_get(
         page_id,
         version_id,
     };
-    let response =
-        post_graphql::<page_version_get::PageVersionGet, _>(client, url, variables);
+    let response = post_graphql::<page_version_get::PageVersionGet, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1450,12 +1452,10 @@ pub fn page_conflict_check(
     id: i64,
     checkout_date: Date,
 ) -> Result<Boolean, PageError> {
-    let variables = page_conflict_check::Variables {
-        id,
-        checkout_date,
-    };
-    let response =
-        post_graphql::<page_conflict_check::PageConflictCheck, _>(client, url, variables);
+    let variables = page_conflict_check::Variables { id, checkout_date };
+    let response = post_graphql::<page_conflict_check::PageConflictCheck, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1517,8 +1517,10 @@ pub fn page_conflict_latest(
     id: i64,
 ) -> Result<PageConflictLatest, PageError> {
     let variables = page_conflict_latest::Variables { id };
-    let response =
-        post_graphql::<page_conflict_latest::PageConflictLatestFunction, _>(client, url, variables);
+    let response = post_graphql::<
+        page_conflict_latest::PageConflictLatestFunction,
+        _,
+    >(client, url, variables);
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1754,8 +1756,9 @@ pub fn page_tag_delete(
     id: i64,
 ) -> Result<(), PageError> {
     let variables = page_tag_delete::Variables { id };
-    let response =
-        post_graphql::<page_tag_delete::PageTagDelete, _>(client, url, variables);
+    let response = post_graphql::<page_tag_delete::PageTagDelete, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1838,8 +1841,9 @@ pub fn page_tag_update(
     title: String,
 ) -> Result<(), PageError> {
     let variables = page_tag_update::Variables { id, tag, title };
-    let response =
-        post_graphql::<page_tag_update::PageTagUpdate, _>(client, url, variables);
+    let response = post_graphql::<page_tag_update::PageTagUpdate, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1908,13 +1912,11 @@ pub(crate) mod page_cache_flush {
     }
 }
 
-pub fn page_cache_flush(
-    client: &Client,
-    url: &str,
-) -> Result<(), PageError> {
+pub fn page_cache_flush(client: &Client, url: &str) -> Result<(), PageError> {
     let variables = page_cache_flush::Variables {};
-    let response =
-        post_graphql::<page_cache_flush::PageCacheFlush, _>(client, url, variables);
+    let response = post_graphql::<page_cache_flush::PageCacheFlush, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -1999,8 +2001,9 @@ pub fn page_migrate_to_locale(
         source_locale,
         target_locale,
     };
-    let response =
-        post_graphql::<page_migrate_to_locale::PageMigrateToLocale, _>(client, url, variables);
+    let response = post_graphql::<page_migrate_to_locale::PageMigrateToLocale, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -2026,12 +2029,11 @@ pub fn page_migrate_to_locale(
 
 pub mod page_tree_rebuild {
     use super::*;
-    
+
     pub struct PageTreeRebuild;
 
     pub const OPERATION_NAME: &str = "PageTreeRebuild";
     pub const QUERY : & str = "mutation PageTreeRebuild {\n  pages {\n    rebuildTree {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
-
 
     #[derive(Serialize)]
     pub struct Variables;
@@ -2068,13 +2070,11 @@ pub mod page_tree_rebuild {
     }
 }
 
-pub fn page_tree_rebuild(
-    client: &Client,
-    url: &str,
-) -> Result<(), PageError> {
+pub fn page_tree_rebuild(client: &Client, url: &str) -> Result<(), PageError> {
     let variables = page_tree_rebuild::Variables {};
-    let response =
-        post_graphql::<page_tree_rebuild::PageTreeRebuild, _>(client, url, variables);
+    let response = post_graphql::<page_tree_rebuild::PageTreeRebuild, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -2239,8 +2239,9 @@ pub fn page_history_purge(
     older_than: String,
 ) -> Result<(), PageError> {
     let variables = page_history_purge::Variables { older_than };
-    let response =
-        post_graphql::<page_history_purge::PageHistoryPurge, _>(client, url, variables);
+    let response = post_graphql::<page_history_purge::PageHistoryPurge, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(PageError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),

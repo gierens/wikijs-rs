@@ -3,7 +3,10 @@ use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::common::{classify_response_error, Date, Int, UnknownError, ResponseStatus, classify_response_status_error, KnownErrorCodes};
+use crate::common::{
+    classify_response_error, classify_response_status_error, Date, Int,
+    KnownErrorCodes, ResponseStatus, UnknownError,
+};
 
 #[derive(Error, Debug, PartialEq)]
 pub enum AssetError {
@@ -71,16 +74,14 @@ impl UnknownError for AssetError {
 
 impl KnownErrorCodes for AssetError {
     fn known_error_codes() -> Vec<i64> {
-        vec![
-            2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
-            2009,
-        ]
+        vec![2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009]
     }
 
     fn is_known_error_code(code: i64) -> bool {
         match code {
-            2001 | 2002 | 2003 | 2004 | 2005 | 2006 | 2007
-            | 2008 | 2009 => true,
+            2001 | 2002 | 2003 | 2004 | 2005 | 2006 | 2007 | 2008 | 2009 => {
+                true
+            }
             _ => false,
         }
     }
@@ -244,9 +245,10 @@ pub fn asset_folder_list(
     url: &str,
     parent_folder_id: Int,
 ) -> Result<Vec<AssetFolder>, AssetError> {
-    let variables =
-        asset_folder_list::Variables { parent_folder_id };
-    let response = post_graphql::<asset_folder_list::AssetFolderList, _>(client, url, variables);
+    let variables = asset_folder_list::Variables { parent_folder_id };
+    let response = post_graphql::<asset_folder_list::AssetFolderList, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(AssetError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -329,8 +331,9 @@ pub fn asset_folder_create(
         slug,
         name,
     };
-    let response =
-        post_graphql::<asset_folder_create::AssetFolderCreate, _>(client, url, variables);
+    let response = post_graphql::<asset_folder_create::AssetFolderCreate, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(AssetError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -464,7 +467,7 @@ pub mod asset_delete {
     #[derive(Deserialize)]
     pub struct DeleteAsset {
         #[serde(rename = "responseResult")]
-        pub response_result: Option<ResponseStatus>
+        pub response_result: Option<ResponseStatus>,
     }
 
     impl graphql_client::GraphQLQuery for AssetDelete {
@@ -533,15 +536,13 @@ pub mod asset_temp_upload_flush {
     #[derive(Deserialize)]
     pub struct Assets {
         #[serde(rename = "flushTempUploads")]
-        pub flush_temp_uploads:
-            Option<FlushTempUploads>,
+        pub flush_temp_uploads: Option<FlushTempUploads>,
     }
 
     #[derive(Deserialize)]
     pub struct FlushTempUploads {
         #[serde(rename = "responseResult")]
-        pub response_result:
-            Option<ResponseStatus>,
+        pub response_result: Option<ResponseStatus>,
     }
 
     impl graphql_client::GraphQLQuery for AssetTempUploadFlush {
@@ -599,9 +600,7 @@ pub fn asset_download(
     url: &str,
     path: String,
 ) -> Result<Vec<u8>, AssetError> {
-    let response = client
-        .get(format!("{}/{}", url, path).as_str())
-        .send();
+    let response = client.get(format!("{}/{}", url, path).as_str()).send();
     if response.is_err() {
         return Err(AssetError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -629,8 +628,7 @@ pub fn asset_upload(
     //         Ok(part) => part,
     //         Err(_) => return Err(AssetError::UnknownError),
     //     };
-    let part = reqwest::blocking::multipart::Part::bytes(data)
-        .file_name(name);
+    let part = reqwest::blocking::multipart::Part::bytes(data).file_name(name);
     let form = reqwest::blocking::multipart::Form::new()
         .text("mediaUpload", format!("{{\"folderId\":{}}}", folder))
         .part("mediaUpload", part);

@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Date, Int, KnownErrorCodes, UnknownError,
-    Boolean, KeyValuePair, KeyValuePairInput, ResponseStatus,
-    classify_response_status_error
+    classify_response_error, classify_response_status_error, Boolean, Date,
+    Int, KeyValuePair, KeyValuePairInput, KnownErrorCodes, ResponseStatus,
+    UnknownError,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -232,10 +232,9 @@ pub fn comment_provider_list(
     url: &str,
 ) -> Result<Vec<CommentProvider>, CommentError> {
     let variables = comment_provider_list::Variables {};
-    let response =
-        post_graphql::<comment_provider_list::CommentProviderList, _>(
-            client, url, variables,
-        );
+    let response = post_graphql::<comment_provider_list::CommentProviderList, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(CommentError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -388,7 +387,8 @@ pub fn comment_provider_update(
     if let Some(data) = response_body.data {
         if let Some(comments) = data.comments {
             if let Some(update_providers) = comments.update_providers {
-                if let Some(response_result) = update_providers.response_result {
+                if let Some(response_result) = update_providers.response_result
+                {
                     if response_result.succeeded {
                         return Ok(());
                     } else {
@@ -469,8 +469,9 @@ pub fn comment_create(
         guest_name,
         guest_email,
     };
-    let response =
-        post_graphql::<comment_create::CommentCreate, _>(client, url, variables);
+    let response = post_graphql::<comment_create::CommentCreate, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(CommentError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -546,8 +547,9 @@ pub fn comment_update(
     content: String,
 ) -> Result<(), CommentError> {
     let variables = comment_update::Variables { id, content };
-    let response =
-        post_graphql::<comment_update::CommentUpdate, _>(client, url, variables);
+    let response = post_graphql::<comment_update::CommentUpdate, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(CommentError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -626,8 +628,9 @@ pub fn comment_delete(
     id: Int,
 ) -> Result<(), CommentError> {
     let variables = comment_delete::Variables { id };
-    let response =
-        post_graphql::<comment_delete::CommentDelete, _>(client, url, variables);
+    let response = post_graphql::<comment_delete::CommentDelete, _>(
+        client, url, variables,
+    );
     if response.is_err() {
         return Err(CommentError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),

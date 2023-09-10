@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, UnknownError, Boolean, KeyValuePair,
-    KeyValuePairInput, classify_response_status_error, ResponseStatus,
-    KnownErrorCodes
+    classify_response_error, classify_response_status_error, Boolean,
+    KeyValuePair, KeyValuePairInput, KnownErrorCodes, ResponseStatus,
+    UnknownError,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -123,7 +123,8 @@ pub fn logger_list(
     order_by: Option<String>,
 ) -> Result<Vec<Logger>, LoggingError> {
     let variables = logger_list::Variables { filter, order_by };
-    let response = post_graphql::<logger_list::LoggerList, _>(client, url, variables);
+    let response =
+        post_graphql::<logger_list::LoggerList, _>(client, url, variables);
     if let Err(e) = response {
         return Err(LoggingError::UnknownErrorMessage {
             message: e.to_string(),
@@ -137,9 +138,7 @@ pub fn logger_list(
             }
         }
     }
-    Err(classify_response_error(
-        response.errors,
-    ))
+    Err(classify_response_error(response.errors))
 }
 
 pub mod logger_update {
@@ -197,7 +196,8 @@ pub fn logger_update(
     let variables = logger_update::Variables {
         loggers: Some(loggers.into_iter().map(|logger| Some(logger)).collect()),
     };
-    let response = post_graphql::<logger_update::LoggerUpdate, _>(client, url, variables);
+    let response =
+        post_graphql::<logger_update::LoggerUpdate, _>(client, url, variables);
     if let Err(e) = response {
         return Err(LoggingError::UnknownErrorMessage {
             message: e.to_string(),
@@ -219,7 +219,5 @@ pub fn logger_update(
             }
         }
     }
-    Err(classify_response_error(
-        response.errors,
-    ))
+    Err(classify_response_error(response.errors))
 }

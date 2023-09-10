@@ -1,10 +1,10 @@
-use std::error::Error;
+use crate::common::Execute;
 use clap::Subcommand;
 use colored::Colorize;
-use tabled::{builder::Builder, settings::Style};
-use crate::common::Execute;
+use std::error::Error;
 use std::fs::File;
 use std::io::Write;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Subcommand)]
 pub(crate) enum AssetCommand {
@@ -16,13 +16,12 @@ pub(crate) enum AssetCommand {
         #[clap(help = "Source path in wiki")]
         source: String,
 
-        #[clap(help = "Destination path on disk")] 
+        #[clap(help = "Destination path on disk")]
         destination: Option<String>,
     },
 
     #[clap(about = "Upload an asset")]
     Upload {
-
         #[clap(help = "Source path on disk")]
         source: String,
 
@@ -47,8 +46,20 @@ impl Execute for AssetCommand {
     fn execute(&self, api: wikijs::Api) -> Result<(), Box<dyn Error>> {
         match self {
             AssetCommand::List {} => asset_list(api),
-            AssetCommand::Download { source, destination } => asset_download(api, source.to_owned(), destination.to_owned()),
-            AssetCommand::Upload { source, folder, name } => asset_upload(api, source.to_owned(), folder.to_owned(), name.to_owned()),
+            AssetCommand::Download {
+                source,
+                destination,
+            } => asset_download(api, source.to_owned(), destination.to_owned()),
+            AssetCommand::Upload {
+                source,
+                folder,
+                name,
+            } => asset_upload(
+                api,
+                source.to_owned(),
+                folder.to_owned(),
+                name.to_owned(),
+            ),
         }
     }
 }
@@ -99,32 +110,29 @@ fn asset_list(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn asset_folder_list(api: wikijs::Api, parent_folder_id: i64) -> Result<(), Box<dyn Error>> {
+fn asset_folder_list(
+    api: wikijs::Api,
+    parent_folder_id: i64,
+) -> Result<(), Box<dyn Error>> {
     let asset_folders = api.asset_folder_list(parent_folder_id)?;
     let mut builder = Builder::new();
-    builder.push_record([
-        "id",
-        "slug",
-        "name",
-    ]);
+    builder.push_record(["id", "slug", "name"]);
     for asset_folder in asset_folders {
         builder.push_record([
             asset_folder.id.to_string().as_str(),
             asset_folder.slug.as_str(),
-            asset_folder
-                .name
-                .unwrap_or("".to_string())
-                .as_str(),
+            asset_folder.name.unwrap_or("".to_string()).as_str(),
         ]);
     }
-    println!(
-        "{}",
-        builder.build().with(Style::rounded())
-    );
+    println!("{}", builder.build().with(Style::rounded()));
     Ok(())
 }
 
-fn asset_download(api: wikijs::Api, source: String, destination: Option<String>) -> Result<(), Box<dyn Error>> {
+fn asset_download(
+    api: wikijs::Api,
+    source: String,
+    destination: Option<String>,
+) -> Result<(), Box<dyn Error>> {
     let asset = api.asset_download(source.clone())?;
     let mut file = File::create(destination.unwrap_or(source)).unwrap();
     file.write_all(&asset).unwrap();
@@ -132,7 +140,12 @@ fn asset_download(api: wikijs::Api, source: String, destination: Option<String>)
     Ok(())
 }
 
-fn asset_upload(api: wikijs::Api, source: String, folder: i64, name: String) -> Result<(), Box<dyn Error>> {
+fn asset_upload(
+    api: wikijs::Api,
+    source: String,
+    folder: i64,
+    name: String,
+) -> Result<(), Box<dyn Error>> {
     let data = std::fs::read(source)?;
     api.asset_upload(folder, name, data)?;
     println!("{}: {}", "success".bold().green(), "asset uploaded");

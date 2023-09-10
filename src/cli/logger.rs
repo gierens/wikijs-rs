@@ -1,7 +1,7 @@
-use std::error::Error;
-use clap::Subcommand;
-use tabled::{builder::Builder, settings::Style};
 use crate::common::Execute;
+use clap::Subcommand;
+use std::error::Error;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Subcommand)]
 pub(crate) enum LoggerCommand {
@@ -12,7 +12,7 @@ pub(crate) enum LoggerCommand {
 
         #[clap(short, long, help = "Order loggers by this")]
         order_by: Option<String>,
-    }
+    },
 }
 
 impl Execute for LoggerCommand {
@@ -25,7 +25,11 @@ impl Execute for LoggerCommand {
     }
 }
 
-fn logger_list(api: wikijs::Api, filter: Option<String>, order_by: Option<String>) -> Result<(), Box<dyn Error>> {
+fn logger_list(
+    api: wikijs::Api,
+    filter: Option<String>,
+    order_by: Option<String>,
+) -> Result<(), Box<dyn Error>> {
     let loggers = api.logger_list(filter, order_by)?;
     let mut builder = Builder::new();
     builder.push_record([

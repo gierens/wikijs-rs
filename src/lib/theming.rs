@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, UnknownError, Boolean,
-    classify_response_status_error, ResponseStatus, KnownErrorCodes
+    classify_response_error, classify_response_status_error, Boolean,
+    KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
 #[derive(Error, Debug, PartialEq)]
@@ -113,7 +113,8 @@ pub fn theme_list(
     url: &str,
 ) -> Result<Vec<Theme>, ThemeError> {
     let variables = theme_list::Variables {};
-    let response = post_graphql::<theme_list::ThemeList, _>(client, url, variables);
+    let response =
+        post_graphql::<theme_list::ThemeList, _>(client, url, variables);
     if response.is_err() {
         return Err(ThemeError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -123,10 +124,7 @@ pub fn theme_list(
     if let Some(data) = response_body.data {
         if let Some(theming) = data.theming {
             if let Some(themes) = theming.themes {
-                return Ok(themes
-                    .into_iter()
-                    .flatten()
-                    .collect());
+                return Ok(themes.into_iter().flatten().collect());
             }
         }
     }
