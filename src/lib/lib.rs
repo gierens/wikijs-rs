@@ -1063,7 +1063,6 @@ impl Api {
 
     pub fn logger_update(
         &self,
-        id: i64,
         loggers: Vec<logging::LoggerInput>,
     ) -> Result<(), logging::LoggingError> {
         logging::logger_update(
