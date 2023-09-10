@@ -1074,6 +1074,7 @@ pub mod user_create {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn user_create(
     client: &Client,
     url: &str,
@@ -1177,6 +1178,7 @@ pub mod user_update {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn user_update(
     client: &Client,
     url: &str,
@@ -1280,6 +1282,7 @@ pub mod user_profile_update {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn user_profile_update(
     client: &Client,
     url: &str,

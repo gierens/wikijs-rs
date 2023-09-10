@@ -865,6 +865,7 @@ impl Api {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn user_create(
         &self,
         email: String,
@@ -888,6 +889,7 @@ impl Api {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn user_update(
         &self,
         id: i64,
@@ -917,6 +919,7 @@ impl Api {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn user_profile_update(
         &self,
         name: String,
@@ -1241,6 +1244,7 @@ impl Api {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn theme_config_update(
         &self,
         theme: String,

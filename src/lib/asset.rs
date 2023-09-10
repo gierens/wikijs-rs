@@ -78,12 +78,7 @@ impl KnownErrorCodes for AssetError {
     }
 
     fn is_known_error_code(code: i64) -> bool {
-        match code {
-            2001 | 2002 | 2003 | 2004 | 2005 | 2006 | 2007 | 2008 | 2009 => {
-                true
-            }
-            _ => false,
-        }
+        matches!(code, 2001..=2009)
     }
 }
 

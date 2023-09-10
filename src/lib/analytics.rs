@@ -187,7 +187,7 @@ pub fn analytics_provider_update(
     providers: Vec<AnalyticsProviderInput>,
 ) -> Result<(), AnalyticsError> {
     let variables = analytics_provider_update::Variables {
-        providers: providers.into_iter().map(|p| Some(p)).collect(),
+        providers: providers.into_iter().map(Some).collect(),
     };
     let response = post_graphql::<
         analytics_provider_update::AnalyticsProviderUpdate,

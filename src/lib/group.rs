@@ -387,8 +387,8 @@ pub fn group_update(
         id,
         name,
         redirect_on_login,
-        permissions: permissions.into_iter().map(|p| Some(p)).collect(),
-        page_rules: page_rules.into_iter().map(|p| Some(p)).collect(),
+        permissions: permissions.into_iter().map(Some).collect(),
+        page_rules: page_rules.into_iter().map(Some).collect(),
     };
     let response =
         post_graphql::<group_update::GroupUpdate, _>(client, url, variables);

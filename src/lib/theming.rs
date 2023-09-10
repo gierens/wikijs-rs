@@ -248,6 +248,7 @@ pub mod theme_config_update {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn theme_config_update(
     client: &Client,
     url: &str,

@@ -21,11 +21,9 @@ pub enum LoggingError {
 
 impl From<i64> for LoggingError {
     fn from(code: i64) -> Self {
-        match code {
-            _ => LoggingError::UnknownErrorCode {
-                code,
-                message: "Unknown error".to_string(),
-            },
+        LoggingError::UnknownErrorCode {
+            code,
+            message: "Unknown error".to_string(),
         }
     }
 }
@@ -194,7 +192,7 @@ pub fn logger_update(
     loggers: Vec<LoggerInput>,
 ) -> Result<(), LoggingError> {
     let variables = logger_update::Variables {
-        loggers: Some(loggers.into_iter().map(|logger| Some(logger)).collect()),
+        loggers: Some(loggers.into_iter().map(Some).collect()),
     };
     let response =
         post_graphql::<logger_update::LoggerUpdate, _>(client, url, variables);
@@ -212,7 +210,7 @@ pub fn logger_update(
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error(
-                            response_result,
+                                response_result,
                         ));
                     }
                 }

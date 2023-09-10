@@ -1046,7 +1046,7 @@ pub fn authentication_strategy_update(
     strategies: Vec<AuthenticationStrategyInput>,
 ) -> Result<(), UserError> {
     let variables = authentication_strategy_update::Variables {
-        strategies: strategies.into_iter().map(|s| Some(s)).collect(),
+        strategies: strategies.into_iter().map(Some).collect(),
     };
     let response = post_graphql::<
         authentication_strategy_update::AuthenticationStrategyUpdate,
