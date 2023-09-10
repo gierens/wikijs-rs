@@ -214,10 +214,7 @@ pub fn system_flag_list(
     if let Some(data) = response_body.data {
         if let Some(system) = data.system {
             if let Some(flags) = system.flags {
-                return Ok(flags
-                    .into_iter()
-                    .flatten()
-                    .collect::<Vec<_>>());
+                return Ok(flags.into_iter().flatten().collect::<Vec<_>>());
             }
         }
     }
@@ -624,9 +621,7 @@ pub fn telemetry_set(
     url: &str,
     enabled: bool,
 ) -> Result<(), SystemError> {
-    let variables = telemetry_set::Variables {
-        enabled
-    };
+    let variables = telemetry_set::Variables { enabled };
     let response =
         post_graphql::<telemetry_set::TelemetrySet, _>(client, url, variables);
     if response.is_err() {
@@ -873,9 +868,7 @@ pub fn https_redirection_set(
     url: &str,
     enabled: bool,
 ) -> Result<(), SystemError> {
-    let variables = system_https_redirection_set::Variables {
-        enabled
-    };
+    let variables = system_https_redirection_set::Variables { enabled };
     let response = post_graphql::<
         system_https_redirection_set::SystemHttpsRedirectionSet,
         _,

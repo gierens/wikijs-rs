@@ -210,7 +210,7 @@ pub fn logger_update(
                         return Ok(());
                     } else {
                         return Err(classify_response_status_error(
-                                response_result,
+                            response_result,
                         ));
                     }
                 }
