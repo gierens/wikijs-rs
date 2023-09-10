@@ -7,6 +7,7 @@ use libc::{EISDIR, ENOENT, EINVAL, EIO, O_TRUNC};
 use wikijs::page::{Page, PageTreeItem, PageTreeMode};
 use wikijs::{Api, Credentials};
 
+use chrono::DateTime;
 use clap::Parser;
 use std::ffi::OsStr;
 use std::path::PathBuf;

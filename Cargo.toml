@@ -28,7 +28,7 @@ path = "src/cli/main.rs"
 required-features = ["cli"]
 
 [features]
-fuse = ["fuser", "clap", "clap-verbosity-flag", "colored", "log", "stderrlog", "libc"]
+fuse = ["fuser", "clap", "clap-verbosity-flag", "colored", "log", "stderrlog", "libc", "chrono"]
 cli = ["clap", "colored", "tempfile", "tabled"]
 
 [dependencies]
@@ -46,6 +46,7 @@ clap-verbosity-flag = { version = "2.0", optional = true }
 log = { version = "0.4", optional = true }
 stderrlog = { version = "0.5", optional = true }
 libc = { version = "0.2", optional = true }
+chrono = { version = "0.4", optional = true }
 # cli
 tabled = { version = "0.14", optional = true }
 tempfile = { version = "3.8", optional = true }
