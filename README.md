@@ -75,7 +75,7 @@ implemented and what is still to be done.
 - [x] `logger_update`
 
 ### mail
-- [ ] `mail_config_get`
+- [x] `mail_config_get`
 - [ ] `mail_send_test`
 - [ ] `mail_config_update`
 

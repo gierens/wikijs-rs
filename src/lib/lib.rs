@@ -14,7 +14,7 @@ pub mod contribute;
 pub mod group;
 pub mod localization;
 pub mod logging;
-// pub mod mail;
+pub mod mail;
 pub mod page;
 // pub mod search;
 pub mod system;
@@ -1120,6 +1120,13 @@ impl Api {
             &format!("{}/graphql", self.url),
             loggers,
         )
+    }
+
+    // mail functions
+    pub fn mail_config_get(
+        &self,
+    ) -> Result<mail::MailConfig, mail::MailError> {
+        mail::mail_config_get(&self.client, &format!("{}/graphql", self.url))
     }
 
     // system functions
