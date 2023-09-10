@@ -659,6 +659,13 @@ fn main() {
         .verbosity(cli.verbose.log_level_filter())
         .init()
         .unwrap();
+    // set_max_level(cli.verbose.log_level_filter());
+
+    // env_logger::builder()
+    //     .format_timestamp(None)
+    //     .format_module_path(false)
+    //     .filter_level(cli.verbose.log_level_filter())
+    //     .init();
 
     if !cli.mountpoint.exists() || !cli.mountpoint.is_dir() {
         error!(
