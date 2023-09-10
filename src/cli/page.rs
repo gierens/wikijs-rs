@@ -444,6 +444,7 @@ fn page_edit(
     }
     let content = std::fs::read_to_string(file.path())?;
     api.page_update_content(id, content)?;
+    // TODO a generic success print function could be useful
     println!("{}: Page content updated", "success".bold().green());
     Ok(())
 }
