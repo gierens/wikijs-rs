@@ -35,7 +35,7 @@ cli = ["clap", "colored", "tempfile"]
 # lib
 graphql_client = { version = "0.13", features = ["reqwest-blocking"] }
 serde = "1.0"
-reqwest = { version = "0.11", features = ["json", "blocking"] }
+reqwest = { version = "0.11", features = ["json", "blocking", "multipart"] }
 thiserror = "1.0"
 # lib and cli
 tabled = "0.14"
