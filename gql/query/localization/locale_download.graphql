@@ -1,4 +1,4 @@
-mutation LocaleUpdate(
+mutation LocaleDownload(
   $locale: String!
 ) {
   localization {

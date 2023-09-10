@@ -67,7 +67,7 @@ implemented and what is still to be done.
 - [x] `locale_list`
 - [x] `locale_config_get`
 - [x] `translation_list`
-- [ ] `locale_download`
+- [x] `locale_download`
 - [ ] `locale_update`
 
 ### logging

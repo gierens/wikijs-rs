@@ -5,6 +5,7 @@ use thiserror::Error;
 
 use crate::common::{
     classify_response_error, Date, Int, KnownErrorCodes, UnknownError, Boolean,
+    ResponseStatus, classify_response_status_error
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -278,6 +279,88 @@ pub fn translation_list(
                     .into_iter()
                     .flatten()
                     .collect());
+            }
+        }
+    }
+    Err(classify_response_error::<LocaleError>(
+        response_body.errors,
+    ))
+}
+
+pub mod locale_download {
+    use super::*;
+
+    pub struct LocaleDownload;
+
+    pub const OPERATION_NAME: &str = "LocaleDownload";
+    pub const QUERY : & str = "mutation LocaleDownload(\n  $locale: String!\n) {\n  localization {\n    downloadLocale(\n      locale: $locale\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub locale: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub localization: Option<Localization>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Localization {
+        #[serde(rename = "downloadLocale")]
+        pub download_locale: Option<DownloadLocale>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct DownloadLocale {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for LocaleDownload {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn locale_download(
+    client: &Client,
+    url: &str,
+    locale: String,
+) -> Result<(), LocaleError> {
+    let variables = locale_download::Variables {
+        locale,
+    };
+    let response = post_graphql::<locale_download::LocaleDownload, _>(client, url, variables);
+    if response.is_err() {
+        return Err(LocaleError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(localization) = data.localization {
+            if let Some(download_locale) = localization.download_locale {
+                if let Some(response_result) = download_locale.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<LocaleError>(
+                            response_result,
+                        ));
+                    }
+                }
             }
         }
     }

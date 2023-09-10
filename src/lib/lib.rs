@@ -1069,6 +1069,17 @@ impl Api {
         )
     }
 
+    pub fn locale_download(
+        &self,
+        locale: String,
+    ) -> Result<(), localization::LocaleError> {
+        localization::locale_download(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            locale,
+        )
+    }
+
     // logger functions
     pub fn logger_list(
         &self,
