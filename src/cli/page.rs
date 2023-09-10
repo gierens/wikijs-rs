@@ -401,9 +401,11 @@ fn page_update(
         if no_tags {
             Some(Vec::new())
         } else {
-            tags.map(|tags| tags.iter()
-                .map(|s| Some(s.clone()))
-                .collect::<Vec<Option<String>>>())
+            tags.map(|tags| {
+                tags.iter()
+                    .map(|s| Some(s.clone()))
+                    .collect::<Vec<Option<String>>>()
+            })
         },
         title,
     )?;
