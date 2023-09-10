@@ -1130,6 +1130,17 @@ impl Api {
         mail::mail_config_get(&self.client, &format!("{}/graphql", self.url))
     }
 
+    pub fn mail_send_test(
+        &self,
+        recipient_email: String,
+    ) -> Result<(), mail::MailError> {
+        mail::mail_send_test(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            recipient_email,
+        )
+    }
+
     // system functions
     pub fn system_flag_list(
         &self,

@@ -76,7 +76,7 @@ implemented and what is still to be done.
 
 ### mail
 - [x] `mail_config_get`
-- [ ] `mail_send_test`
+- [x] `mail_send_test`
 - [ ] `mail_config_update`
 
 ### navigation

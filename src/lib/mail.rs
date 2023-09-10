@@ -5,6 +5,7 @@ use thiserror::Error;
 
 use crate::common::{
     classify_response_error, Boolean, Int, KnownErrorCodes, UnknownError,
+    ResponseStatus, classify_response_status_error
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -140,6 +141,87 @@ pub fn mail_config_get(
         if let Some(mail) = data.mail {
             if let Some(config) = mail.config {
                 return Ok(config);
+            }
+        }
+    }
+    Err(classify_response_error::<MailError>(response_body.errors))
+}
+
+pub mod mail_send_test {
+    use super::*;
+
+    pub struct MailSendTest;
+
+    pub const OPERATION_NAME: &str = "MailSendTest";
+    pub const QUERY : & str = "mutation MailSendTest(\n  $recipientEmail: String!\n) {\n  mail {\n    sendTest(\n      recipientEmail: $recipientEmail\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "recipientEmail")]
+        pub recipient_email: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub mail: Option<Mail>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Mail {
+        #[serde(rename = "sendTest")]
+        pub send_test: Option<SendTest>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct SendTest {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for MailSendTest {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn mail_send_test(
+    client: &Client,
+    url: &str,
+    recipient_email: String,
+) -> Result<(), MailError> {
+    let variables = mail_send_test::Variables { recipient_email };
+    let response = post_graphql::<mail_send_test::MailSendTest, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(MailError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(mail) = data.mail {
+            if let Some(send_test) = mail.send_test {
+                if let Some(response_result) = send_test.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<MailError>(
+                            response_result,
+                        ));
+                    }
+                }
             }
         }
     }
