@@ -1056,6 +1056,19 @@ impl Api {
         )
     }
 
+    pub fn translation_list(
+        &self,
+        locale: String,
+        namespace: String,
+    ) -> Result<Vec<localization::Translation>, localization::LocaleError> {
+        localization::translation_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            locale,
+            namespace,
+        )
+    }
+
     // logger functions
     pub fn logger_list(
         &self,

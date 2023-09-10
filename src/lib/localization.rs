@@ -84,6 +84,12 @@ pub struct LocaleConfig {
     pub namespaces: Vec<Option<String>>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct Translation {
+    pub key: String,
+    pub value: String,
+}
+
 pub mod locale_list {
     use super::*;
 
@@ -200,6 +206,78 @@ pub fn locale_config_get(
         if let Some(localization) = data.localization {
             if let Some(config) = localization.config {
                 return Ok(config);
+            }
+        }
+    }
+    Err(classify_response_error::<LocaleError>(
+        response_body.errors,
+    ))
+}
+
+pub mod translation_list {
+    use super::*;
+
+    pub struct TranslationList;
+
+    pub const OPERATION_NAME: &str = "TranslationList";
+    pub const QUERY : & str = "query TranslationList(\n  $locale: String!\n  $namespace: String!\n) {\n  localization {\n    translations(\n      locale: $locale\n      namespace: $namespace\n    ) {\n      key\n      value\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub locale: String,
+        pub namespace: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub localization: Option<Localization>,
+    }
+    #[derive(Deserialize)]
+    pub struct Localization {
+        pub translations: Option<Vec<Option<Translation>>>,
+    }
+    
+    impl graphql_client::GraphQLQuery for TranslationList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn translation_list(
+    client: &Client,
+    url: &str,
+    locale: String,
+    namespace: String,
+) -> Result<Vec<Translation>, LocaleError> {
+    let variables = translation_list::Variables {
+        locale,
+        namespace,
+    };
+    let response = post_graphql::<translation_list::TranslationList, _>(client, url, variables);
+    if response.is_err() {
+        return Err(LocaleError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(localization) = data.localization {
+            if let Some(translations) = localization.translations {
+                return Ok(translations
+                    .into_iter()
+                    .flatten()
+                    .collect());
             }
         }
     }

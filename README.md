@@ -66,7 +66,7 @@ implemented and what is still to be done.
 ### localization
 - [x] `locale_list`
 - [x] `locale_config_get`
-- [ ] `translation_list`
+- [x] `translation_list`
 - [ ] `locale_download`
 - [ ] `locale_update`
 
