@@ -27,4 +27,4 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v2
       - name: linting
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --features cli --features fuse -- -D warnings
