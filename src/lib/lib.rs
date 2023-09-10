@@ -162,6 +162,25 @@ impl Api {
     }
 
     // page functions
+
+    /// Get a page by its id.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page to get.
+    ///
+    /// # Returns
+    /// A Result containing either the page or a page error.
+    ///
+    /// # Example
+    /// ```
+    /// use wikijs::{Api, Credentials};
+    ///
+    /// let api = Api::new(
+    ///     "http://localhost:3000".to_string(),
+    ///     Credentials::Key("my-api-key".to_string()),
+    /// );
+    /// println!("{:?}", api.page_get(1).unwrap());
+    /// ```
     pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)
     }
