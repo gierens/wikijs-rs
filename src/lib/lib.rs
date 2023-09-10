@@ -161,7 +161,7 @@ impl Api {
     /// A Result containing either the page or a page error.
     ///
     /// # Example
-    /// ```
+    /// ```no_run
     /// use wikijs::{Api, Credentials};
     ///
     /// let api = Api::new(
