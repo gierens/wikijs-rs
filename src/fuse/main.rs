@@ -1,7 +1,7 @@
 use fuser::MountOption::FSName;
 use fuser::{
     mount2, FileAttr, Filesystem, ReplyAttr, ReplyData, ReplyDirectory,
-    ReplyEntry, ReplyOpen, ReplyWrite, Request, TimeOrNow,
+    ReplyEntry, ReplyWrite, Request, TimeOrNow,
 };
 use libc::{EINVAL, EIO, EISDIR, ENOENT, O_TRUNC};
 use wikijs::page::{Page, PageTreeItem, PageTreeMode};
@@ -199,7 +199,7 @@ impl Filesystem for Fs {
         size: Option<u64>,
         atime: Option<TimeOrNow>,
         mtime: Option<TimeOrNow>,
-        ctime: Option<SystemTime>,
+        _ctime: Option<SystemTime>,
         fh: Option<u64>,
         crtime: Option<SystemTime>,
         chgtime: Option<SystemTime>,
@@ -564,7 +564,7 @@ impl Filesystem for Fs {
         let mut content = page.content[..offset as usize].to_string()
             + &String::from_utf8_lossy(data);
         if end < page.content.len() {
-            content += &page.content[end..].to_string();
+            content += &page.content[end..];
         }
         debug!("write: inode {} from {} to {}", ino, offset, end);
 
@@ -624,7 +624,7 @@ impl Filesystem for Fs {
         rdev: u32,
         reply: ReplyEntry,
     ) {
-        let start = SystemTime::now();
+        let _start = SystemTime::now();
         info!(
             "mknod(parent={}, name={:?}, mode={}, umask={}, rdev={})",
             parent, name, mode, umask, rdev

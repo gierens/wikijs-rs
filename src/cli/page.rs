@@ -320,16 +320,17 @@ fn page_list(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
 
 fn page_delete(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
     api.page_delete(id)?;
-    println!("{}: {}", "success".bold().green(), "Page deleted");
+    println!("{}: Page deleted", "success".bold().green());
     Ok(())
 }
 
 fn page_render(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
     api.page_render(id)?;
-    println!("{}: {}", "success".bold().green(), "Page rendered");
+    println!("{}: Page rendered", "success".bold().green());
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn page_create(
     api: wikijs::Api,
     content: String,
@@ -359,12 +360,13 @@ fn page_create(
         None,
         None,
         tags.iter().map(|s| Some(s.clone())).collect(),
-        title.unwrap_or(path.split("/").last().unwrap().to_string()),
+        title.unwrap_or(path.split('/').last().unwrap().to_string()),
     )?;
-    println!("{}: {}", "success".bold().green(), "Page created");
+    println!("{}: Page created", "success".bold().green());
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn page_update(
     api: wikijs::Api,
     id: i64,
@@ -399,18 +401,13 @@ fn page_update(
         if no_tags {
             Some(Vec::new())
         } else {
-            match tags {
-                Some(tags) => Some(
-                    tags.iter()
-                        .map(|s| Some(s.clone()))
-                        .collect::<Vec<Option<String>>>(),
-                ),
-                None => None,
-            }
+            tags.map(|tags| tags.iter()
+                .map(|s| Some(s.clone()))
+                .collect::<Vec<Option<String>>>())
         },
         title,
     )?;
-    println!("{}: {}", "success".bold().green(), "Page updated");
+    println!("{}: Page updated", "success".bold().green());
     Ok(())
 }
 
@@ -420,7 +417,7 @@ fn page_update_content(
     content: String,
 ) -> Result<(), Box<dyn Error>> {
     api.page_update_content(id, content)?;
-    println!("{}: {}", "success".bold().green(), "Page content updated");
+    println!("{}: Page content updated", "success".bold().green());
     Ok(())
 }
 
@@ -447,6 +444,6 @@ fn page_edit(
     }
     let content = std::fs::read_to_string(file.path())?;
     api.page_update_content(id, content)?;
-    println!("{}: {}", "success".bold().green(), "Page content updated");
+    println!("{}: Page content updated", "success".bold().green());
     Ok(())
 }

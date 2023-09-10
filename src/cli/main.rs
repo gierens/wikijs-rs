@@ -132,7 +132,7 @@ fn main() {
     } {
         Ok(_) => {}
         Err(e) => {
-            eprintln!("{}: {}", "error".bold().red(), e.to_string());
+            eprintln!("{}: {}", "error".bold().red(), e);
             std::process::exit(1);
         }
     }

@@ -136,7 +136,7 @@ fn asset_download(
     let asset = api.asset_download(source.clone())?;
     let mut file = File::create(destination.unwrap_or(source)).unwrap();
     file.write_all(&asset).unwrap();
-    println!("{}: {}", "success".bold().green(), "asset downloaded");
+    println!("{}: asset downloaded", "success".bold().green());
     Ok(())
 }
 
@@ -148,6 +148,6 @@ fn asset_upload(
 ) -> Result<(), Box<dyn Error>> {
     let data = std::fs::read(source)?;
     api.asset_upload(folder, name, data)?;
-    println!("{}: {}", "success".bold().green(), "asset uploaded");
+    println!("{}: asset uploaded", "success".bold().green());
     Ok(())
 }
