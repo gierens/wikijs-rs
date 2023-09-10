@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Boolean, Int, KnownErrorCodes, UnknownError,
-    ResponseStatus, classify_response_status_error
+    classify_response_error, classify_response_status_error, Boolean, Int,
+    KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -201,9 +201,8 @@ pub fn mail_send_test(
     recipient_email: String,
 ) -> Result<(), MailError> {
     let variables = mail_send_test::Variables { recipient_email };
-    let response = post_graphql::<mail_send_test::MailSendTest, _>(
-        client, url, variables,
-    );
+    let response =
+        post_graphql::<mail_send_test::MailSendTest, _>(client, url, variables);
     if response.is_err() {
         return Err(MailError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
@@ -217,9 +216,138 @@ pub fn mail_send_test(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<MailError>(
-                            response_result,
-                        ));
+                        return Err(
+                            classify_response_status_error::<MailError>(
+                                response_result,
+                            ),
+                        );
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<MailError>(response_body.errors))
+}
+
+pub mod mail_config_update {
+    use super::*;
+
+    pub struct MailConfigUpdate;
+
+    pub const OPERATION_NAME: &str = "MailConfigUpdate";
+    pub const QUERY : & str = "mutation MailConfigUpdate(\n  $senderName: String!\n  $senderEmail: String!\n  $host: String!\n  $port: Int!\n  $name: String!\n  $secure: Boolean!\n  $verifySSL: Boolean!\n  $user: String!\n  $pass: String!\n  $useDKIM: Boolean!\n  $dkimDomainName: String!\n  $dkimKeySelector: String!\n  $dkimPrivateKey: String!\n) {\n  mail {\n    updateConfig(\n      senderName: $senderName\n      senderEmail: $senderEmail\n      host: $host\n      port: $port\n      name: $name\n      secure: $secure\n      verifySSL: $verifySSL\n      user: $user\n      pass: $pass\n      useDKIM: $useDKIM\n      dkimDomainName: $dkimDomainName\n      dkimKeySelector: $dkimKeySelector\n      dkimPrivateKey: $dkimPrivateKey\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "senderName")]
+        pub sender_name: String,
+        #[serde(rename = "senderEmail")]
+        pub sender_email: String,
+        pub host: String,
+        pub port: Int,
+        pub name: String,
+        pub secure: Boolean,
+        #[serde(rename = "verifySSL")]
+        pub verify_ssl: Boolean,
+        pub user: String,
+        pub pass: String,
+        #[serde(rename = "useDKIM")]
+        pub use_dkim: Boolean,
+        #[serde(rename = "dkimDomainName")]
+        pub dkim_domain_name: String,
+        #[serde(rename = "dkimKeySelector")]
+        pub dkim_key_selector: String,
+        #[serde(rename = "dkimPrivateKey")]
+        pub dkim_private_key: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub mail: Option<Mail>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Mail {
+        #[serde(rename = "updateConfig")]
+        pub update_config: Option<UpdateConfig>,
+    }
+    #[derive(Deserialize)]
+    pub struct UpdateConfig {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for MailConfigUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn mail_config_update(
+    client: &Client,
+    url: &str,
+    sender_name: String,
+    sender_email: String,
+    host: String,
+    port: Int,
+    name: String,
+    secure: Boolean,
+    verify_ssl: Boolean,
+    user: String,
+    pass: String,
+    use_dkim: Boolean,
+    dkim_domain_name: String,
+    dkim_key_selector: String,
+    dkim_private_key: String,
+) -> Result<(), MailError> {
+    let variables = mail_config_update::Variables {
+        sender_name,
+        sender_email,
+        host,
+        port,
+        name,
+        secure,
+        verify_ssl,
+        user,
+        pass,
+        use_dkim,
+        dkim_domain_name,
+        dkim_key_selector,
+        dkim_private_key,
+    };
+    let response = post_graphql::<mail_config_update::MailConfigUpdate, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(MailError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(mail) = data.mail {
+            if let Some(update_config) = mail.update_config {
+                if let Some(response_result) = update_config.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(
+                            classify_response_status_error::<MailError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }

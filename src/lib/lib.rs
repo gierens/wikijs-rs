@@ -1141,6 +1141,42 @@ impl Api {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
+    pub fn mail_config_update(
+        &self,
+        sender_name: String,
+        sender_email: String,
+        host: String,
+        port: i64,
+        name: String,
+        secure: bool,
+        verify_ssl: bool,
+        user: String,
+        pass: String,
+        use_dkim: bool,
+        dkim_domain_name: String,
+        dkim_key_selector: String,
+        dkim_private_key: String,
+    ) -> Result<(), mail::MailError> {
+        mail::mail_config_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            sender_name,
+            sender_email,
+            host,
+            port,
+            name,
+            secure,
+            verify_ssl,
+            user,
+            pass,
+            use_dkim,
+            dkim_domain_name,
+            dkim_key_selector,
+            dkim_private_key,
+        )
+    }
+
     // system functions
     pub fn system_flag_list(
         &self,
