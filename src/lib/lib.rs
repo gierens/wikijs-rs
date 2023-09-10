@@ -1047,6 +1047,15 @@ impl Api {
         )
     }
 
+    pub fn locale_config_get(
+        &self,
+    ) -> Result<localization::LocaleConfig, localization::LocaleError> {
+        localization::locale_config_get(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // logger functions
     pub fn logger_list(
         &self,

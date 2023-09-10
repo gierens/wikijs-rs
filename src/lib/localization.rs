@@ -75,6 +75,15 @@ pub struct Locale {
     pub updated_at: Date,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct LocaleConfig {
+    pub locale: String,
+    #[serde(rename = "autoUpdate")]
+    pub auto_update: Boolean,
+    pub namespacing: Boolean,
+    pub namespaces: Vec<Option<String>>,
+}
+
 pub mod locale_list {
     use super::*;
 
@@ -130,6 +139,67 @@ pub fn locale_list(
                     .into_iter()
                     .flatten()
                     .collect());
+            }
+        }
+    }
+    Err(classify_response_error::<LocaleError>(
+        response_body.errors,
+    ))
+}
+
+// TODO the corresponding query file should be renamed as well
+pub mod locale_config_get {
+    use super::*;
+
+    pub struct LocaleConfigGet;
+
+    pub const OPERATION_NAME: &str = "LocaleConfigGet";
+    pub const QUERY : & str = "query LocaleConfigGet {\n  localization {\n    config {\n      locale\n      autoUpdate\n      namespacing\n      namespaces\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub localization: Option<Localization>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Localization {
+        pub config: Option<LocaleConfig>,
+    }
+
+    impl graphql_client::GraphQLQuery for LocaleConfigGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn locale_config_get(
+    client: &Client,
+    url: &str,
+) -> Result<LocaleConfig, LocaleError> {
+    let variables = locale_config_get::Variables {};
+    let response = post_graphql::<locale_config_get::LocaleConfigGet, _>(client, url, variables);
+    if response.is_err() {
+        return Err(LocaleError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(localization) = data.localization {
+            if let Some(config) = localization.config {
+                return Ok(config);
             }
         }
     }
