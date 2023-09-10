@@ -1,9 +1,9 @@
 use fuser::MountOption::FSName;
 use fuser::{
     mount2, FileAttr, Filesystem, ReplyAttr, ReplyData, ReplyDirectory,
-    ReplyEntry, ReplyWrite, ReplyOpen, Request, TimeOrNow
+    ReplyEntry, ReplyOpen, ReplyWrite, Request, TimeOrNow,
 };
-use libc::{EISDIR, ENOENT, EINVAL, EIO, O_TRUNC};
+use libc::{EINVAL, EIO, EISDIR, ENOENT, O_TRUNC};
 use wikijs::page::{Page, PageTreeItem, PageTreeMode};
 use wikijs::{Api, Credentials};
 
@@ -13,7 +13,6 @@ use std::ffi::OsStr;
 use std::path::PathBuf;
 use std::process::exit;
 use std::time::SystemTime;
-use chrono::DateTime;
 
 #[allow(unused_imports)]
 use colored::Colorize;
@@ -60,7 +59,7 @@ impl Into<FileAttr> for Inode {
                     blksize: 0,
                     flags: 0,
                 }
-            },
+            }
             Inode::Directory(page_tree) => {
                 let ino = if !page_tree.is_empty() {
                     if let Some(id) = page_tree[0].parent {
@@ -115,10 +114,7 @@ struct Fs {
 
 impl Fs {
     pub fn new(api: Api, locale: String) -> Self {
-        Self { 
-            api,
-            locale,
-        }
+        Self { api, locale }
     }
 
     fn get_inode(&self, ino: u64) -> Option<Inode> {
@@ -216,8 +212,18 @@ impl Filesystem for Fs {
             "setattr(ino={}, mode={:?}, uid={:?}, gid={:?}, size={:?}, \
               atime={:?}, mtime={:?}, fh={:?}, crtime={:?}, chgtime={:?}, \
               bkuptime={:?}, flags={:?})",
-            ino, mode, uid, gid, size, atime, mtime, fh, crtime, chgtime,
-            bkuptime, flags
+            ino,
+            mode,
+            uid,
+            gid,
+            size,
+            atime,
+            mtime,
+            fh,
+            crtime,
+            chgtime,
+            bkuptime,
+            flags
         );
 
         let inode = match self.get_inode(ino) {
@@ -237,7 +243,7 @@ impl Filesystem for Fs {
                 return;
             }
         };
-        
+
         if let Some(size) = size {
             let mut content = page.content.clone();
             if size < content.len() as u64 {
@@ -256,8 +262,8 @@ impl Filesystem for Fs {
                     };
                     reply.attr(
                         &SystemTime::now().duration_since(start).unwrap(),
-                        &attr
-                        );
+                        &attr,
+                    );
                     return;
                 }
                 Err(_) => {
@@ -269,10 +275,7 @@ impl Filesystem for Fs {
         }
 
         let attr = Inode::Page(page).into();
-        reply.attr(
-            &SystemTime::now().duration_since(start).unwrap(),
-            &attr
-            );
+        reply.attr(&SystemTime::now().duration_since(start).unwrap(), &attr);
     }
 
     /// Read entries of a directory.
@@ -511,7 +514,7 @@ impl Filesystem for Fs {
         write_flags: u32,
         flags: i32,
         lock_owner: Option<u64>,
-        reply: ReplyWrite
+        reply: ReplyWrite,
     ) {
         info!(
             "write(ino={}, fh={}, offset={}, data={:?}, write_flags={:?}, \
@@ -547,8 +550,12 @@ impl Filesystem for Fs {
 
         let end = offset as usize + data.len();
         if end < page.content.len() && write_flags as i32 == O_TRUNC {
-            debug!("write: truncating inode {} from {} to {}",
-                ino, page.content.len(), end);
+            debug!(
+                "write: truncating inode {} from {} to {}",
+                ino,
+                page.content.len(),
+                end
+            );
             page.content.truncate(end);
         }
 
@@ -615,11 +622,13 @@ impl Filesystem for Fs {
         mode: u32,
         umask: u32,
         rdev: u32,
-        reply: ReplyEntry
+        reply: ReplyEntry,
     ) {
         let start = SystemTime::now();
-        info!("mknod(parent={}, name={:?}, mode={}, umask={}, rdev={})",
-                 parent, name, mode, umask, rdev);
+        info!(
+            "mknod(parent={}, name={:?}, mode={}, umask={}, rdev={})",
+            parent, name, mode, umask, rdev
+        );
         reply.error(EINVAL);
     }
 }
