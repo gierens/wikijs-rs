@@ -1181,8 +1181,7 @@ impl Api {
     // navigation functions
     pub fn navigation_config_get(
         &self,
-    ) -> Result<navigation::NavigationConfig, navigation::NavigationError>
-    {
+    ) -> Result<navigation::NavigationConfig, navigation::NavigationError> {
         navigation::navigation_config_get(
             &self.client,
             &format!("{}/graphql", self.url),

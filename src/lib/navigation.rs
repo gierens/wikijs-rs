@@ -87,7 +87,9 @@ pub mod navigation_config_get {
         type Variables = Variables;
         type ResponseData = ResponseData;
 
-        fn build_query(variables: Self::Variables) -> graphql_client::QueryBody<Self::Variables> {
+        fn build_query(
+            variables: Self::Variables,
+        ) -> graphql_client::QueryBody<Self::Variables> {
             graphql_client::QueryBody {
                 variables,
                 query: QUERY,
@@ -103,9 +105,7 @@ pub fn navigation_config_get(
 ) -> Result<NavigationConfig, NavigationError> {
     let variables = navigation_config_get::Variables {};
     let response = post_graphql::<navigation_config_get::NavigationConfigGet, _>(
-        client,
-        url,
-        variables,
+        client, url, variables,
     );
     if response.is_err() {
         return Err(NavigationError::UnknownErrorMessage {
@@ -118,5 +118,7 @@ pub fn navigation_config_get(
             return Ok(navigation.config);
         }
     }
-    Err(classify_response_error::<NavigationError>(response_body.errors))
+    Err(classify_response_error::<NavigationError>(
+        response_body.errors,
+    ))
 }
