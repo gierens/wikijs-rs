@@ -82,7 +82,7 @@ implemented and what is still to be done.
 ### navigation
 - [x] `navigation_tree_get`
 - [x] `navigation_config_get`
-- [ ] `navigation_tree_update`
+- [x] `navigation_tree_update`
 - [x] `navigation_config_update`
 
 ### page

@@ -1,5 +1,5 @@
 mutation NavigationTreeUpdate (
-  $tree: [NavigationItemInput]!
+  $tree: [NavigationTreeInput]!
 ) { 
   navigation {
     updateTree(tree: $tree) {

@@ -1209,6 +1209,17 @@ impl Api {
         )
     }
 
+    pub fn navigation_tree_update(
+        &self,
+        tree: Vec<navigation::NavigationTreeInput>,
+    ) -> Result<(), navigation::NavigationError> {
+        navigation::navigation_tree_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            tree,
+        )
+    }
+
     // system functions
     pub fn system_flag_list(
         &self,

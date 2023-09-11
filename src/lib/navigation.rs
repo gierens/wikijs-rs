@@ -83,6 +83,27 @@ pub struct NavigationTreeItem {
     pub visibility_groups: Option<Vec<Option<Int>>>,
 }
 
+#[derive(Serialize, Debug)]
+pub struct NavigationTreeInput {
+    pub locale: String,
+    pub items: Vec<Option<NavigationItemInput>>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct NavigationItemInput {
+    pub id: String,
+    pub kind: String,
+    pub label: Option<String>,
+    pub icon: Option<String>,
+    #[serde(rename = "targetType")]
+    pub target_type: Option<String>,
+    pub target: Option<String>,
+    #[serde(rename = "visibilityMode")]
+    pub visibility_mode: Option<String>,
+    #[serde(rename = "visibilityGroups")]
+    pub visibility_groups: Option<Vec<Option<Int>>>,
+}
+
 pub mod navigation_config_get {
     use super::*;
 
@@ -272,6 +293,91 @@ pub fn navigation_config_update(
         if let Some(navigation) = data.navigation {
             if let Some(update_config) = navigation.update_config {
                 if let Some(response_result) = update_config.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            NavigationError,
+                        >(response_result));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<NavigationError>(
+        response_body.errors,
+    ))
+}
+
+pub mod navigation_tree_update {
+    use super::*;
+
+    pub struct NavigationTreeUpdate;
+
+    pub const OPERATION_NAME: &str = "NavigationTreeUpdate";
+    pub const QUERY : & str = "mutation NavigationTreeUpdate (\n  $tree: [NavigationTreeInput]!\n) { \n  navigation {\n    updateTree(tree: $tree) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub tree: Vec<Option<NavigationTreeInput>>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub navigation: Option<Navigation>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Navigation {
+        #[serde(rename = "updateTree")]
+        pub update_tree: Option<UpdateTree>,
+    }
+    #[derive(Deserialize)]
+    pub struct UpdateTree {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for NavigationTreeUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+
+        fn build_query(
+            variables: Self::Variables,
+        ) -> graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn navigation_tree_update(
+    client: &Client,
+    url: &str,
+    tree: Vec<NavigationTreeInput>,
+) -> Result<(), NavigationError> {
+    let variables = navigation_tree_update::Variables {
+        tree: tree.into_iter().map(Some).collect(),
+    };
+    let response = post_graphql::<
+        navigation_tree_update::NavigationTreeUpdate,
+        _,
+    >(client, url, variables);
+    if response.is_err() {
+        return Err(NavigationError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(navigation) = data.navigation {
+            if let Some(update_tree) = navigation.update_tree {
+                if let Some(response_result) = update_tree.response_result {
                     if response_result.succeeded {
                         return Ok(());
                     } else {
