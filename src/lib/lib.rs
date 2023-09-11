@@ -15,6 +15,7 @@ pub mod group;
 pub mod localization;
 pub mod logging;
 pub mod mail;
+pub mod navigation;
 pub mod page;
 // pub mod search;
 pub mod system;
