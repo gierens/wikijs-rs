@@ -1188,6 +1188,16 @@ impl Api {
         )
     }
 
+    pub fn navigation_tree_get(
+        &self,
+    ) -> Result<Vec<navigation::NavigationTree>, navigation::NavigationError>
+    {
+        navigation::navigation_tree_get(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
+
     // system functions
     pub fn system_flag_list(
         &self,

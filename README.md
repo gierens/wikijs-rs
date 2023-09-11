@@ -80,7 +80,7 @@ implemented and what is still to be done.
 - [x] `mail_config_update`
 
 ### navigation
-- [ ] `navigation_tree_get`
+- [x] `navigation_tree_get`
 - [x] `navigation_config_get`
 - [ ] `navigation_tree_update`
 - [ ] `navigation_config_update`
