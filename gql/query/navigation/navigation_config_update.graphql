@@ -2,7 +2,7 @@ mutation NavigationConfigUpdate (
   $mode: NavigationMode!
 ) { 
   navigation {
-    updateConfig(config: $config) {
+    updateConfig(mode: $mode) {
       responseResult {
         succeeded
         errorCode

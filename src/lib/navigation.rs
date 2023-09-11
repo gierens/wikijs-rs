@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Int, KnownErrorCodes, UnknownError,
+    classify_response_error, classify_response_status_error, Int,
+    KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
 #[derive(Error, Debug, PartialEq)]
@@ -48,7 +49,7 @@ impl KnownErrorCodes for NavigationError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub enum NavigationMode {
     NONE,
     TREE,
@@ -197,6 +198,89 @@ pub fn navigation_tree_get(
     if let Some(data) = response_body.data {
         if let Some(navigation) = data.navigation {
             return Ok(navigation.tree.into_iter().flatten().collect());
+        }
+    }
+    Err(classify_response_error::<NavigationError>(
+        response_body.errors,
+    ))
+}
+
+pub mod navigation_config_update {
+    use super::*;
+
+    pub struct NavigationConfigUpdate;
+
+    pub const OPERATION_NAME: &str = "NavigationConfigUpdate";
+    pub const QUERY : & str = "mutation NavigationConfigUpdate (\n  $mode: NavigationMode!\n) { \n  navigation {\n    updateConfig(mode: $mode) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub mode: NavigationMode,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub navigation: Option<Navigation>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Navigation {
+        #[serde(rename = "updateConfig")]
+        pub update_config: Option<UpdateConfig>,
+    }
+    #[derive(Deserialize)]
+    pub struct UpdateConfig {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for NavigationConfigUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+
+        fn build_query(
+            variables: Self::Variables,
+        ) -> graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn navigation_config_update(
+    client: &Client,
+    url: &str,
+    mode: NavigationMode,
+) -> Result<(), NavigationError> {
+    let variables = navigation_config_update::Variables { mode };
+    let response = post_graphql::<
+        navigation_config_update::NavigationConfigUpdate,
+        _,
+    >(client, url, variables);
+    if response.is_err() {
+        return Err(NavigationError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(navigation) = data.navigation {
+            if let Some(update_config) = navigation.update_config {
+                if let Some(response_result) = update_config.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            NavigationError,
+                        >(response_result));
+                    }
+                }
+            }
         }
     }
     Err(classify_response_error::<NavigationError>(

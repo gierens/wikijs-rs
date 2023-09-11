@@ -83,7 +83,7 @@ implemented and what is still to be done.
 - [x] `navigation_tree_get`
 - [x] `navigation_config_get`
 - [ ] `navigation_tree_update`
-- [ ] `navigation_config_update`
+- [x] `navigation_config_update`
 
 ### page
 - [x] `page_history_get`

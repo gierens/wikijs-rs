@@ -1198,6 +1198,17 @@ impl Api {
         )
     }
 
+    pub fn navigation_config_update(
+        &self,
+        mode: navigation::NavigationMode,
+    ) -> Result<(), navigation::NavigationError> {
+        navigation::navigation_config_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            mode,
+        )
+    }
+
     // system functions
     pub fn system_flag_list(
         &self,
