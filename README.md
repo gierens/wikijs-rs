@@ -81,7 +81,7 @@ implemented and what is still to be done.
 
 ### navigation
 - [ ] `navigation_tree_get`
-- [ ] `navigation_config_get`
+- [x] `navigation_config_get`
 - [ ] `navigation_tree_update`
 - [ ] `navigation_config_update`
 

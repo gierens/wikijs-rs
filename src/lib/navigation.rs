@@ -48,3 +48,75 @@ impl KnownErrorCodes for NavigationError {
         false
     }
 }
+
+#[derive(Deserialize, Debug)]
+pub enum NavigationMode {
+    NONE,
+    TREE,
+    MIXED,
+    STATIC,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct NavigationConfig {
+    pub mode: NavigationMode,
+}
+
+pub mod navigation_config_get {
+    use super::*;
+
+    pub struct NavigationConfigGet;
+
+    pub const OPERATION_NAME: &str = "NavigationConfigGet";
+    pub const QUERY : & str = "query NavigationConfigGet {\n  navigation {\n    config {\n      mode\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub navigation: Option<Navigation>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Navigation {
+        pub config: NavigationConfig,
+    }
+
+    impl graphql_client::GraphQLQuery for NavigationConfigGet {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+
+        fn build_query(variables: Self::Variables) -> graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn navigation_config_get(
+    client: &Client,
+    url: &str,
+) -> Result<NavigationConfig, NavigationError> {
+    let variables = navigation_config_get::Variables {};
+    let response = post_graphql::<navigation_config_get::NavigationConfigGet, _>(
+        client,
+        url,
+        variables,
+    );
+    if response.is_err() {
+        return Err(NavigationError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(navigation) = data.navigation {
+            return Ok(navigation.config);
+        }
+    }
+    Err(classify_response_error::<NavigationError>(response_body.errors))
+}
