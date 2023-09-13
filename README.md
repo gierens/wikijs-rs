@@ -113,7 +113,7 @@ implemented and what is still to be done.
 
 ### rendering
 - [x] `renderer_list`
-- [ ] `renderer_update`
+- [x] `renderer_update`
 
 ### search
 - [ ] `search_engine_list`
