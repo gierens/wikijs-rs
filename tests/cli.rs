@@ -1,7 +1,6 @@
 #[test]
 fn cli() {
-    trycmd::TestCases::new()
-        .case("tests/cli/*.toml");
+    trycmd::TestCases::new().case("tests/cli/*.toml");
 }
 
 // add more tests with preperation code here and put them in subfolder
