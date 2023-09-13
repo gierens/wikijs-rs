@@ -1,0 +1,6 @@
+error: 'wikijs-cli' requires a subcommand but one was not provided
+  [subcommands: asset, asset-folder, page, contributor, analytics-provider, comment, user, group, locale, logger, system-flag, theme, help]
+
+Usage: wikijs-cli --url <URL> --key <KEY> <COMMAND>
+
+For more information, try '--help'.

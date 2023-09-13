@@ -1,0 +1,7 @@
+bin.name = "wikijs-cli"
+args = ["-h"]
+status.code = 0
+
+[env.add]
+WIKI_JS_BASE_URL = "http://localhost:3000"
+WIKI_JS_API_KEY = "1234567890"

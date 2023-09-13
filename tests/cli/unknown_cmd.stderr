@@ -1,0 +1,5 @@
+error: unrecognized subcommand 'test'
+
+Usage: wikijs-cli --url <URL> --key <KEY> <COMMAND>
+
+For more information, try '--help'.

@@ -1,0 +1,24 @@
+Command line client for Wiki.js
+
+Usage: wikijs-cli --url <URL> --key <KEY> <COMMAND>
+
+Commands:
+  asset               Asset commands
+  asset-folder        Asset folder commands
+  page                Page commands
+  contributor         Contributor commands
+  analytics-provider  Analytics provider commands
+  comment             Comment commands
+  user                User commands
+  group               Group commands
+  locale              Locale commands
+  logger              Logger commands
+  system-flag         System flag commands
+  theme               Theme commands
+  help                Print this message or the help of the given subcommand(s)
+
+Options:
+  -u, --url <URL>  Wiki.js base URL [env: WIKI_JS_BASE_URL=http://localhost:3000]
+  -k, --key <KEY>  Wiki.js API key [env: WIKI_JS_API_KEY=1234567890]
+  -h, --help       Print help
+  -V, --version    Print version
