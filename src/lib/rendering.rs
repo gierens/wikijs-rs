@@ -185,3 +185,41 @@ pub mod renderer_update {
         }
     }
 }
+
+pub fn renderer_update(
+    client: &Client,
+    url: &str,
+    renderers: Vec<RendererInput>,
+) -> Result<(), RenderingError> {
+    let variables = renderer_update::Variables {
+        renderers: Some(renderers.into_iter().map(Some).collect()),
+    };
+    let response =
+        post_graphql::<renderer_update::RendererUpdate, _>(client, url, variables);
+    if response.is_err() {
+        return Err(RenderingError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(rendering) = data.rendering {
+            if let Some(update_renderers) = rendering.update_renderers {
+                if let Some(response_result) = update_renderers.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(
+                            classify_response_status_error::<RenderingError,>(
+                                response_result,
+                            ),
+                        );
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<RenderingError>(
+        response_body.errors,
+    ))
+}

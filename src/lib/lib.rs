@@ -1373,4 +1373,15 @@ impl Api {
             order_by,
         )
     }
+
+    pub fn renderer_update(
+        &self,
+        renderers: Vec<rendering::RendererInput>,
+    ) -> Result<(), rendering::RenderingError> {
+        rendering::renderer_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            renderers,
+        )
+    }
 }
