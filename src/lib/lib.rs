@@ -1371,6 +1371,6 @@ impl Api {
             &format!("{}/graphql", self.url),
             filter,
             order_by,
-            )
+        )
     }
 }
