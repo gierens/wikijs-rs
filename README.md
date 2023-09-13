@@ -112,7 +112,7 @@ implemented and what is still to be done.
 - [x] `page_purge_history`
 
 ### rendering
-- [ ] `renderer_list`
+- [x] `renderer_list`
 - [ ] `renderer_update`
 
 ### search

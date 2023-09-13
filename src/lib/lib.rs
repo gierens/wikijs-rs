@@ -1359,4 +1359,18 @@ impl Api {
             inject_body,
         )
     }
+
+    // rendering functions
+    pub fn renderer_list(
+        &self,
+        filter: Option<String>,
+        order_by: Option<String>,
+    ) -> Result<Vec<rendering::Renderer>, rendering::RenderingError> {
+        rendering::renderer_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            filter,
+            order_by,
+            )
+    }
 }
