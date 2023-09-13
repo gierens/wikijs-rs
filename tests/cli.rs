@@ -1,4 +1,5 @@
 #[test]
+#[cfg(feature = "cli")]
 fn cli() {
     trycmd::TestCases::new().case("tests/cli/*.toml");
 }
