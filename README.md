@@ -165,3 +165,7 @@ implemented and what is still to be done.
 - [x] `user_profile_update`
 - [x] `user_password_change`
 - [x] `user_password_reset`
+
+## TODO
+- trycmd and assert_cmd for cli testing
+- trycmd, assert_cmd aaand assert_fs for fuse testing
