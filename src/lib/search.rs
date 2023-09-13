@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Date, Int, KnownErrorCodes, UnknownError,
+    classify_response_error, Boolean, Date, Int, KeyValuePair,
+    KeyValuePairInput, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -53,5 +54,160 @@ impl KnownErrorCodes for SearchError {
 
     fn is_known_error_code(code: i64) -> bool {
         (4001..=4002).contains(&code)
+    }
+}
+
+#[derive(Deserialize)]
+pub struct SearchEngine {
+    #[serde(rename = "isEnabled")]
+    pub is_enabled: Boolean,
+    pub key: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub logo: Option<String>,
+    pub website: Option<String>,
+    #[serde(rename = "isAvailable")]
+    pub is_available: Option<Boolean>,
+    pub config: Option<Vec<Option<KeyValuePair>>>,
+}
+
+#[derive(Serialize)]
+pub struct SearchEngineInput {
+    #[serde(rename = "isEnabled")]
+    pub is_enabled: Boolean,
+    pub key: String,
+    pub config: Option<Vec<Option<KeyValuePairInput>>>,
+}
+
+pub mod search_engine_list {
+    use super::*;
+
+    pub struct SearchEngineList;
+
+    pub const OPERATION_NAME: &str = "SearchEngineList";
+    pub const QUERY : & str = "query SearchEngineList($filter: String, $orderBy: String) {\n  search {\n    searchEngines(filter: $filter, orderBy: $orderBy) {\n      isEnabled\n      key\n      title\n      description\n      logo\n      website\n      isAvailable\n      config {\n        key\n        value\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub filter: Option<String>,
+        #[serde(rename = "orderBy")]
+        pub order_by: Option<String>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub search: Option<SearchEngineListSearch>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct SearchEngineListSearch {
+        #[serde(rename = "searchEngines")]
+        pub search_engines: Option<Vec<Option<SearchEngine>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for SearchEngineList {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub mod search_engine_index_rebuild {
+    use super::*;
+
+    pub struct SearchEngineIndexRebuild;
+
+    pub const OPERATION_NAME: &str = "SearchEngineIndexRebuild";
+    pub const QUERY : & str = "mutation SearchEngineIndexRebuild {\n  search {\n    rebuildIndex {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub search: Option<Search>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Search {
+        #[serde(rename = "rebuildIndex")]
+        pub rebuild_index: Option<RebuildIndex>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct RebuildIndex {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for SearchEngineIndexRebuild {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub mod search_engine_update {
+    use super::*;
+
+    pub struct SearchEngineUpdate;
+
+    pub const OPERATION_NAME: &str = "SearchEngineUpdate";
+    pub const QUERY : & str = "mutation SearchEngineUpdate($engines: [SearchEngineInput]) {\n  search {\n    updateSearchEngines(engines: $engines) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub engines: Option<Vec<Option<SearchEngineInput>>>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub search: Option<Search>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Search {
+        #[serde(rename = "updateSearchEngines")]
+        pub update_search_engines: Option<UpdateSearchEngines>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct UpdateSearchEngines {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for SearchEngineUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
     }
 }
