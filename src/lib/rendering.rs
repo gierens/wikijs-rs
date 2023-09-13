@@ -141,3 +141,47 @@ pub fn renderer_list(
         response_body.errors,
     ))
 }
+
+pub mod renderer_update {
+    use super::*;
+
+    pub struct RendererUpdate;
+
+    pub const OPERATION_NAME: &str = "RendererUpdate";
+    pub const QUERY : & str = "mutation RendererUpdate($renderers: [RendererInput]) {\n  rendering {\n    updateRenderers(renderers: $renderers) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub renderers: Option<Vec<Option<RendererInput>>>,
+    }
+
+    impl Variables {}
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub rendering: Option<Rendering>,
+    }
+    #[derive(Deserialize)]
+    pub struct Rendering {
+        #[serde(rename = "updateRenderers")]
+        pub update_renderers: Option<UpdateRenderers>,
+    }
+    #[derive(Deserialize)]
+    pub struct UpdateRenderers {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for RendererUpdate {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
