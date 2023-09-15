@@ -128,7 +128,7 @@ impl Fs {
             }
             InodeType::Directory(id) => {
                 debug!("get_inode: directory {}", id);
-                match self.api.page_tree(
+                match self.api.page_tree_get(
                     id,
                     PageTreeMode::ALL,
                     true,
