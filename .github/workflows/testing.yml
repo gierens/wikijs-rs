@@ -3,7 +3,7 @@ name: testing
 on:
   push:
     paths:
-      - 'src/'
+      - 'src/**/*'
       - '**/Cargo.toml'
       - '**/Cargo.lock'
       - 'docker-compose.yml'
