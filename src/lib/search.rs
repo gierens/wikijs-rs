@@ -271,3 +271,42 @@ pub mod search_engine_update {
         }
     }
 }
+
+pub fn search_engine_update(
+    client: &Client,
+    url: &str,
+    engines: Vec<SearchEngineInput>,
+) -> Result<(), SearchError> {
+    let variables = search_engine_update::Variables {
+        engines: Some(engines.into_iter().map(Some).collect()),
+    };
+    let response = post_graphql::<search_engine_update::SearchEngineUpdate, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(SearchError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(search) = data.search {
+            if let Some(update_search_engines) =
+                search.update_search_engines
+            {
+                if let Some(response_result) = update_search_engines
+                    .response_result
+                {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            SearchError,
+                        >(response_result));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<SearchError>(response_body.errors))
+}

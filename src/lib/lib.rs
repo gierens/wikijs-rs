@@ -1407,4 +1407,15 @@ impl Api {
             &format!("{}/graphql", self.url),
         )
     }
+    
+    pub fn search_engine_update(
+        &self,
+        engines: Vec<search::SearchEngineInput>,
+    ) -> Result<(), search::SearchError> {
+        search::search_engine_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            engines,
+        )
+    }
 }
