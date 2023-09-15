@@ -1435,4 +1435,18 @@ impl Api {
             config,
         )
     }
+
+    // storage functions
+    pub fn storage_action_execute(
+        &self,
+        target_key: String,
+        handler: String,
+    ) -> Result<(), storage::StorageError> {
+        storage::storage_action_execute(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            target_key,
+            handler,
+        )
+    }
 }

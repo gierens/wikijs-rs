@@ -128,7 +128,7 @@ implemented and what is still to be done.
 - [ ] `storage_target_list`
 - [ ] `storage_status_list`
 - [ ] `storage_target_update`
-- [ ] `storage_execute_action`
+- [x] `storage_execute_action`
 
 ### system
 - [x] `system_flags_list`

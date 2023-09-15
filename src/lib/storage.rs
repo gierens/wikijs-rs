@@ -49,3 +49,89 @@ impl KnownErrorCodes for StorageError {
         false
     }
 }
+
+pub mod storage_action_execute {
+    use super::*;
+
+    pub struct StorageActionExecute;
+
+    pub const OPERATION_NAME: &str = "StorageActionExecute";
+    pub const QUERY : & str = "mutation StorageActionExecute(\n  $targetKey: String!\n  $handler: String!\n) {\n  storage {\n    executeAction(\n      targetKey: $targetKey\n      handler: $handler\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        #[serde(rename = "targetKey")]
+        pub target_key: String,
+        pub handler: String,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub storage: Option<Storage>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Storage {
+        #[serde(rename = "executeAction")]
+        pub execute_action: Option<ExecuteAction>,
+    }
+    #[derive(Deserialize)]
+    pub struct ExecuteAction {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for StorageActionExecute {
+        type Variables = storage_action_execute::Variables;
+        type ResponseData = storage_action_execute::ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: storage_action_execute::QUERY,
+                operation_name: storage_action_execute::OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn storage_action_execute(
+    client: &Client,
+    url: &str,
+    target_key: String,
+    handler: String,
+) -> Result<(), StorageError> {
+    let variables = storage_action_execute::Variables {
+        target_key,
+        handler,
+    };
+    let response = post_graphql::<
+        storage_action_execute::StorageActionExecute,
+        _,
+    >(client, url, variables);
+    if response.is_err() {
+        return Err(StorageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(storage) = data.storage {
+            if let Some(execute_action) = storage.execute_action {
+                if let Some(response_result) = execute_action.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            StorageError,
+                        >(response_result));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<StorageError>(response_body.errors))
+}
