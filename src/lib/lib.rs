@@ -1458,4 +1458,13 @@ impl Api {
             &format!("{}/graphql", self.url),
         )
     }
+
+    pub fn storage_target_list(
+        &self,
+    ) -> Result<Vec<storage::StorageTarget>, storage::StorageError> {
+        storage::storage_target_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
 }

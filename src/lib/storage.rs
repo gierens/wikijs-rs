@@ -60,6 +60,37 @@ pub struct StorageStatus {
     pub last_attempt: String,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct StorageTarget {
+    #[serde(rename = "isAvailable")]
+    pub is_available: Boolean,
+    #[serde(rename = "isEnabled")]
+    pub is_enabled: Boolean,
+    pub key: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub logo: Option<String>,
+    pub website: Option<String>,
+    #[serde(rename = "supportedModes")]
+    pub supported_modes: Option<Vec<Option<String>>>,
+    pub mode: Option<String>,
+    #[serde(rename = "hasSchedule")]
+    pub has_schedule: Boolean,
+    #[serde(rename = "syncInterval")]
+    pub sync_interval: Option<String>,
+    #[serde(rename = "syncIntervalDefault")]
+    pub sync_interval_default: Option<String>,
+    pub config: Option<Vec<Option<KeyValuePair>>>,
+    pub actions: Option<Vec<Option<StorageTargetAction>>>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct StorageTargetAction {
+    pub handler: String,
+    pub label: String,
+    pub hint: String,
+}
+
 pub mod storage_action_execute {
     use super::*;
 
@@ -206,6 +237,71 @@ pub fn storage_status_list(
                     .into_iter()
                     .filter_map(|x| x)
                     .collect::<Vec<StorageStatus>>());
+            }
+        }
+    }
+    Err(classify_response_error::<StorageError>(
+        response_body.errors,
+    ))
+}
+
+pub mod storage_target_list {
+    use super::*;
+
+    pub struct StorageTargetList;
+
+    pub const OPERATION_NAME: &str = "StorageTargetList";
+    pub const QUERY : & str = "query StorageTargetList {\n  storage {\n    targets {\n      isAvailable\n      isEnabled\n      key\n      title\n      description\n      logo\n      website\n      supportedModes\n      mode\n      hasSchedule\n      syncInterval\n      syncIntervalDefault\n      config {\n        key\n        value\n      }\n      actions {\n        handler\n        label\n        hint\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub storage: Option<Storage>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Storage {
+        pub targets: Option<Vec<Option<StorageTarget>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for StorageTargetList {
+        type Variables = storage_target_list::Variables;
+        type ResponseData = storage_target_list::ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: storage_target_list::QUERY,
+                operation_name: storage_target_list::OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn storage_target_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<StorageTarget>, StorageError> {
+    let variables = storage_target_list::Variables;
+    let response = post_graphql::<storage_target_list::StorageTargetList, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(StorageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(storage) = data.storage {
+            if let Some(targets) = storage.targets {
+                return Ok(targets
+                    .into_iter()
+                    .filter_map(|x| x)
+                    .collect::<Vec<StorageTarget>>());
             }
         }
     }
