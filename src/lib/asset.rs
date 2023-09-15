@@ -166,6 +166,7 @@ pub(crate) mod asset_list {
     }
 }
 
+// TODO an asset_get function might be interesting as well
 pub fn asset_list(
     client: &Client,
     url: &str,

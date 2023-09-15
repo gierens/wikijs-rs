@@ -16,7 +16,6 @@ implemented and what is still to be done.
 
 ### asset
 - [x] `asset_list`
-- [ ] `asset_get` ... doesn't exist in the API
 - [x] `asset_folder_list`
 - [x] `asset_folder_create`
 - [x] `asset_rename`
