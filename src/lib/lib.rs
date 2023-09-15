@@ -20,6 +20,7 @@ pub mod page;
 pub mod rendering;
 pub mod search;
 pub mod site;
+pub mod storage;
 pub mod system;
 pub mod theming;
 pub mod user;
