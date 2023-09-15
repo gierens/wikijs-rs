@@ -472,7 +472,8 @@ pub(crate) mod page_tree {
     }
 }
 
-pub fn page_tree(
+// TODO this should be renamed internally too
+pub fn page_tree_get(
     client: &Client,
     url: &str,
     parent: i64,

@@ -92,7 +92,7 @@ implemented and what is still to be done.
 - [x] `page_get`
 - [x] `page_get_by_path`
 - [x] `page_tag_list`
-- [ ] `page_tree` ... should be renamed to `page_tree_get`
+- [x] `page_tree_get`
 - [x] `page_link_list`
 - [x] `page_check_conflicts`
 - [x] `page_conflict_latest`

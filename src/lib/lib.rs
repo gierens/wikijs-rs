@@ -201,14 +201,14 @@ impl Api {
         page::page_list(&self.client, &format!("{}/graphql", self.url))
     }
 
-    pub fn page_tree(
+    pub fn page_tree_get(
         &self,
         parent: i64,
         mode: page::PageTreeMode,
         include_ancestors: bool,
         locale: String,
     ) -> Result<Vec<page::PageTreeItem>, page::PageError> {
-        page::page_tree(
+        page::page_tree_get(
             &self.client,
             &format!("{}/graphql", self.url),
             parent,
