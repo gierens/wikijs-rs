@@ -250,9 +250,11 @@ pub fn site_config_update(
                     if response_result.succeeded {
                         return Ok(());
                     } else {
-                        return Err(classify_response_status_error::<
-                            SiteError,
-                        >(response_result));
+                        return Err(
+                            classify_response_status_error::<SiteError>(
+                                response_result,
+                            ),
+                        );
                     }
                 }
             }
