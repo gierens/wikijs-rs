@@ -39,7 +39,8 @@ fn page_tag_list_empty() {
 #[test]
 #[serial]
 fn page_tree_empty() {
-    let result = API.page_tree(0, PageTreeMode::ALL, true, "en".to_string());
+    let result =
+        API.page_tree_get(0, PageTreeMode::ALL, true, "en".to_string());
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 0);
 }
