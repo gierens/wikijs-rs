@@ -23,3 +23,7 @@ and also handles its errors it should be usable, too.
 
 ### FUSE
 This is still heavily work-in-progress. So be very careful when trying it out!
+
+## Contributing
+Two big part where contributing is fairly easy and needed are writing tests
+and documentation.
