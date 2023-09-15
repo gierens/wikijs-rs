@@ -431,6 +431,7 @@ pub(crate) mod page_list {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn page_list(
     client: &Client,
     url: &str,

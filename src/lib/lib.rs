@@ -195,6 +195,7 @@ impl Api {
         page::page_tag_list(&self.client, &format!("{}/graphql", self.url))
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn page_list(
         &self,
         limit: Option<i64>,
