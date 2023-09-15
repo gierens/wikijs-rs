@@ -196,7 +196,21 @@ pub enum PageTreeMode {
     FOLDERS,
     PAGES,
     ALL,
-    Other(String),
+}
+
+#[derive(Serialize, Debug)]
+pub enum PageOrderBy {
+    CREATED,
+    ID,
+    PATH,
+    TITLE,
+    UPDATED,
+}
+
+#[derive(Serialize, Debug)]
+pub enum PageOrderByDirection {
+    ASC,
+    DESC,
 }
 
 #[derive(Deserialize, Debug)]
@@ -375,10 +389,22 @@ pub(crate) mod page_list {
     pub struct PageList;
 
     pub const OPERATION_NAME: &str = "PageList";
-    pub const QUERY : & str = "query PageList {\n  pages {\n    list (orderBy: TITLE) {\n      id\n      path\n      locale\n      title\n      description\n      contentType\n      isPublished\n      isPrivate\n      privateNS\n      createdAt\n      updatedAt\n      tags\n    }\n  }\n}\n" ;
+    pub const QUERY : & str = "query PageList(\n  $limit: Int\n  $orderBy: PageOrderBy\n  $orderByDirection: PageOrderByDirection\n  $tags: [String!]\n  $locale: String\n  $creatorId: Int\n  $authorId: Int\n) {\n  pages {\n    list (\n      limit: $limit\n      orderBy: $orderBy\n      orderByDirection: $orderByDirection\n      tags: $tags\n      locale: $locale\n      creatorId: $creatorId\n      authorId: $authorId\n    ) {\n      id\n      path\n      locale\n      title\n      description\n      contentType\n      isPublished\n      isPrivate\n      privateNS\n      createdAt\n      updatedAt\n      tags\n    }\n  }\n}\n" ;
 
     #[derive(Serialize)]
-    pub struct Variables;
+    pub struct Variables {
+        pub limit: Option<Int>,
+        #[serde(rename = "orderBy")]
+        pub order_by: Option<PageOrderBy>,
+        #[serde(rename = "orderByDirection")]
+        pub order_by_direction: Option<PageOrderByDirection>,
+        pub tags: Option<Vec<String>>,
+        pub locale: Option<String>,
+        #[serde(rename = "creatorId")]
+        pub creator_id: Option<Int>,
+        #[serde(rename = "authorId")]
+        pub author_id: Option<Int>,
+    }
 
     #[derive(Deserialize)]
     pub struct ResponseData {
@@ -408,8 +434,23 @@ pub(crate) mod page_list {
 pub fn page_list(
     client: &Client,
     url: &str,
+    limit: Option<Int>,
+    order_by: Option<PageOrderBy>,
+    order_by_direction: Option<PageOrderByDirection>,
+    tags: Option<Vec<String>>,
+    locale: Option<String>,
+    creator_id: Option<Int>,
+    author_id: Option<Int>,
 ) -> Result<Vec<PageListItem>, PageError> {
-    let variables = page_list::Variables {};
+    let variables = page_list::Variables {
+        limit,
+        order_by,
+        order_by_direction,
+        tags,
+        locale,
+        creator_id,
+        author_id,
+    };
     let response =
         post_graphql::<page_list::PageList, _>(client, url, variables);
     if response.is_err() {

@@ -197,8 +197,25 @@ impl Api {
 
     pub fn page_list(
         &self,
+        limit: Option<i64>,
+        order_by: Option<page::PageOrderBy>,
+        order_by_direction: Option<page::PageOrderByDirection>,
+        tags: Option<Vec<String>>,
+        locale: Option<String>,
+        creator_id: Option<i64>,
+        author_id: Option<i64>,
     ) -> Result<Vec<page::PageListItem>, page::PageError> {
-        page::page_list(&self.client, &format!("{}/graphql", self.url))
+        page::page_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            limit,
+            order_by,
+            order_by_direction,
+            tags,
+            locale,
+            creator_id,
+            author_id,
+        )
     }
 
     pub fn page_tree_get(
