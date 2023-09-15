@@ -1,6 +1,22 @@
 name: linting
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - 'src/'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+      - '.rustfmt.toml'
+      - 'docker-compose.yml'
+      - '.github/workflows/linting.yml'
+  pull_request:
+    paths:
+      - 'src/'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+      - '.rustfmt.toml'
+      - 'docker-compose.yml'
+      - '.github/workflows/linting.yml'
 
 env:
   CARGO_TERM_COLOR: always
