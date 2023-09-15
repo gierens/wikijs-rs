@@ -118,7 +118,7 @@ implemented and what is still to be done.
 ### search
 - [x] `search_engine_list`
 - [ ] `search_engine_update`
-- [ ] `search_engine_rebuild_index`
+- [x] `search_engine_rebuild_index`
 
 ### site
 - [ ] `site_config_get`

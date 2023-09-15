@@ -4,8 +4,9 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::common::{
-    classify_response_error, Boolean, Date, Int, KeyValuePair,
-    KeyValuePairInput, KnownErrorCodes, ResponseStatus, UnknownError,
+    classify_response_error, classify_response_status_error, Boolean,
+    KeyValuePair, KeyValuePairInput, KnownErrorCodes, ResponseStatus,
+    UnknownError,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -189,6 +190,39 @@ pub mod search_engine_index_rebuild {
             }
         }
     }
+}
+
+pub fn search_engine_index_rebuild(
+    client: &Client,
+    url: &str,
+) -> Result<(), SearchError> {
+    let variables = search_engine_index_rebuild::Variables;
+    let response = post_graphql::<
+        search_engine_index_rebuild::SearchEngineIndexRebuild,
+        _,
+    >(client, url, variables);
+    if response.is_err() {
+        return Err(SearchError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(search) = data.search {
+            if let Some(rebuild_index) = search.rebuild_index {
+                if let Some(response_result) = rebuild_index.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            SearchError,
+                        >(response_result));
+                    }
+                }
+            }
+        }
+    }
+    Err(classify_response_error::<SearchError>(response_body.errors))
 }
 
 pub mod search_engine_update {

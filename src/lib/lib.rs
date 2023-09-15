@@ -1398,4 +1398,13 @@ impl Api {
             order_by,
         )
     }
+
+    pub fn search_engine_index_rebuild(
+        &self,
+    ) -> Result<(), search::SearchError> {
+        search::search_engine_index_rebuild(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
 }
