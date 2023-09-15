@@ -1,4 +1,4 @@
-name: Labeler
+name: labeller
 on: [pull_request_target]
 
 jobs:
