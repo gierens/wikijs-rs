@@ -1449,4 +1449,13 @@ impl Api {
             handler,
         )
     }
+
+    pub fn storage_status_list(
+        &self,
+    ) -> Result<Vec<storage::StorageStatus>, storage::StorageError> {
+        storage::storage_status_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+        )
+    }
 }

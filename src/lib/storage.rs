@@ -50,6 +50,16 @@ impl KnownErrorCodes for StorageError {
     }
 }
 
+#[derive(Deserialize, Debug)]
+pub struct StorageStatus {
+    pub key: String,
+    pub title: String,
+    pub status: String,
+    pub message: String,
+    #[serde(rename = "lastAttempt")]
+    pub last_attempt: String,
+}
+
 pub mod storage_action_execute {
     use super::*;
 
@@ -133,5 +143,73 @@ pub fn storage_action_execute(
             }
         }
     }
-    Err(classify_response_error::<StorageError>(response_body.errors))
+    Err(classify_response_error::<StorageError>(
+        response_body.errors,
+    ))
+}
+
+pub mod storage_status_get {
+    use super::*;
+
+    pub struct StorageStatusGet;
+
+    pub const OPERATION_NAME: &str = "StorageStatusGet";
+    pub const QUERY : & str = "query StorageStatusGet {\n  storage {\n    status {\n      key\n      title\n      status\n      message\n      lastAttempt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub storage: Option<Storage>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Storage {
+        pub status: Option<Vec<Option<StorageStatus>>>,
+    }
+
+    impl graphql_client::GraphQLQuery for StorageStatusGet {
+        type Variables = storage_status_get::Variables;
+        type ResponseData = storage_status_get::ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: storage_status_get::QUERY,
+                operation_name: storage_status_get::OPERATION_NAME,
+            }
+        }
+    }
+}
+
+// TODO the internal stuff needs to be renamed
+pub fn storage_status_list(
+    client: &Client,
+    url: &str,
+) -> Result<Vec<StorageStatus>, StorageError> {
+    let variables = storage_status_get::Variables;
+    let response = post_graphql::<storage_status_get::StorageStatusGet, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(StorageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(storage) = data.storage {
+            if let Some(status) = storage.status {
+                return Ok(status
+                    .into_iter()
+                    .filter_map(|x| x)
+                    .collect::<Vec<StorageStatus>>());
+            }
+        }
+    }
+    Err(classify_response_error::<StorageError>(
+        response_body.errors,
+    ))
 }
