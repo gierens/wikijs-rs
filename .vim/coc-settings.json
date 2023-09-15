@@ -25,6 +25,7 @@
     "rdev",
     "readdir",
     "reqwest",
+    "rustfmt",
     "setattr",
     "stderrlog",
     "systemtime",
