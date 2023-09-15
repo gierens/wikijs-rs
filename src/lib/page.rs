@@ -1379,7 +1379,8 @@ pub(crate) mod page_link_get {
     }
 }
 
-pub fn page_link_get(
+// TODO internals should be renamed accordingly
+pub fn page_link_list(
     client: &Client,
     url: &str,
     locale: String,

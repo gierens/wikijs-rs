@@ -366,11 +366,11 @@ impl Api {
         )
     }
 
-    pub fn page_link_get(
+    pub fn page_link_list(
         &self,
         locale: String,
     ) -> Result<Vec<page::PageLinkItem>, page::PageError> {
-        page::page_link_get(
+        page::page_link_list(
             &self.client,
             &format!("{}/graphql", self.url),
             locale,
