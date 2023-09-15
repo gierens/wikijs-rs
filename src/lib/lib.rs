@@ -1408,7 +1408,7 @@ impl Api {
             &format!("{}/graphql", self.url),
         )
     }
-    
+
     pub fn search_engine_update(
         &self,
         engines: Vec<search::SearchEngineInput>,

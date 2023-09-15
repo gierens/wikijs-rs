@@ -291,11 +291,9 @@ pub fn search_engine_update(
     let response_body = response.unwrap();
     if let Some(data) = response_body.data {
         if let Some(search) = data.search {
-            if let Some(update_search_engines) =
-                search.update_search_engines
-            {
-                if let Some(response_result) = update_search_engines
-                    .response_result
+            if let Some(update_search_engines) = search.update_search_engines {
+                if let Some(response_result) =
+                    update_search_engines.response_result
                 {
                     if response_result.succeeded {
                         return Ok(());
