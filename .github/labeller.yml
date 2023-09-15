@@ -1,0 +1,17 @@
+"lib":
+  - src/lib/*
+
+"cli":
+  - src/cli/*
+
+"fuse":
+  - src/fuse/*
+
+"tests":
+  - tests/*
+
+"dependencies":
+  - Cargo.*
+
+"ci":
+  - .github/**/*
