@@ -165,6 +165,32 @@ pub mod search_engine_index_rebuild {
     }
 }
 
+pub fn search_engine_list(
+    client: &Client,
+    url: &str,
+    filter: Option<String>,
+    order_by: Option<String>,
+) -> Result<Vec<SearchEngine>, SearchError> {
+    let variables = search_engine_list::Variables { filter, order_by };
+    let response = post_graphql::<search_engine_list::SearchEngineList, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(SearchError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(search) = data.search {
+            if let Some(search_engines) = search.search_engines {
+                return Ok(search_engines.into_iter().flatten().collect());
+            }
+        }
+    }
+    Err(classify_response_error::<SearchError>(response_body.errors))
+}
+
 pub mod search_engine_update {
     use super::*;
 

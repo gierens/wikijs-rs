@@ -1384,4 +1384,18 @@ impl Api {
             renderers,
         )
     }
+
+    // search functions
+    pub fn search_engine_list(
+        &self,
+        filter: Option<String>,
+        order_by: Option<String>,
+    ) -> Result<Vec<search::SearchEngine>, search::SearchError> {
+        search::search_engine_list(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            filter,
+            order_by,
+        )
+    }
 }

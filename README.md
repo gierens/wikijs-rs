@@ -116,7 +116,7 @@ implemented and what is still to be done.
 - [x] `renderer_update`
 
 ### search
-- [ ] `search_engine_list`
+- [x] `search_engine_list`
 - [ ] `search_engine_update`
 - [ ] `search_engine_rebuild_index`
 
