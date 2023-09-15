@@ -127,7 +127,7 @@ implemented and what is still to be done.
 ### storage
 - [x] `storage_target_list`
 - [x] `storage_status_list`
-- [ ] `storage_target_update`
+- [x] `storage_target_update`
 - [x] `storage_execute_action`
 
 ### system

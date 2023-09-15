@@ -60,7 +60,7 @@ pub struct StorageStatus {
     pub last_attempt: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StorageTarget {
     #[serde(rename = "isAvailable")]
     pub is_available: Boolean,
@@ -235,7 +235,7 @@ pub fn storage_status_list(
             if let Some(status) = storage.status {
                 return Ok(status
                     .into_iter()
-                    .filter_map(|x| x)
+                    .flatten()
                     .collect::<Vec<StorageStatus>>());
             }
         }
@@ -300,7 +300,7 @@ pub fn storage_target_list(
             if let Some(targets) = storage.targets {
                 return Ok(targets
                     .into_iter()
-                    .filter_map(|x| x)
+                    .flatten()
                     .collect::<Vec<StorageTarget>>());
             }
         }

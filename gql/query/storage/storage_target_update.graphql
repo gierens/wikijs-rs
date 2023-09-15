@@ -1,4 +1,4 @@
-mutation StorageTargetUpdate($targets: [StorageTarget]) {
+mutation StorageTargetUpdate($targets: [StorageTargetInput]!) {
   storage {
     updateTargets(targets: $targets) {
       responseResult {
