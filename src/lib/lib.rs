@@ -1424,4 +1424,15 @@ impl Api {
     pub fn site_config_get(&self) -> Result<site::SiteConfig, site::SiteError> {
         site::site_config_get(&self.client, &format!("{}/graphql", self.url))
     }
+
+    pub fn site_config_update(
+        &self,
+        config: site::SiteConfig,
+    ) -> Result<(), site::SiteError> {
+        site::site_config_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            config,
+        )
+    }
 }

@@ -5,8 +5,7 @@ use thiserror::Error;
 
 use crate::common::{
     classify_response_error, classify_response_status_error, Boolean, Int,
-    KeyValuePair, KeyValuePairInput, KnownErrorCodes, ResponseStatus,
-    UnknownError,
+    KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
 #[derive(Debug, Error, PartialEq)]
@@ -50,7 +49,7 @@ impl KnownErrorCodes for SiteError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct SiteConfig {
     pub host: Option<String>,
     pub title: Option<String>,
@@ -185,6 +184,77 @@ pub fn site_config_get(
         if let Some(site) = data.site {
             if let Some(config) = site.config {
                 return Ok(config);
+            }
+        }
+    }
+    Err(classify_response_error::<SiteError>(response_body.errors))
+}
+
+pub mod site_config_update {
+    use super::*;
+
+    pub struct SiteConfigUpdate;
+
+    pub const OPERATION_NAME: &str = "SiteConfigUpdate";
+    pub const QUERY : & str = "mutation SiteConfigUpdate(\n  $host: String\n  $title: String\n  $description: String\n  $robots: [String]\n  $analyticsService: String\n  $analyticsId: String\n  $company: String\n  $contentLicense: String\n  $footerOverride: String\n  $logoUrl: String\n  $pageExtensions: String\n  $authAutoLogin: Boolean\n  $authEnforce2FA: Boolean\n  $authHideLocal: Boolean\n  $authLoginBgUrl: String\n  $authJwtAudience: String\n  $authJwtExpiration: String\n  $authJwtRenewablePeriod: String\n  $editFab: Boolean\n  $editMenuBar: Boolean\n  $editMenuBtn: Boolean\n  $editMenuExternalBtn: Boolean\n  $editMenuExternalName: String\n  $editMenuExternalIcon: String\n  $editMenuExternalUrl: String\n  $featurePageRatings: Boolean\n  $featurePageComments: Boolean\n  $featurePersonalWikis: Boolean\n  $securityOpenRedirect: Boolean\n  $securityIframe: Boolean\n  $securityReferrerPolicy: Boolean\n  $securityTrustProxy: Boolean\n  $securitySRI: Boolean\n  $securityHSTS: Boolean\n  $securityHSTSDuration: Int\n  $securityCSP: Boolean\n  $securityCSPDirectives: String\n  $uploadMaxFileSize: Int\n  $uploadMaxFiles: Int\n  $uploadScanSVG: Boolean\n  $uploadForceDownload: Boolean\n) {\n  site {\n    updateConfig(\n      host: $host\n      title: $title\n      description: $description\n      robots: $robots\n      analyticsService: $analyticsService\n      analyticsId: $analyticsId\n      company: $company\n      contentLicense: $contentLicense\n      footerOverride: $footerOverride\n      logoUrl: $logoUrl\n      pageExtensions: $pageExtensions\n      authAutoLogin: $authAutoLogin\n      authEnforce2FA: $authEnforce2FA\n      authHideLocal: $authHideLocal\n      authLoginBgUrl: $authLoginBgUrl\n      authJwtAudience: $authJwtAudience\n      authJwtExpiration: $authJwtExpiration\n      authJwtRenewablePeriod: $authJwtRenewablePeriod\n      editFab: $editFab\n      editMenuBar: $editMenuBar\n      editMenuBtn: $editMenuBtn\n      editMenuExternalBtn: $editMenuExternalBtn\n      editMenuExternalName: $editMenuExternalName\n      editMenuExternalIcon: $editMenuExternalIcon\n      editMenuExternalUrl: $editMenuExternalUrl\n      featurePageRatings: $featurePageRatings\n      featurePageComments: $featurePageComments\n      featurePersonalWikis: $featurePersonalWikis\n      securityOpenRedirect: $securityOpenRedirect\n      securityIframe: $securityIframe\n      securityReferrerPolicy: $securityReferrerPolicy\n      securityTrustProxy: $securityTrustProxy\n      securitySRI: $securitySRI\n      securityHSTS: $securityHSTS\n      securityHSTSDuration: $securityHSTSDuration\n      securityCSP: $securityCSP\n      securityCSPDirectives: $securityCSPDirectives\n      uploadMaxFileSize: $uploadMaxFileSize\n      uploadMaxFiles: $uploadMaxFiles\n      uploadScanSVG: $uploadScanSVG\n      uploadForceDownload: $uploadForceDownload\n    ) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub site: Option<Site>,
+    }
+    #[derive(Deserialize)]
+    pub struct Site {
+        #[serde(rename = "updateConfig")]
+        pub update_config: Option<UpdateConfig>,
+    }
+    #[derive(Deserialize)]
+    pub struct UpdateConfig {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+
+    impl graphql_client::GraphQLQuery for SiteConfigUpdate {
+        type Variables = SiteConfig;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn site_config_update(
+    client: &Client,
+    url: &str,
+    config: SiteConfig,
+) -> Result<(), SiteError> {
+    let variables = config;
+    let response = post_graphql::<site_config_update::SiteConfigUpdate, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(SiteError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(site) = data.site {
+            if let Some(update_config) = site.update_config {
+                if let Some(response_result) = update_config.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            SiteError,
+                        >(response_result));
+                    }
+                }
             }
         }
     }

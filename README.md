@@ -122,7 +122,7 @@ implemented and what is still to be done.
 
 ### site
 - [x] `site_config_get`
-- [ ] `site_config_update`
+- [x] `site_config_update`
 
 ### storage
 - [ ] `storage_target_list`
