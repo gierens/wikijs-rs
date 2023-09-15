@@ -1419,4 +1419,9 @@ impl Api {
             engines,
         )
     }
+
+    // site functions
+    pub fn site_config_get(&self) -> Result<site::SiteConfig, site::SiteError> {
+        site::site_config_get(&self.client, &format!("{}/graphql", self.url))
+    }
 }

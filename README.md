@@ -121,7 +121,7 @@ implemented and what is still to be done.
 - [x] `search_engine_rebuild_index`
 
 ### site
-- [ ] `site_config_get`
+- [x] `site_config_get`
 - [ ] `site_config_update`
 
 ### storage
