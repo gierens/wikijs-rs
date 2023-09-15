@@ -352,7 +352,7 @@ pub mod storage_target_update {
         #[serde(rename = "responseResult")]
         pub response_result: Option<ResponseStatus>,
     }
-    
+
     impl graphql_client::GraphQLQuery for StorageTargetUpdate {
         type Variables = storage_target_update::Variables;
         type ResponseData = storage_target_update::ResponseData;
