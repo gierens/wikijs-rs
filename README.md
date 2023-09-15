@@ -93,7 +93,7 @@ implemented and what is still to be done.
 - [x] `page_get_by_path`
 - [x] `page_tag_list`
 - [ ] `page_tree` ... should be renamed to `page_tree_get`
-- [ ] `page_link_list` ... is done but name `page_link_get`
+- [x] `page_link_list`
 - [x] `page_check_conflicts`
 - [x] `page_conflict_latest`
 - [x] `page_create`
