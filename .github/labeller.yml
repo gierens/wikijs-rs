@@ -10,7 +10,7 @@
 "tests":
   - tests/*
 
-"dependencies":
+"dependency":
   - Cargo.*
 
 "ci":
