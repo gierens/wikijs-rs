@@ -1467,4 +1467,15 @@ impl Api {
             &format!("{}/graphql", self.url),
         )
     }
+
+    pub fn storage_target_update(
+        &self,
+        targets: Vec<storage::StorageTargetInput>,
+    ) -> Result<(), storage::StorageError> {
+        storage::storage_target_update(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            targets,
+        )
+    }
 }

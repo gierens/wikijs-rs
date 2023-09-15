@@ -60,7 +60,7 @@ pub struct StorageStatus {
     pub last_attempt: String,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct StorageTarget {
     #[serde(rename = "isAvailable")]
     pub is_available: Boolean,
@@ -82,6 +82,17 @@ pub struct StorageTarget {
     pub sync_interval_default: Option<String>,
     pub config: Option<Vec<Option<KeyValuePair>>>,
     pub actions: Option<Vec<Option<StorageTargetAction>>>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct StorageTargetInput {
+    #[serde(rename = "isEnabled")]
+    pub is_enabled: Boolean,
+    pub key: String,
+    pub mode: String,
+    #[serde(rename = "syncInterval")]
+    pub sync_interval: Option<String>,
+    pub config: Option<Vec<Option<KeyValuePairInput>>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -302,6 +313,90 @@ pub fn storage_target_list(
                     .into_iter()
                     .flatten()
                     .collect::<Vec<StorageTarget>>());
+            }
+        }
+    }
+    Err(classify_response_error::<StorageError>(
+        response_body.errors,
+    ))
+}
+
+pub mod storage_target_update {
+    use super::*;
+
+    pub struct StorageTargetUpdate;
+
+    pub const OPERATION_NAME: &str = "StorageTargetUpdate";
+    pub const QUERY : & str = "mutation StorageTargetUpdate($targets: [StorageTarget]) {\n  storage {\n    updateTargets(targets: $targets) {\n      responseResult {\n        succeeded\n        errorCode\n        slug\n        message\n      }\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub targets: Vec<Option<StorageTargetInput>>,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub storage: Option<Storage>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Storage {
+        #[serde(rename = "updateTargets")]
+        pub update_targets: Option<UpdateTargets>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct UpdateTargets {
+        #[serde(rename = "responseResult")]
+        pub response_result: Option<ResponseStatus>,
+    }
+    
+    impl graphql_client::GraphQLQuery for StorageTargetUpdate {
+        type Variables = storage_target_update::Variables;
+        type ResponseData = storage_target_update::ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            graphql_client::QueryBody {
+                variables,
+                query: storage_target_update::QUERY,
+                operation_name: storage_target_update::OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub fn storage_target_update(
+    client: &Client,
+    url: &str,
+    targets: Vec<StorageTargetInput>,
+) -> Result<(), StorageError> {
+    let variables = storage_target_update::Variables {
+        targets: targets.into_iter().map(Some).collect(),
+    };
+    let response = post_graphql::<storage_target_update::StorageTargetUpdate, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(StorageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+    let response_body = response.unwrap();
+    if let Some(data) = response_body.data {
+        if let Some(storage) = data.storage {
+            if let Some(update_targets) = storage.update_targets {
+                if let Some(response_result) = update_targets.response_result {
+                    if response_result.succeeded {
+                        return Ok(());
+                    } else {
+                        return Err(classify_response_status_error::<
+                            StorageError,
+                        >(response_result));
+                    }
+                }
             }
         }
     }
