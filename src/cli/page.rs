@@ -285,15 +285,7 @@ fn page_get(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
 }
 
 fn page_list(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
-    let pages = api.page_list(
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-    )?;
+    let pages = api.page_list(None, None, None, None, None, None, None)?;
     let mut builder = Builder::new();
     builder.push_record([
         "id",

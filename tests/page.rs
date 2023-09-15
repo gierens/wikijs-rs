@@ -23,15 +23,7 @@ fn page_get_by_path_nonexistent() {
 #[test]
 #[serial]
 fn page_list_empty() {
-    let result = API.page_list(
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-    );
+    let result = API.page_list(None, None, None, None, None, None, None);
     assert!(result.is_ok());
     assert_eq!(result.unwrap().len(), 0);
 }
