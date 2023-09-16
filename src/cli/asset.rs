@@ -9,7 +9,10 @@ use tabled::{builder::Builder, settings::Style};
 #[derive(Subcommand)]
 pub(crate) enum AssetCommand {
     #[clap(about = "List assets")]
-    List {},
+    List {
+        #[clap(help = "Parent folder ID")]
+        folder_id: i64,
+    },
 
     #[clap(about = "Download an asset")]
     Download {
@@ -45,7 +48,9 @@ pub(crate) enum AssetFolderCommand {
 impl Execute for AssetCommand {
     fn execute(&self, api: wikijs::Api) -> Result<(), Box<dyn Error>> {
         match self {
-            AssetCommand::List {} => asset_list(api),
+            AssetCommand::List { folder_id } => {
+                asset_list(api, folder_id.to_owned())
+            }
             AssetCommand::Download {
                 source,
                 destination,
@@ -74,8 +79,8 @@ impl Execute for AssetFolderCommand {
     }
 }
 
-fn asset_list(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
-    let assets = api.asset_list(0, wikijs::asset::AssetKind::ALL)?;
+fn asset_list(api: wikijs::Api, folder_id: i64) -> Result<(), Box<dyn Error>> {
+    let assets = api.asset_list(folder_id, wikijs::asset::AssetKind::ALL)?;
     let mut builder = Builder::new();
     builder.push_record([
         "id",
