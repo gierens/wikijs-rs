@@ -44,5 +44,7 @@ jobs:
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
+      - name: install fuse
+        run: sudo apt update && sudo apt install -y libfuse3-dev
       - name: linting
         run: cargo clippy --features cli --features fuse -- -D warnings

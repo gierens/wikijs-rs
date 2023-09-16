@@ -18,12 +18,12 @@ crate-type = ["cdylib", "rlib"]
 path = "src/lib/lib.rs"
 
 [[bin]]
-name = "wikijs-fuse"
+name = "wikifs"
 path = "src/fuse/main.rs"
 required-features = ["fuse"]
 
 [[bin]]
-name = "wikijs-cli"
+name = "wikijs"
 path = "src/cli/main.rs"
 required-features = ["cli"]
 
