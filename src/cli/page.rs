@@ -19,6 +19,15 @@ pub(crate) enum PageCommand {
     // TODO support all arguments of page_list
     List {},
 
+    #[clap(about = "Show page tree")]
+    Tree {
+        #[clap(help = "Parent tree item ID")]
+        parent_id: i64,
+
+        #[clap(short, long, help = "Page tree locale", default_value = "en")]
+        locale: String,
+    },
+
     #[clap(about = "Delete a page")]
     Delete {
         #[clap(help = "Page ID")]
@@ -165,6 +174,9 @@ impl Execute for PageCommand {
         match self {
             PageCommand::Get { id } => page_get(api, *id),
             PageCommand::List {} => page_list(api),
+            PageCommand::Tree { parent_id, locale } => {
+                page_tree(api, *parent_id, locale.to_string())
+            }
             PageCommand::Delete { id } => page_delete(api, *id),
             PageCommand::Render { id } => page_render(api, *id),
             PageCommand::Create {
@@ -313,6 +325,48 @@ fn page_list(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
             page.created_at.to_string().as_str(),
             page.updated_at.to_string().as_str(),
             // TODO tags
+        ]);
+    }
+    println!("{}", builder.build().with(Style::rounded()));
+    Ok(())
+}
+
+fn page_tree(
+    api: wikijs::Api,
+    parent_id: i64,
+    locale: String,
+) -> Result<(), Box<dyn Error>> {
+    let tree_items = api.page_tree_get(
+        parent_id,
+        wikijs::page::PageTreeMode::ALL,
+        true,
+        locale,
+    )?;
+    let mut builder = Builder::new();
+    builder.push_record([
+        "id",
+        "path",
+        "depth",
+        "title",
+        "is_private",
+        "is_folder",
+        "private_ns",
+        "parent",
+        "page_id",
+        "locale",
+    ]);
+    for tree_item in tree_items {
+        builder.push_record([
+            tree_item.id.to_string().as_str(),
+            tree_item.path.as_str(),
+            tree_item.depth.to_string().as_str(),
+            tree_item.title.as_str(),
+            tree_item.is_private.to_string().as_str(),
+            tree_item.is_folder.to_string().as_str(),
+            tree_item.private_ns.unwrap_or("".to_string()).as_str(),
+            tree_item.parent.unwrap_or(-1).to_string().as_str(),
+            tree_item.page_id.unwrap_or(-1).to_string().as_str(),
+            tree_item.locale.as_str(),
         ]);
     }
     println!("{}", builder.build().with(Style::rounded()));
