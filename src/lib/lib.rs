@@ -79,7 +79,7 @@ impl Api {
         &self,
         folder_id: i64,
         kind: asset::AssetKind,
-    ) -> Result<Vec<asset::AssetListItem>, asset::AssetError> {
+    ) -> Result<Vec<asset::AssetItem>, asset::AssetError> {
         asset::asset_list(
             &self.client,
             &format!("{}/graphql", self.url),

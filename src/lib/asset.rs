@@ -83,7 +83,7 @@ impl KnownErrorCodes for AssetError {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct AssetListItem {
+pub struct AssetItem {
     pub id: Int,
     pub filename: String,
     pub ext: String,
@@ -148,7 +148,7 @@ pub(crate) mod asset_list {
 
     #[derive(Deserialize)]
     pub struct Assets {
-        pub list: Option<Vec<Option<AssetListItem>>>,
+        pub list: Option<Vec<Option<AssetItem>>>,
     }
 
     impl graphql_client::GraphQLQuery for AssetList {
@@ -172,7 +172,7 @@ pub fn asset_list(
     url: &str,
     folder_id: Int,
     kind: AssetKind,
-) -> Result<Vec<AssetListItem>, AssetError> {
+) -> Result<Vec<AssetItem>, AssetError> {
     let variables = asset_list::Variables { folder_id, kind };
     let response =
         post_graphql::<asset_list::AssetList, _>(client, url, variables);
@@ -188,7 +188,7 @@ pub fn asset_list(
                 return Ok(list
                     .into_iter()
                     .flatten()
-                    .collect::<Vec<AssetListItem>>());
+                    .collect::<Vec<AssetItem>>());
             }
         }
     }
@@ -632,7 +632,6 @@ pub fn asset_upload(
         .post(format!("{}/u", url).as_str())
         .multipart(form)
         .send();
-    println!("{:?}", response);
     if response.is_err() {
         return Err(AssetError::UnknownErrorMessage {
             message: response.err().unwrap().to_string(),
