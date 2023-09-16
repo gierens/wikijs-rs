@@ -120,6 +120,8 @@ cat test.md
 provided you have a `markdown` page located at `/test` in your wiki.
 
 ## Contributing
+Use small commits that make isolated changes to a single module and name them
+according to [conventional commits](https://www.conventionalcommits.org/).
 
 Two parts where especially first-time contributions should be fairly easy and
 are also really needed is writing docstrings and integration tests. Apart from
