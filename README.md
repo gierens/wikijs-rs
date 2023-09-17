@@ -148,6 +148,7 @@ instance during debugging when testing.
 The tests furthermore assume the wiki to have the following admin credentials:
 - email: `admin@admin.com`
 - password: `password`
+
 To set this up automatically on initial startup of the wiki, you may use
 [scripts/finalize_wiki_setup.sh](scripts/finalize_wiki_setup.sh) which also
 assumes the wiki to run on `http://localhost:80`.
