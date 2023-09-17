@@ -1,7 +1,7 @@
-// #![doc(
-//     html_logo_url = "https://raw.githubusercontent.com/gierens/wikijs-rs/main/logo/logo.svg",
-//     html_favicon_url = "https://raw.githubusercontent.com/gierens/wikijs-rs/main/logo/favicon.ico"
-// )]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/gierens/wikijs-rs/main/logo/logo.svg",
+    html_favicon_url = "https://raw.githubusercontent.com/gierens/wikijs-rs/main/logo/favicon.ico"
+)]
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 
