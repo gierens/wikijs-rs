@@ -30,6 +30,7 @@ required-features = ["cli"]
 [features]
 fuse = ["fuser", "clap", "clap-verbosity-flag", "colored", "log", "stderrlog", "libc", "chrono"]
 cli = ["clap", "colored", "tempfile", "tabled"]
+vendored-tls = ["reqwest/native-tls-vendored"]
 
 [dependencies]
 # lib
