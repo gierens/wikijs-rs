@@ -132,6 +132,9 @@ Run the following to install the CLI from [crates.io](https://crates.io):
 cargo install wikijs --features=cli
 ```
 
+### Arch
+The CLI is available on [AUR](https://aur.archlinux.org/packages/wikijs-rs).
+
 ### Debian and Ubuntu
 The CLI is available from [deb.gierens.de](http://deb.gierens.de). The GPG
 public key is in this repo under [deb.asc](/deb.asc).
