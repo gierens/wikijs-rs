@@ -83,7 +83,11 @@ where the `ID` is found in the `page list` output.
 
 ## Filesystem
 
-**WARNING: Not really usable yet! Careful!**
+**WARNING: Not really usable yet! Careful!***
+
+***Also in case you wanna PR on
+this please coordinate via issues, as I'm currently heavily refactoring this
+to add a caching layer and include assets.***
 
 This crate also ships FUSE filesystem called `wikifs` to mount your Wiki.js
 instance locally and view and manipulate it with what ever programs you like.
