@@ -134,3 +134,7 @@ that the CLI still needs to implement many of the library functions.
 Please check issues and PRs first and maybe make an issue or draft PR of your
 own so we can coordinate work. This is especially important for the FUSE
 filesystem, as I'm currently heavily refactoring that.
+
+## License
+This projects is licensed under [AGPL-3.0](/LICENSE) since
+[Wiki.js](https://github.com/requarks/wiki) is, too.
