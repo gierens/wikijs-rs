@@ -10,7 +10,7 @@
 //! # Structure
 //! The central struct is [`Api`](struct.Api.html) which is used to directly
 //! access all functionality of the Wiki.js APIs. This very flat structure
-//! should allow you easy discovery and autocompletion. 
+//! should allow you easy discovery and autocompletion.
 //!
 //! The library has submodules for each of the Wiki.js' API endpoints. They
 //! contain the internal implementation of the library functions as well as
@@ -102,19 +102,32 @@ pub mod theming;
 /// with users.
 pub mod user;
 
+/// Credentials to authenticate against the Wiki.js API.
 #[derive(Debug)]
 pub enum Credentials {
+    /// API key
     Key(String),
+    /// Username, password and authentication strategy ("local" for example)
     UsernamePassword(String, String, String),
 }
 
+/// Central struct to access all Wiki.js API endpoints.
 #[derive(Debug)]
 pub struct Api {
     pub(crate) url: String,
     pub(crate) client: Client,
 }
 
+/// The main implementation of the API struct.
 impl Api {
+    /// Create a new API struct.
+    ///
+    /// # Arguments
+    /// * `url` - The base URL of the Wiki.js instance.
+    /// * `credentials` - The credentials to authenticate against the API.
+    ///
+    /// # Returns
+    /// A new API struct.
     pub fn new(url: String, credentials: Credentials) -> Self {
         let key = match credentials {
             Credentials::Key(key) => key,
@@ -152,6 +165,12 @@ impl Api {
     }
 
     // asset functions
+
+    /// List all assets in a folder.
+    ///
+    /// # Arguments
+    /// * `folder_id` - The id of the folder to list assets from.
+    /// * `kind` - The kind of assets to list.
     pub fn asset_list(
         &self,
         folder_id: i64,
@@ -165,6 +184,11 @@ impl Api {
         )
     }
 
+    /// List all asset folders.
+    ///
+    /// # Arguments
+    /// * `parent_id` - The id of the parent folder to list asset folders from.
+    ///                 Use 0 to list all root folders.
     pub fn asset_folder_list(
         &self,
         parent_id: i64,
@@ -176,6 +200,13 @@ impl Api {
         )
     }
 
+    /// Create a new asset folder.
+    ///
+    /// # Arguments
+    /// * `parent_folder_id` - The id of the parent folder to create the new
+    ///                        folder in. Use 0 to create a root folder.
+    /// * `slug` - The slug of the new folder.
+    /// * `name` - The name of the new folder.
     pub fn asset_folder_create(
         &self,
         parent_folder_id: i64,
@@ -191,6 +222,11 @@ impl Api {
         )
     }
 
+    /// Rename an asset.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the asset to rename.
+    /// * `filename` - The new name of the asset.
     pub fn asset_rename(
         &self,
         id: i64,
@@ -204,10 +240,15 @@ impl Api {
         )
     }
 
+    /// Delete an asset.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the asset to delete.
     pub fn asset_delete(&self, id: i64) -> Result<(), asset::AssetError> {
         asset::asset_delete(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// Flush the temporary upload folder.
     pub fn asset_temp_upload_flush(&self) -> Result<(), asset::AssetError> {
         asset::asset_temp_upload_flush(
             &self.client,
@@ -215,6 +256,13 @@ impl Api {
         )
     }
 
+    /// Download an asset.
+    ///
+    /// # Arguments
+    /// * `path` - The path of the asset to download.
+    ///
+    /// # Returns
+    /// A Result containing either the asset's bytes or an asset error.
     pub fn asset_download(
         &self,
         path: String,
@@ -222,6 +270,12 @@ impl Api {
         asset::asset_download(&self.client, self.url.as_str(), path)
     }
 
+    /// Upload an asset.
+    ///
+    /// # Arguments
+    /// * `folder` - The id of the folder to upload the asset to.
+    /// * `name` - The name of the asset.
+    /// * `data` - The bytes of the asset.
     pub fn asset_upload(
         &self,
         folder: i64,
@@ -255,6 +309,11 @@ impl Api {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// Get a page by its path.
+    ///
+    /// # Arguments
+    /// * `path` - The path of the page to get.
+    /// * `locale` - The locale of the page to get.
     pub fn page_get_by_path(
         &self,
         path: String,
@@ -268,10 +327,21 @@ impl Api {
         )
     }
 
+    /// List all page tags.
     pub fn page_tag_list(&self) -> Result<Vec<page::PageTag>, page::PageError> {
         page::page_tag_list(&self.client, &format!("{}/graphql", self.url))
     }
 
+    /// List all pages.
+    ///
+    /// # Arguments
+    /// * `limit` - The maximum number of pages to return.
+    /// * `order_by` - The field to order the pages by.
+    /// * `order_by_direction` - The direction to order the pages by.
+    /// * `tags` - A list of tags to filter the pages by.
+    /// * `locale` - The locale of the pages to list.
+    /// * `creator_id` - The id of the creator of the pages to list.
+    /// * `author_id` - The id of the author of the pages to list.
     #[allow(clippy::too_many_arguments)]
     pub fn page_list(
         &self,
@@ -296,6 +366,13 @@ impl Api {
         )
     }
 
+    /// Get a page's content by its id.
+    ///
+    /// # Arguments
+    /// * `parent` - The id of the parent tree item. Use 0 for the root.
+    /// * `mode` - The mode of what items to include.
+    /// * `include_ancestors` - Whether to include the ancestors of the page.
+    /// * `locale` - The locale of the page to get.
     pub fn page_tree_get(
         &self,
         parent: i64,
@@ -313,14 +390,38 @@ impl Api {
         )
     }
 
+    /// Delete a page.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page to delete.
     pub fn page_delete(&self, id: i64) -> Result<(), page::PageError> {
         page::page_delete(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// Render a page.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page to render.
     pub fn page_render(&self, id: i64) -> Result<(), page::PageError> {
         page::page_render(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// Create a new page.
+    ///
+    /// # Arguments
+    /// * `content` - The content of the page.
+    /// * `description` - The description of the page.
+    /// * `editor` - The editor of the page.
+    /// * `is_published` - Whether the page is published.
+    /// * `is_private` - Whether the page is private.
+    /// * `locale` - The locale of the page.
+    /// * `path` - The path of the page.
+    /// * `publish_end_date` - The end date of the page's publication.
+    /// * `publish_start_date` - The start date of the page's publication.
+    /// * `script_css` - The CSS script of the page.
+    /// * `script_js` - The JS script of the page.
+    /// * `tags` - The tags of the page.
+    /// * `title` - The title of the page.
     #[allow(clippy::too_many_arguments)]
     pub fn page_create(
         &self,
@@ -357,6 +458,23 @@ impl Api {
         )
     }
 
+    /// Update a page.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page to update.
+    /// * `content` - The new content of the page.
+    /// * `description` - The new description of the page.
+    /// * `editor` - The new editor of the page.
+    /// * `is_published` - Whether the page is published.
+    /// * `is_private` - Whether the page is private.
+    /// * `locale` - The new locale of the page.
+    /// * `path` - The new path of the page.
+    /// * `publish_end_date` - The new end date of the page's publication.
+    /// * `publish_start_date` - The new start date of the page's publication.
+    /// * `script_css` - The new CSS script of the page.
+    /// * `script_js` - The new JS script of the page.
+    /// * `tags` - The new tags of the page.
+    /// * `title` - The new title of the page.
     #[allow(clippy::too_many_arguments)]
     pub fn page_update(
         &self,
@@ -395,6 +513,11 @@ impl Api {
         )
     }
 
+    /// Update a page's content.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page to update.
+    /// * `content` - The new content of the page.
     pub fn page_update_content(
         &self,
         id: i64,
@@ -418,6 +541,12 @@ impl Api {
         )
     }
 
+    /// Get a page's history.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page to get the history of.
+    /// * `offset_page` - The page offset.
+    /// * `offset_size` - The offset size.
     pub fn page_history_get(
         &self,
         id: i64,
@@ -433,6 +562,11 @@ impl Api {
         )
     }
 
+    /// Get specific version of a page.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page to get the version of.
+    /// * `version` - The version of the page to get.
     pub fn page_version_get(
         &self,
         id: i64,
@@ -446,6 +580,12 @@ impl Api {
         )
     }
 
+    /// Search for pages.
+    ///
+    /// # Arguments
+    /// * `query` - The query to search for.
+    /// * `path` - The path to search in.
+    /// * `locale` - The locale to search in.
     pub fn page_search(
         &self,
         query: String,
@@ -461,6 +601,10 @@ impl Api {
         )
     }
 
+    /// List all page links.
+    ///
+    /// # Arguments
+    /// * `locale` - The locale to list page links for.
     pub fn page_link_list(
         &self,
         locale: String,
@@ -472,6 +616,11 @@ impl Api {
         )
     }
 
+    /// Check for page conflicts.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page.
+    /// * `checkout_date` - The checkout date of the page.
     pub fn page_conflict_check(
         &self,
         id: i64,
@@ -485,6 +634,10 @@ impl Api {
         )
     }
 
+    /// Get the latest page conflict.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page.
     pub fn page_conflict_latest(
         &self,
         id: i64,
@@ -496,6 +649,11 @@ impl Api {
         )
     }
 
+    /// Convert a page to a different editor format.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page.
+    /// * `editor` - The editor to convert the page to.
     pub fn page_convert(
         &self,
         id: i64,
@@ -509,6 +667,12 @@ impl Api {
         )
     }
 
+    /// Move a page.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page.
+    /// * `destination_path` - The destination path of the page.
+    /// * `destination_locale` - The destination locale of the page.
     pub fn page_move(
         &self,
         id: i64,
@@ -524,6 +688,10 @@ impl Api {
         )
     }
 
+    /// Delete a page tag.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page tag.
     pub fn page_tag_delete(&self, id: i64) -> Result<(), page::PageError> {
         page::page_tag_delete(
             &self.client,
@@ -532,6 +700,12 @@ impl Api {
         )
     }
 
+    /// Update a page tag.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page tag.
+    /// * `tag` - The new name of the page tag.
+    /// * `title` - The new title of the page tag.
     pub fn page_tag_update(
         &self,
         id: i64,
@@ -547,10 +721,16 @@ impl Api {
         )
     }
 
+    /// Flush the page cache.
     pub fn page_cache_flush(&self) -> Result<(), page::PageError> {
         page::page_cache_flush(&self.client, &format!("{}/graphql", self.url))
     }
 
+    /// Migrate pages from one locale to another.
+    ///
+    /// # Arguments
+    /// * `source_locale` - The source locale to migrate from.
+    /// * `target_locale` - The target locale to migrate to.
     pub fn page_migrate_to_locale(
         &self,
         source_locale: String,
@@ -564,10 +744,16 @@ impl Api {
         )
     }
 
+    /// Rebuild the page tree.
     pub fn page_tree_rebuild(&self) -> Result<(), page::PageError> {
         page::page_tree_rebuild(&self.client, &format!("{}/graphql", self.url))
     }
 
+    /// Restore a page version.
+    ///
+    /// # Arguments
+    /// * `page_id` - The id of the page.
+    /// * `version_id` - The id of the version to restore.
     pub fn page_restore(
         &self,
         page_id: i64,
@@ -581,6 +767,10 @@ impl Api {
         )
     }
 
+    /// Purge the page history.
+    ///
+    /// # Arguments
+    /// * `older_than` - The date to purge history entries older than.
     pub fn page_history_purge(
         &self,
         older_than: String,
@@ -593,6 +783,14 @@ impl Api {
     }
 
     // authentication functions
+
+    /// Login via username and password.
+    ///
+    /// # Arguments
+    /// * `username` - The username to login with.
+    /// * `password` - The password to login with.
+    /// * `strategy` - The authentication strategy to use, for example "local".
+    ///                Use [`authentication_strategy_list`](#method.authentication_strategy_list)
     pub fn login(
         &self,
         username: String,
@@ -609,6 +807,7 @@ impl Api {
         )
     }
 
+    /// List API keys.
     pub fn api_key_list(
         &self,
     ) -> Result<Vec<authentication::ApiKey>, user::UserError> {
@@ -618,6 +817,7 @@ impl Api {
         )
     }
 
+    /// Get the current API state.
     pub fn api_state_get(&self) -> Result<bool, user::UserError> {
         authentication::api_state_get(
             &self.client,
@@ -625,6 +825,7 @@ impl Api {
         )
     }
 
+    /// List all authentication strategies.
     pub fn authentication_strategy_list(
         &self,
     ) -> Result<Vec<authentication::AuthenticationStrategy>, user::UserError>
@@ -635,6 +836,10 @@ impl Api {
         )
     }
 
+    /// List authentication strategies.
+    ///
+    /// # Arguments
+    /// * `enabled_only` - Only list enabled authentication strategies.
     pub fn authentication_active_strategy_list(
         &self,
         enabled_only: Option<bool>,
@@ -649,6 +854,13 @@ impl Api {
         )
     }
 
+    /// Create a new API key.
+    ///
+    /// # Arguments
+    /// * `name` - The name of the API key.
+    /// * `expiration` - The expiration date of the API key.
+    /// * `full_access` - Whether the API key has full access.
+    /// * `group` - The group of the API key.
     pub fn api_key_create(
         &self,
         name: String,
@@ -666,6 +878,12 @@ impl Api {
         )
     }
 
+    /// Login via TFA.
+    ///
+    /// # Arguments
+    /// * `continuation_token` - The continuation token of the TFA login.
+    /// * `security_code` - The security code of the TFA login.
+    /// * `setup` - Whether this is a setup login.
     pub fn login_tfa(
         &self,
         continuation_token: String,
@@ -682,6 +900,11 @@ impl Api {
         )
     }
 
+    /// Change the password of a user.
+    ///
+    /// # Arguments
+    /// * `continuation_token` - The continuation token of the password change.
+    /// * `new_password` - The new password of the user.
     pub fn login_password_change(
         &self,
         continuation_token: String,
@@ -696,6 +919,10 @@ impl Api {
         )
     }
 
+    /// Issue a password forgotten mail.
+    ///
+    /// # Arguments
+    /// * `email` - The email of the user to reset the password for.
     pub fn password_forgot(
         &self,
         email: String,
@@ -707,6 +934,12 @@ impl Api {
         )
     }
 
+    /// Register a new user.
+    ///
+    /// # Arguments
+    /// * `email` - The email of the new user.
+    /// * `password` - The password of the new user.
+    /// * `name` - The name of the new user.
     pub fn register(
         &self,
         email: String,
@@ -723,6 +956,10 @@ impl Api {
         )
     }
 
+    /// Revoke an API key.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the API key to revoke.
     pub fn api_key_revoke(&self, id: i64) -> Result<(), user::UserError> {
         authentication::api_key_revoke(
             &self.client,
@@ -731,6 +968,10 @@ impl Api {
         )
     }
 
+    /// Set the API state.
+    ///
+    /// # Arguments
+    /// * `enabled` - Whether the API should be enabled.
     pub fn api_state_set(&self, enabled: bool) -> Result<(), user::UserError> {
         authentication::api_state_set(
             &self.client,
@@ -739,6 +980,10 @@ impl Api {
         )
     }
 
+    /// Update the authentication strategies.
+    ///
+    /// # Arguments
+    /// * `strategies` - The new authentication strategies.
     pub fn authentication_strategy_update(
         &self,
         strategies: Vec<authentication::AuthenticationStrategyInput>,
@@ -750,6 +995,7 @@ impl Api {
         )
     }
 
+    /// Regenerate the authentication certificates.
     pub fn authentication_certificate_regenerate(
         &self,
     ) -> Result<(), user::UserError> {
@@ -759,6 +1005,7 @@ impl Api {
         )
     }
 
+    /// Reset the guest user.
     pub fn guest_user_reset(&self) -> Result<(), user::UserError> {
         authentication::guest_user_reset(
             &self.client,
@@ -767,6 +1014,8 @@ impl Api {
     }
 
     // contribute functions
+
+    /// List all contributors.
     pub fn contributor_list(
         &self,
     ) -> Result<Vec<contribute::Contributor>, contribute::ContributeError> {
@@ -777,6 +1026,8 @@ impl Api {
     }
 
     // analytics functions
+
+    /// List all analytics providers.
     pub fn analytics_provider_list(
         &self,
     ) -> Result<Vec<analytics::AnalyticsProvider>, analytics::AnalyticsError>
@@ -787,6 +1038,10 @@ impl Api {
         )
     }
 
+    /// Update the analytics providers.
+    ///
+    /// # Arguments
+    /// * `providers` - The new analytics providers.
     pub fn analytics_provider_update(
         &self,
         providers: Vec<analytics::AnalyticsProviderInput>,
@@ -799,6 +1054,12 @@ impl Api {
     }
 
     // comment functions
+
+    /// List all comments of a page
+    ///
+    /// # Arguments
+    /// * `locale` - The locale of the page to list comments for.
+    /// * `path` - The path of the page to list comments for.
     pub fn comment_list(
         &self,
         locale: String,
@@ -812,6 +1073,7 @@ impl Api {
         )
     }
 
+    /// List all comment providers.
     pub fn comment_provider_list(
         &self,
     ) -> Result<Vec<comment::CommentProvider>, comment::CommentError> {
@@ -821,6 +1083,10 @@ impl Api {
         )
     }
 
+    /// Get a specific comment.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the comment to get.
     pub fn comment_get(
         &self,
         id: i64,
@@ -828,6 +1094,10 @@ impl Api {
         comment::comment_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// Update the comment providers.
+    ///
+    /// # Arguments
+    /// * `providers` - The new comment providers.
     pub fn comment_provider_update(
         &self,
         providers: Vec<comment::CommentProviderInput>,
@@ -839,6 +1109,16 @@ impl Api {
         )
     }
 
+    /// Create a new comment.
+    ///
+    /// # Arguments
+    /// * `page_id` - The id of the page to create the comment for.
+    /// * `reply_to` - The id of the comment to reply to.
+    /// * `content` - The content of the comment.
+    /// * `guest_name` - The name of the guest if the comment is created
+    ///                  by a guest.
+    /// * `guest_email` - The email of the guest if the comment is created
+    ///                   by a guest.
     pub fn comment_create(
         &self,
         page_id: i64,
@@ -858,6 +1138,11 @@ impl Api {
         )
     }
 
+    /// Update a comment.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the comment to update.
+    /// * `content` - The new content of the comment.
     pub fn comment_update(
         &self,
         id: i64,
@@ -871,6 +1156,10 @@ impl Api {
         )
     }
 
+    /// Delete a comment.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the comment to delete.
     pub fn comment_delete(&self, id: i64) -> Result<(), comment::CommentError> {
         comment::comment_delete(
             &self.client,
@@ -880,10 +1169,20 @@ impl Api {
     }
 
     // user functions
+
+    /// Get a user.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the user to get.
     pub fn user_get(&self, id: i64) -> Result<user::User, user::UserError> {
         user::user_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// List users.
+    ///
+    /// # Arguments
+    /// * `filter` - The filter to apply.
+    /// * `order_by` - The order by to apply.
     pub fn user_list(
         &self,
         filter: Option<String>,
@@ -897,10 +1196,18 @@ impl Api {
         )
     }
 
+    /// Activate a user.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the user to activate.
     pub fn user_activate(&self, id: i64) -> Result<(), user::UserError> {
         user::user_activate(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// Deactivate a user.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the user to deactivate.
     pub fn user_deactivate(&self, id: i64) -> Result<(), user::UserError> {
         user::user_deactivate(
             &self.client,
@@ -909,6 +1216,10 @@ impl Api {
         )
     }
 
+    /// Delete a user.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the user to delete.
     pub fn user_delete(
         &self,
         id: i64,
@@ -922,6 +1233,10 @@ impl Api {
         )
     }
 
+    /// Disable TFA for a user.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the user.
     pub fn user_tfa_disable(&self, id: i64) -> Result<(), user::UserError> {
         user::user_tfa_disable(
             &self.client,
@@ -930,6 +1245,10 @@ impl Api {
         )
     }
 
+    /// Enable TFA for a user.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the user.
     pub fn user_tfa_enable(&self, id: i64) -> Result<(), user::UserError> {
         user::user_tfa_enable(
             &self.client,
@@ -938,10 +1257,18 @@ impl Api {
         )
     }
 
+    /// Verify a user.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the user.
     pub fn user_verify(&self, id: i64) -> Result<(), user::UserError> {
         user::user_verify(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// Search for users.
+    ///
+    /// # Arguments
+    /// * `query` - The query to search for.
     pub fn user_search(
         &self,
         query: String,
@@ -949,12 +1276,14 @@ impl Api {
         user::user_search(&self.client, &format!("{}/graphql", self.url), query)
     }
 
+    /// Get the current user's profile.
     pub fn user_profile_get(
         &self,
     ) -> Result<user::UserProfile, user::UserError> {
         user::user_profile_get(&self.client, &format!("{}/graphql", self.url))
     }
 
+    /// List the last logins.
     pub fn user_last_login_list(
         &self,
     ) -> Result<Vec<user::UserLastLogin>, user::UserError> {
@@ -964,6 +1293,16 @@ impl Api {
         )
     }
 
+    /// Create a new user.
+    ///
+    /// # Arguments
+    /// * `email` - The email address.
+    /// * `name` - The username.
+    /// * `password_raw` - The raw password.
+    /// * `provider_key` - The provider key.
+    /// * `groups` - The groups of the user.
+    /// * `must_change_password` - Whether the user must change the password.
+    /// * `send_welcome_email` - Whether to send a welcome email.
     #[allow(clippy::too_many_arguments)]
     pub fn user_create(
         &self,
@@ -988,6 +1327,19 @@ impl Api {
         )
     }
 
+    /// Update a user.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the user to update.
+    /// * `email` - The email address.
+    /// * `name` - The username.
+    /// * `new_password` - The new password.
+    /// * `groups` - The groups of the user.
+    /// * `location` - The location of the user.
+    /// * `job_title` - The job title of the user.
+    /// * `timezone` - The timezone of the user.
+    /// * `date_format` - The date format of the user.
+    /// * `appearance` - The appearance of the user.
     #[allow(clippy::too_many_arguments)]
     pub fn user_update(
         &self,
@@ -1018,6 +1370,15 @@ impl Api {
         )
     }
 
+    /// Update the current user's profile.
+    ///
+    /// # Arguments
+    /// * `name` - The username.
+    /// * `location` - The location of the user.
+    /// * `job_title` - The job title of the user.
+    /// * `timezone` - The timezone of the user.
+    /// * `date_format` - The date format of the user.
+    /// * `appearance` - The appearance of the user.
     #[allow(clippy::too_many_arguments)]
     pub fn user_profile_update(
         &self,
@@ -1040,6 +1401,11 @@ impl Api {
         )
     }
 
+    /// Change the password of the current user.
+    ///
+    /// # Arguments
+    /// * `current` - The current password.
+    /// * `new` - The new password.
     pub fn user_password_change(
         &self,
         current: String,
@@ -1053,6 +1419,10 @@ impl Api {
         )
     }
 
+    /// Reset the password of a user.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the user to reset the password for.
     pub fn user_password_reset(&self, id: i64) -> Result<(), user::UserError> {
         user::user_password_reset(
             &self.client,
@@ -1062,6 +1432,12 @@ impl Api {
     }
 
     // group functions
+
+    /// List groups.
+    ///
+    /// # Arguments
+    /// * `filter` - The filter to apply.
+    /// * `order_by` - The order by to apply.
     pub fn group_list(
         &self,
         filter: Option<String>,
@@ -1075,6 +1451,10 @@ impl Api {
         )
     }
 
+    /// Get a group.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the group to get.
     pub fn group_get(
         &self,
         id: i64,
@@ -1082,6 +1462,10 @@ impl Api {
         group::group_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// Create a new group.
+    ///
+    /// # Arguments
+    /// * `name` - The name of the group.
     pub fn group_create(&self, name: String) -> Result<(), group::GroupError> {
         group::group_create(
             &self.client,
@@ -1090,6 +1474,14 @@ impl Api {
         )
     }
 
+    /// Update a group.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the group to update.
+    /// * `name` - The new name of the group.
+    /// * `redirect_on_login` - The new redirect on login of the group.
+    /// * `permissions` - The new permissions of the group.
+    /// * `page_rules` - The new page rules of the group.
     pub fn group_update(
         &self,
         id: i64,
@@ -1109,10 +1501,19 @@ impl Api {
         )
     }
 
+    /// Delete a group.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the group to delete.
     pub fn group_delete(&self, id: i64) -> Result<(), group::GroupError> {
         group::group_delete(&self.client, &format!("{}/graphql", self.url), id)
     }
 
+    /// Assign a user to a group.
+    ///
+    /// # Arguments
+    /// * `group_id` - The id of the group to assign the user to.
+    /// * `user_id` - The id of the user to assign to the group.
     pub fn group_user_assign(
         &self,
         group_id: i64,
@@ -1126,6 +1527,11 @@ impl Api {
         )
     }
 
+    /// Unassign a user from a group.
+    ///
+    /// # Arguments
+    /// * `group_id` - The id of the group to unassign the user from.
+    /// * `user_id` - The id of the user to unassign from the group.
     pub fn group_user_unassign(
         &self,
         group_id: i64,
@@ -1140,6 +1546,8 @@ impl Api {
     }
 
     // locale functions
+
+    /// List all locales.
     pub fn locale_list(
         &self,
     ) -> Result<Vec<localization::Locale>, localization::LocaleError> {
@@ -1149,6 +1557,7 @@ impl Api {
         )
     }
 
+    /// Get a locale configuration.
     pub fn locale_config_get(
         &self,
     ) -> Result<localization::LocaleConfig, localization::LocaleError> {
@@ -1158,6 +1567,11 @@ impl Api {
         )
     }
 
+    /// List all translations.
+    ///
+    /// # Arguments
+    /// * `locale` - The locale to list translations for.
+    /// * `namespace` - The namespace to list translations for.
     pub fn translation_list(
         &self,
         locale: String,
@@ -1171,6 +1585,10 @@ impl Api {
         )
     }
 
+    /// Download a locale.
+    ///
+    /// # Arguments
+    /// * `locale` - The locale to download.
     pub fn locale_download(
         &self,
         locale: String,
@@ -1182,6 +1600,13 @@ impl Api {
         )
     }
 
+    /// Upload a locale.
+    ///
+    /// # Arguments
+    /// * `locale` - The locale to upload.
+    /// * `auto_update` - Whether to auto update the locale.
+    /// * `namespacing` - Whether to namespace the locale.
+    /// * `namespaces` - The namespaces to use.
     pub fn locale_update(
         &self,
         locale: String,
@@ -1200,6 +1625,12 @@ impl Api {
     }
 
     // logger functions
+
+    /// List all loggers.
+    ///
+    /// # Arguments
+    /// * `filter` - The filter to apply.
+    /// * `order_by` - The order by to apply.
     pub fn logger_list(
         &self,
         filter: Option<String>,
@@ -1213,6 +1644,10 @@ impl Api {
         )
     }
 
+    /// Update loggers.
+    ///
+    /// # Arguments
+    /// * `loggers` - The new loggers.
     pub fn logger_update(
         &self,
         loggers: Vec<logging::LoggerInput>,
@@ -1225,10 +1660,16 @@ impl Api {
     }
 
     // mail functions
+
+    /// Get the mail configuration.
     pub fn mail_config_get(&self) -> Result<mail::MailConfig, mail::MailError> {
         mail::mail_config_get(&self.client, &format!("{}/graphql", self.url))
     }
 
+    /// Send a test mail.
+    ///
+    /// # Arguments
+    /// * `recipient_email` - The email address of the recipient.
     pub fn mail_send_test(
         &self,
         recipient_email: String,
@@ -1240,6 +1681,22 @@ impl Api {
         )
     }
 
+    /// Update the mail configuration.
+    ///
+    /// # Arguments
+    /// * `sender_name` - The name of the sender.
+    /// * `sender_email` - The email address of the sender.
+    /// * `host` - The host of the mail server.
+    /// * `port` - The port of the mail server.
+    /// * `name` - The name of the mail server.
+    /// * `secure` - Whether the connection should be secure.
+    /// * `verify_ssl` - Whether the SSL certificate should be verified.
+    /// * `user` - The user of the mail server.
+    /// * `pass` - The password of the mail server.
+    /// * `use_dkim` - Whether DKIM should be used.
+    /// * `dkim_domain_name` - The domain name of DKIM.
+    /// * `dkim_key_selector` - The key selector of DKIM.
+    /// * `dkim_private_key` - The private key of DKIM.
     #[allow(clippy::too_many_arguments)]
     pub fn mail_config_update(
         &self,
@@ -1277,6 +1734,8 @@ impl Api {
     }
 
     // navigation functions
+
+    /// Get the navigation configuration.
     pub fn navigation_config_get(
         &self,
     ) -> Result<navigation::NavigationConfig, navigation::NavigationError> {
@@ -1286,6 +1745,7 @@ impl Api {
         )
     }
 
+    /// Get the navigation tree.
     pub fn navigation_tree_get(
         &self,
     ) -> Result<Vec<navigation::NavigationTree>, navigation::NavigationError>
@@ -1296,6 +1756,10 @@ impl Api {
         )
     }
 
+    /// Update the navigation configuration.
+    ///
+    /// # Arguments
+    /// * `mode` - The new navigation mode.
     pub fn navigation_config_update(
         &self,
         mode: navigation::NavigationMode,
@@ -1307,6 +1771,10 @@ impl Api {
         )
     }
 
+    /// Update the navigation tree.
+    ///
+    /// # Arguments
+    /// * `tree` - The new navigation tree.
     pub fn navigation_tree_update(
         &self,
         tree: Vec<navigation::NavigationTreeInput>,
@@ -1319,18 +1787,22 @@ impl Api {
     }
 
     // system functions
+
+    /// List all system flags.
     pub fn system_flag_list(
         &self,
     ) -> Result<Vec<system::SystemFlag>, system::SystemError> {
         system::system_flag_list(&self.client, &format!("{}/graphql", self.url))
     }
 
+    /// Get the system info.
     pub fn system_info_get(
         &self,
     ) -> Result<system::SystemInfo, system::SystemError> {
         system::system_info_get(&self.client, &format!("{}/graphql", self.url))
     }
 
+    /// List all system extensions.
     pub fn system_extension_list(
         &self,
     ) -> Result<Vec<system::SystemExtension>, system::SystemError> {
@@ -1340,6 +1812,7 @@ impl Api {
         )
     }
 
+    /// Get the system's export status.
     pub fn system_export_status_get(
         &self,
     ) -> Result<system::SystemExportStatus, system::SystemError> {
@@ -1349,6 +1822,10 @@ impl Api {
         )
     }
 
+    /// Update the system flags.
+    ///
+    /// # Arguments
+    /// * `flags` - The new system flags.
     pub fn system_flags_update(
         &self,
         flags: Vec<system::SystemFlagInput>,
@@ -1360,6 +1837,7 @@ impl Api {
         )
     }
 
+    /// Reset the telemetry client id.
     pub fn telemetry_client_id_reset(&self) -> Result<(), system::SystemError> {
         system::telemetry_client_id_reset(
             &self.client,
@@ -1367,6 +1845,10 @@ impl Api {
         )
     }
 
+    /// Set the telemetry enabled flag.
+    ///
+    /// # Arguments
+    /// * `enabled` - Whether telemetry is enabled.
     pub fn telemetry_set(
         &self,
         enabled: bool,
@@ -1378,6 +1860,7 @@ impl Api {
         )
     }
 
+    /// Perform a system upgrade.
     pub fn system_upgrade_perform(&self) -> Result<(), system::SystemError> {
         system::system_upgrade_perform(
             &self.client,
@@ -1385,6 +1868,11 @@ impl Api {
         )
     }
 
+    /// Import users from a v1 database.
+    ///
+    /// # Arguments
+    /// * `mongo_db_conn_string` - The MongoDB connection string.
+    /// * `group_code` - The group code to use.
     pub fn system_user_import_from_v1(
         &self,
         mongo_db_conn_string: String,
@@ -1398,6 +1886,10 @@ impl Api {
         )
     }
 
+    /// Set the https redirection flag.
+    ///
+    /// # Arguments
+    /// * `enabled` - Whether https redirection is enabled.
     pub fn https_redirection_set(
         &self,
         enabled: bool,
@@ -1409,6 +1901,7 @@ impl Api {
         )
     }
 
+    /// Renew the https certificate.
     pub fn https_certificate_renew(&self) -> Result<(), system::SystemError> {
         system::https_certificate_renew(
             &self.client,
@@ -1417,12 +1910,15 @@ impl Api {
     }
 
     // theming functions
+
+    /// List all themes.
     pub fn theme_list(
         &self,
     ) -> Result<Vec<theming::Theme>, theming::ThemeError> {
         theming::theme_list(&self.client, &format!("{}/graphql", self.url))
     }
 
+    /// Get the theme configuration.
     pub fn theme_config_get(
         &self,
     ) -> Result<theming::ThemingConfig, theming::ThemeError> {
@@ -1432,6 +1928,16 @@ impl Api {
         )
     }
 
+    /// Update the theme configuration.
+    ///
+    /// # Arguments
+    /// * `theme` - The new theme.
+    /// * `iconset` - The new iconset.
+    /// * `dark_mode` - Whether dark mode is enabled.
+    /// * `toc_position` - The new toc position.
+    /// * `inject_css` - The new css to inject.
+    /// * `inject_head` - The new head to inject.
+    /// * `inject_body` - The new body to inject.
     #[allow(clippy::too_many_arguments)]
     pub fn theme_config_update(
         &self,
@@ -1457,6 +1963,12 @@ impl Api {
     }
 
     // rendering functions
+
+    /// List all renderers.
+    ///
+    /// # Arguments
+    /// * `filter` - The filter to apply.
+    /// * `order_by` - The order by to apply.
     pub fn renderer_list(
         &self,
         filter: Option<String>,
@@ -1470,6 +1982,10 @@ impl Api {
         )
     }
 
+    /// Update renderers.
+    ///
+    /// # Arguments
+    /// * `renderers` - The new renderers.
     pub fn renderer_update(
         &self,
         renderers: Vec<rendering::RendererInput>,
@@ -1482,6 +1998,12 @@ impl Api {
     }
 
     // search functions
+
+    /// List search engines.
+    ///
+    /// # Arguments
+    /// * `filter` - The filter to apply.
+    /// * `order_by` - The order by to apply.
     pub fn search_engine_list(
         &self,
         filter: Option<String>,
@@ -1495,6 +2017,7 @@ impl Api {
         )
     }
 
+    /// Rebuild the search engine index.
     pub fn search_engine_index_rebuild(
         &self,
     ) -> Result<(), search::SearchError> {
@@ -1504,6 +2027,10 @@ impl Api {
         )
     }
 
+    /// Update search engines.
+    ///
+    /// # Arguments
+    /// * `engines` - The new search engines.
     pub fn search_engine_update(
         &self,
         engines: Vec<search::SearchEngineInput>,
@@ -1516,10 +2043,16 @@ impl Api {
     }
 
     // site functions
+
+    /// Get the site configuration.
     pub fn site_config_get(&self) -> Result<site::SiteConfig, site::SiteError> {
         site::site_config_get(&self.client, &format!("{}/graphql", self.url))
     }
 
+    /// Update the site configuration.
+    ///
+    /// # Arguments
+    /// * `config` - The new site configuration.
     pub fn site_config_update(
         &self,
         config: site::SiteConfig,
@@ -1532,6 +2065,12 @@ impl Api {
     }
 
     // storage functions
+
+    /// Execute a storage action.
+    ///
+    /// # Arguments
+    /// * `target_key` - The target key.
+    /// * `handler` - The handler.
     pub fn storage_action_execute(
         &self,
         target_key: String,
@@ -1545,6 +2084,7 @@ impl Api {
         )
     }
 
+    /// List all storage target's status.
     pub fn storage_status_list(
         &self,
     ) -> Result<Vec<storage::StorageStatus>, storage::StorageError> {
@@ -1554,6 +2094,7 @@ impl Api {
         )
     }
 
+    /// List all storage targets.
     pub fn storage_target_list(
         &self,
     ) -> Result<Vec<storage::StorageTarget>, storage::StorageError> {
@@ -1563,6 +2104,10 @@ impl Api {
         )
     }
 
+    /// Update storage targets.
+    ///
+    /// # Arguments
+    /// * `targets` - The new storage targets.
     pub fn storage_target_update(
         &self,
         targets: Vec<storage::StorageTargetInput>,
