@@ -8,7 +8,6 @@ API bindings, CLI client and FUSE filesystem for Wiki.js written in Rust.
 
 [![Tests](https://github.com/gierens/wikijs-rs/actions/workflows/testing.yml/badge.svg)](https://github.com/gierens/wikijs-rs/actions/workflows/testing.yml)
 ![Crates.io](https://img.shields.io/crates/v/wikijs?link=https://crates.io/crates/wikijs)
-![Crates.io](https://img.shields.io/crates/l/wikijs?link=https://crates.io/crates/wikijs)
 
 </div>
 
