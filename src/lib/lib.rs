@@ -2,6 +2,46 @@
     html_logo_url = "https://raw.githubusercontent.com/gierens/wikijs-rs/main/logo/logo.svg",
     html_favicon_url = "https://raw.githubusercontent.com/gierens/wikijs-rs/main/logo/favicon.ico"
 )]
+//! API bindings, CLI client and FUSE filesystem for Wiki.js written in Rust.
+//!
+//! This documents the library only, for more information on using the
+//! CLI and FUSE refer to their `-h/--help` commands.
+//!
+//! # Structure
+//! The central struct is [`Api`](struct.Api.html) which is used to directly
+//! access all functionality of the Wiki.js APIs. This very flat structure
+//! should allow you easy discovery and autocompletion. 
+//!
+//! The library has submodules for each of the Wiki.js' API endpoints. They
+//! contain the internal implementation of the library functions as well as
+//! all the structs and enums used to interact with the API.
+//!
+//! # Example
+//! The following example shows you to login via an API key and retrieve a
+//! [`page::Page`](page/struct.Page.html) struct:
+//! ```no_run
+//! use wikijs::{Api, Credentials};
+//!
+//! let api = Api::new(
+//!     "http://localhost:3000".to_string(),
+//!     Credentials::Key("my-api-key".to_string()),
+//! );
+//! // this returns a page::Page
+//! let page = api.page_get(1).unwrap();
+//! println!("{:?}", page);
+//! ```
+//!
+//! # Error handling
+//! All API functions return a `Result` with custom module specific error
+//! types derived from Wiki.js' error codes. Note we are ignoring a potential
+//! [`page::PageError`](page/enum.PageError.html) in the example above!
+//!
+//! # Testing
+//! The integration tests require a clean Wiki.js instance running on localhost
+//! with predefined admin login credentials. See the testing section of the
+//! [README](https://github.com/gierens/wikijs-rs#testing) on Github or your
+//! clone of the project for more details.
+
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 
