@@ -4,7 +4,8 @@
 
 ![](https://raw.githubusercontent.com/gierens/wikijs-rs/main/logo/logo-small.png)
 
-API bindings, CLI client and FUSE filesystem for Wiki.js written in Rust.
+API bindings, CLI client and FUSE filesystem for [Wiki.js](https://js.wiki/)
+written in Rust.
 
 [![Tests](https://github.com/gierens/wikijs-rs/actions/workflows/testing.yml/badge.svg)](https://github.com/gierens/wikijs-rs/actions/workflows/testing.yml)
 ![Crates.io](https://img.shields.io/crates/v/wikijs?link=https://crates.io/crates/wikijs)
