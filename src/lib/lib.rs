@@ -258,13 +258,13 @@ impl Api {
     pub fn page_get_by_path(
         &self,
         path: String,
-        locate: String,
+        locale: String,
     ) -> Result<page::Page, page::PageError> {
         page::page_get_by_path(
             &self.client,
             &format!("{}/graphql", self.url),
             path,
-            locate,
+            locale,
         )
     }
 
