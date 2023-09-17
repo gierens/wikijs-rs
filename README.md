@@ -123,6 +123,38 @@ cat test.md
 ```
 provided you have a `markdown` page located at `/test` in your wiki.
 
+## Installation
+These instructions are for the CLI only so far, as the FUSE filesystem is not
+ready to be shipped.
+
+### Cargo
+Run the following to install the CLI from [crates.io](https://crates.io):
+```bash
+cargo install wikijs --features=cli
+```
+
+### Debian and Ubuntu
+The CLI is available from [deb.gierens.de](http://deb.gierens.de). The GPG
+public key is in this repo under [deb.asc](/deb.asc).
+
+First make sure you have the `gpg` command, and otherwise install it via:
+
+```bash
+sudo apt update
+sudo apt install -y gpg
+```
+
+Then install `wikijs-rs` via:
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+wget -qO- https://raw.githubusercontent.com/gierens/wikijs-rs/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+sudo apt update
+sudo apt install -y wikijs-rs
+```
+
 ## Contributing
 Use small commits that make isolated changes to a single module and name them
 according to [conventional commits](https://www.conventionalcommits.org/).
