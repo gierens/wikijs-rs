@@ -23,7 +23,7 @@ for ARCH in "${!TARGETS[@]}"; do
 
     TARGET=${TARGETS[$ARCH]}
     echo " -> compiling ${TARGET} binary"
-    cargo build --target "${TARGET}" --release --features=cli
+    cargo build --target "${TARGET}" --release --features="cli vendored-tls"
     # cross build --target "${TARGET}" --release
 
     echo " -> creating directory structure"
