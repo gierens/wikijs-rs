@@ -172,7 +172,7 @@ filesystem, as I'm currently heavily refactoring that.
 
 ## Testing
 Since this depends on Wiki.js the integration tests located in [tests/](tests)
-can also not done without it. Therefore the
+can also not be done without it. Therefore the
 [docker-compose.yml](docker-compose.yml) is used to run a local instance of it
 on port 80. This setup is also used in the CI workflows. Note that many tests
 assume the wiki to be fresh, no pages no anything ... that's why there is also
