@@ -2,6 +2,8 @@ name: testing
 
 on:
   push:
+    branches:
+      - 'main'
     paths:
       - 'src/**/*'
       - 'tests/**/*'
@@ -10,6 +12,8 @@ on:
       - 'docker-compose.yml'
       - '.github/workflows/testing.yml'
   pull_request:
+    branches:
+      - 'main'
     paths:
       - 'src/**/*'
       - 'tests/**/*'
