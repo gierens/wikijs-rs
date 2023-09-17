@@ -20,7 +20,7 @@ use crate::common::Execute;
 #[derive(Parser)]
 #[command(name = "wikijs-cli")]
 #[command(author = "Sandro-Alessio Gierens <sandro@gierens.de>")]
-#[command(version = "0.1.0")]
+#[command(version = "0.1.1")]
 #[command(about = "Command line client for Wiki.js")]
 struct Cli {
     #[clap(short, long, help = "Wiki.js base URL", env = "WIKI_JS_BASE_URL")]
