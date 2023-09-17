@@ -135,6 +135,16 @@ Please check issues and PRs first and maybe make an issue or draft PR of your
 own so we can coordinate work. This is especially important for the FUSE
 filesystem, as I'm currently heavily refactoring that.
 
+## Testing
+Since this depends on Wiki.js tests can also not done without it. Therefore the
+[docker-compose.yml](docker-compose.yml) is used to run a local instance of it
+with predefined login data (email: admin@admin.com, password: password)
+reachable on port 80. This setup is also used in the CI workflows. Note that
+many tests assume the wiki to be fresh, no pages no anything ... that's why
+there is also no Docker volume, so that on every rebuild all previous data is
+lost. This also means you should make sure you removed everything yourself
+from the instance during debugging when testing.
+
 ## License
 This projects is licensed under [AGPL-3.0](/LICENSE) since
 [Wiki.js](https://github.com/requarks/wiki) is, too.
