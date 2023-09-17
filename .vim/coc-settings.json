@@ -28,6 +28,7 @@
     "rustfmt",
     "setattr",
     "stderrlog",
+    "structs",
     "systemtime",
     "tempfile",
     "thiserror",
