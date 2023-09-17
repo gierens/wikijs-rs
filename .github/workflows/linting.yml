@@ -2,6 +2,8 @@ name: linting
 
 on:
   push:
+    branches:
+      - 'main'
     paths:
       - 'src/**/*'
       - 'tests/**/*'
@@ -11,6 +13,8 @@ on:
       - 'docker-compose.yml'
       - '.github/workflows/linting.yml'
   pull_request:
+    branches:
+      - 'main'
     paths:
       - 'src/**/*'
       - 'tests/**/*'
