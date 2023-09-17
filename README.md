@@ -136,13 +136,21 @@ own so we can coordinate work. This is especially important for the FUSE
 filesystem, as I'm currently heavily refactoring that.
 
 ## Testing
-Since this depends on Wiki.js tests can also not done without it. Therefore the
-[docker-compose.yml](docker-compose.yml) is used to run a local instance of it
-on port 80. This setup is also used in the CI workflows. Note that many tests
-assume the wiki to be fresh, no pages no anything ... that's why there is also
-no Docker volume, so that on every rebuild all previous data is lost. This also
-means you should make sure you removed everything yourself from the instance
-during debugging when testing.
+Since this depends on Wiki.js the integration tests located in [tests/](tests)
+can also not done without it. Therefore
+the[docker-compose.yml](docker-compose.yml) is used to run a local instance of
+it on port 80. This setup is also used in the CI workflows. Note that many
+tests assume the wiki to be fresh, no pages no anything ... that's why there is
+also no Docker volume, so that on every rebuild all previous data is lost. This
+also means you should make sure you removed everything yourself from the
+instance during debugging when testing.
+
+The tests furthermore assume the wiki to have the following admin credentials:
+- email: `admin@admin.com`
+- password: `password`
+To set this up automatically on initial startup of the wiki, you may use
+[scripts/finalize_wiki_setup.sh](scripts/finalize_wiki_setup.sh) which also
+assumes the wiki to run on `http://localhost:80`.
 
 ## License
 This projects is licensed under [AGPL-3.0](/LICENSE) since
