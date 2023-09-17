@@ -45,24 +45,61 @@
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderValue, AUTHORIZATION};
 
+/// Structs, enums, errors and internal API call implementations to interact
+/// with the analytics settings.
 pub mod analytics;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with the assets and asset folders.
 pub mod asset;
+/// Structs, enums, errors and internal API call implementations to call
+/// authentication functions, create API keys and so on.
 pub mod authentication;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with comments.
 pub mod comment;
+/// Common functions and traits used by multiple modules.
 pub mod common;
+/// Structs, enums, errors and internal API call implementations to list
+/// contributors.
 pub mod contribute;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with user groups.
 pub mod group;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with localization settings.
 pub mod localization;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with logging settings.
 pub mod logging;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with mail settings.
 pub mod mail;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with navigation settings and modify the navigation tree.
 pub mod navigation;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with pages and their directory structure.
 pub mod page;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with rendering settings.
 pub mod rendering;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with search engine settings.
 pub mod search;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with site settings.
 pub mod site;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with storage settings.
 pub mod storage;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with system settings.
 pub mod system;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with theming settings.
 pub mod theming;
+/// Structs, enums, errors and internal API call implementations to interact
+/// with users.
 pub mod user;
 
 #[derive(Debug)]
