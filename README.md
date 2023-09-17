@@ -2,7 +2,7 @@
 
 # wikijs-rs
 
-![](https://raw.githubusercontent.com/gierens/wikijs-rs/readme/logo/logo-small.png)
+![](https://raw.githubusercontent.com/gierens/wikijs-rs/main/logo/logo-small.png)
 
 API bindings, CLI client and FUSE filesystem for Wiki.js written in Rust.
 
