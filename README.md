@@ -61,9 +61,8 @@ cargo build --features=cli
 ```
 
 ### Install
-```bash
-cargo install wikijs --features=cli
-```
+The CLI is packaged via cargo, as well as Debian and AUR package, see
+[Installation](#installation) for details.
 
 ### Usage
 The tool takes the URL and credentials either from the arguments or
