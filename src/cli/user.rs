@@ -66,6 +66,15 @@ pub(crate) enum UserCommand {
         #[clap(help = "User ID")]
         id: i64,
     },
+
+    #[clap(about = "Delete a user")]
+    Delete {
+        #[clap(help = "User ID")]
+        id: i64,
+
+        #[clap(help = "Replace user ID")]
+        replace_id: i64,
+    },
 }
 
 impl Execute for UserCommand {
@@ -95,6 +104,9 @@ impl Execute for UserCommand {
             ),
             UserCommand::Activate { id } => user_activate(api, *id),
             UserCommand::Deactivate { id } => user_deactivate(api, *id),
+            UserCommand::Delete { id, replace_id } => {
+                user_delete(api, *id, *replace_id)
+            }
         }
     }
 }
@@ -202,5 +214,15 @@ fn user_activate(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
 fn user_deactivate(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
     api.user_deactivate(id)?;
     println!("{}: User deactivated", "success".bold().green());
+    Ok(())
+}
+
+fn user_delete(
+    api: wikijs::Api,
+    id: i64,
+    replace_id: i64,
+) -> Result<(), Box<dyn Error>> {
+    api.user_delete(id, replace_id)?;
+    println!("{}: User deleted", "success".bold().green());
     Ok(())
 }
