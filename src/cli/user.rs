@@ -60,6 +60,12 @@ pub(crate) enum UserCommand {
         #[clap(help = "User ID")]
         id: i64,
     },
+
+    #[clap(about = "Deactivate a user")]
+    Deactivate {
+        #[clap(help = "User ID")]
+        id: i64,
+    },
 }
 
 impl Execute for UserCommand {
@@ -88,6 +94,7 @@ impl Execute for UserCommand {
                 *send_welcome_email,
             ),
             UserCommand::Activate { id } => user_activate(api, *id),
+            UserCommand::Deactivate { id } => user_deactivate(api, *id),
         }
     }
 }
@@ -189,5 +196,11 @@ fn user_create(
 fn user_activate(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
     api.user_activate(id)?;
     println!("{}: User activated", "success".bold().green());
+    Ok(())
+}
+
+fn user_deactivate(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
+    api.user_deactivate(id)?;
+    println!("{}: User deactivated", "success".bold().green());
     Ok(())
 }
