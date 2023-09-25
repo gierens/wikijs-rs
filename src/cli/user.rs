@@ -1,5 +1,6 @@
 use crate::common::Execute;
 use clap::Subcommand;
+use colored::Colorize;
 use std::error::Error;
 use tabled::{builder::Builder, settings::Style};
 
@@ -19,6 +20,40 @@ pub(crate) enum UserCommand {
         #[clap(short, long, help = "Order users by this")]
         order_by: Option<String>,
     },
+
+    #[clap(about = "Create a user")]
+    Create {
+        #[clap(help = "Email address")]
+        email: String,
+
+        #[clap(help = "Name")]
+        name: String,
+
+        #[clap(
+            short,
+            long,
+            help = "Password, required for local provider, \
+            and length might matter."
+        )]
+        password: Option<String>,
+
+        #[clap(
+            short = 'P',
+            long,
+            help = "Provider key",
+            default_value = "local"
+        )]
+        provider_key: String,
+
+        #[clap(short, long, help = "Groups")]
+        groups: Vec<i64>,
+
+        #[clap(short, long, help = "Must change password")]
+        must_change_password: Option<bool>,
+
+        #[clap(short, long, help = "Send welcome email")]
+        send_welcome_email: Option<bool>,
+    },
 }
 
 impl Execute for UserCommand {
@@ -28,6 +63,24 @@ impl Execute for UserCommand {
             UserCommand::List { filter, order_by } => {
                 user_list(api, filter.to_owned(), order_by.to_owned())
             }
+            UserCommand::Create {
+                email,
+                name,
+                password,
+                provider_key,
+                groups,
+                must_change_password,
+                send_welcome_email,
+            } => user_create(
+                api,
+                email.to_owned(),
+                name.to_owned(),
+                password.to_owned(),
+                provider_key.to_owned(),
+                groups.to_owned(),
+                *must_change_password,
+                *send_welcome_email,
+            ),
         }
     }
 }
@@ -99,5 +152,29 @@ fn user_list(
         ]);
     }
     println!("{}", builder.build().with(Style::rounded()));
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn user_create(
+    api: wikijs::Api,
+    email: String,
+    name: String,
+    password: Option<String>,
+    provider_key: String,
+    groups: Vec<i64>,
+    must_change_password: Option<bool>,
+    send_welcome_email: Option<bool>,
+) -> Result<(), Box<dyn Error>> {
+    api.user_create(
+        email,
+        name,
+        password,
+        provider_key,
+        groups.iter().map(|x| Some(*x)).collect(),
+        must_change_password,
+        send_welcome_email,
+    )?;
+    println!("{}: User created", "success".bold().green());
     Ok(())
 }
