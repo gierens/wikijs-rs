@@ -1,5 +1,5 @@
 use crate::common::Execute;
-use clap::Subcommand;
+use clap::{ArgAction, Subcommand};
 use colored::Colorize;
 use std::error::Error;
 use tabled::{builder::Builder, settings::Style};
@@ -75,6 +75,15 @@ pub(crate) enum UserCommand {
         #[clap(help = "Replace user ID")]
         replace_id: i64,
     },
+
+    #[clap(about = "Turn on/off TFA for a user")]
+    Tfa {
+        #[clap(help = "User ID")]
+        id: i64,
+
+        #[clap(help = "TFA enabled or not", action = ArgAction::Set)]
+        enabled: bool,
+    },
 }
 
 impl Execute for UserCommand {
@@ -107,6 +116,7 @@ impl Execute for UserCommand {
             UserCommand::Delete { id, replace_id } => {
                 user_delete(api, *id, *replace_id)
             }
+            UserCommand::Tfa { id, enabled } => user_tfa(api, *id, *enabled),
         }
     }
 }
@@ -224,5 +234,19 @@ fn user_delete(
 ) -> Result<(), Box<dyn Error>> {
     api.user_delete(id, replace_id)?;
     println!("{}: User deleted", "success".bold().green());
+    Ok(())
+}
+
+fn user_tfa(
+    api: wikijs::Api,
+    id: i64,
+    enabled: bool,
+) -> Result<(), Box<dyn Error>> {
+    if enabled {
+        api.user_tfa_enable(id)?;
+    } else {
+        api.user_tfa_disable(id)?;
+    }
+    println!("{}: User TFA updated", "success".bold().green());
     Ok(())
 }
