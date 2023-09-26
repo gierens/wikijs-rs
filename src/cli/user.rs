@@ -99,6 +99,9 @@ pub(crate) enum UserCommand {
 
     #[clap(about = "Get your own user profile")]
     Profile {},
+
+    #[clap(about = "List the last logins")]
+    LastLogins {},
 }
 
 impl Execute for UserCommand {
@@ -135,6 +138,7 @@ impl Execute for UserCommand {
             UserCommand::Verify { id } => user_verify(api, *id),
             UserCommand::Search { query } => user_search(api, query.to_owned()),
             UserCommand::Profile {} => user_profile(api),
+            UserCommand::LastLogins {} => user_last_logins(api),
         }
     }
 }
@@ -334,6 +338,21 @@ fn user_profile(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
     ]);
     // groups
     builder.push_record(["pages_total", user.pages_total.to_string().as_str()]);
+    println!("{}", builder.build().with(Style::rounded()));
+    Ok(())
+}
+
+fn user_last_logins(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
+    let logins = api.user_last_login_list()?;
+    let mut builder = Builder::new();
+    builder.push_record(["key", "value"]);
+    for login in logins {
+        builder.push_record([
+            login.id.to_string().as_str(),
+            login.name.to_string().as_str(),
+            login.last_login_at.to_string().as_str(),
+        ]);
+    }
     println!("{}", builder.build().with(Style::rounded()));
     Ok(())
 }
