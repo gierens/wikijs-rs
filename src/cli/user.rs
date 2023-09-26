@@ -90,6 +90,12 @@ pub(crate) enum UserCommand {
         #[clap(help = "User ID")]
         id: i64,
     },
+
+    #[clap(about = "Search for users")]
+    Search {
+        #[clap(help = "The query to search for")]
+        query: String,
+    },
 }
 
 impl Execute for UserCommand {
@@ -124,6 +130,7 @@ impl Execute for UserCommand {
             }
             UserCommand::Tfa { id, enabled } => user_tfa(api, *id, *enabled),
             UserCommand::Verify { id } => user_verify(api, *id),
+            UserCommand::Search { query } => user_search(api, query.to_owned()),
         }
     }
 }
@@ -261,5 +268,34 @@ fn user_tfa(
 fn user_verify(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
     api.user_verify(id)?;
     println!("{}: User verified", "success".bold().green());
+    Ok(())
+}
+
+fn user_search(api: wikijs::Api, query: String) -> Result<(), Box<dyn Error>> {
+    let users = api.user_search(query)?;
+    let mut builder = Builder::new();
+    builder.push_record([
+        "id",
+        "name",
+        "email",
+        "provider_key",
+        "is_system",
+        "is_active",
+        "created_at",
+        "last_login_at",
+    ]);
+    for user in users {
+        builder.push_record([
+            user.id.to_string().as_str(),
+            user.name.as_str(),
+            user.email.as_str(),
+            user.provider_key.as_str(),
+            user.is_system.to_string().as_str(),
+            user.is_active.to_string().as_str(),
+            user.created_at.to_string().as_str(),
+            user.last_login_at.unwrap_or("".to_string()).as_str(),
+        ]);
+    }
+    println!("{}", builder.build().with(Style::rounded()));
     Ok(())
 }
