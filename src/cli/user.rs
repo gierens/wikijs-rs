@@ -84,6 +84,12 @@ pub(crate) enum UserCommand {
         #[clap(help = "TFA enabled or not", action = ArgAction::Set)]
         enabled: bool,
     },
+
+    #[clap(about = "Verify a user")]
+    Verify {
+        #[clap(help = "User ID")]
+        id: i64,
+    },
 }
 
 impl Execute for UserCommand {
@@ -117,6 +123,7 @@ impl Execute for UserCommand {
                 user_delete(api, *id, *replace_id)
             }
             UserCommand::Tfa { id, enabled } => user_tfa(api, *id, *enabled),
+            UserCommand::Verify { id } => user_verify(api, *id),
         }
     }
 }
@@ -248,5 +255,11 @@ fn user_tfa(
         api.user_tfa_disable(id)?;
     }
     println!("{}: User TFA updated", "success".bold().green());
+    Ok(())
+}
+
+fn user_verify(api: wikijs::Api, id: i64) -> Result<(), Box<dyn Error>> {
+    api.user_verify(id)?;
+    println!("{}: User verified", "success".bold().green());
     Ok(())
 }
