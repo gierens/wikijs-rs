@@ -96,6 +96,9 @@ pub(crate) enum UserCommand {
         #[clap(help = "The query to search for")]
         query: String,
     },
+
+    #[clap(about = "Get your own user profile")]
+    Profile {},
 }
 
 impl Execute for UserCommand {
@@ -131,6 +134,7 @@ impl Execute for UserCommand {
             UserCommand::Tfa { id, enabled } => user_tfa(api, *id, *enabled),
             UserCommand::Verify { id } => user_verify(api, *id),
             UserCommand::Search { query } => user_search(api, query.to_owned()),
+            UserCommand::Profile {} => user_profile(api),
         }
     }
 }
@@ -296,6 +300,40 @@ fn user_search(api: wikijs::Api, query: String) -> Result<(), Box<dyn Error>> {
             user.last_login_at.unwrap_or("".to_string()).as_str(),
         ]);
     }
+    println!("{}", builder.build().with(Style::rounded()));
+    Ok(())
+}
+
+fn user_profile(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
+    let user = api.user_profile_get()?;
+    let mut builder = Builder::new();
+    builder.push_record(["key", "value"]);
+    builder.push_record(["id", user.id.to_string().as_str()]);
+    builder.push_record(["name", user.name.as_str()]);
+    builder.push_record(["email", user.email.as_str()]);
+    builder.push_record([
+        "provider_key",
+        user.provider_key.unwrap_or("".to_string()).as_str(),
+    ]);
+    builder.push_record([
+        "provider_name",
+        user.provider_name.unwrap_or("".to_string()).as_str(),
+    ]);
+    builder.push_record(["is_system", user.is_system.to_string().as_str()]);
+    builder.push_record(["is_verified", user.is_verified.to_string().as_str()]);
+    builder.push_record(["location", user.location.as_str()]);
+    builder.push_record(["job_title", user.job_title.as_str()]);
+    builder.push_record(["timezone", user.timezone.as_str()]);
+    builder.push_record(["date_format", user.date_format.as_str()]);
+    builder.push_record(["appearance", user.appearance.as_str()]);
+    builder.push_record(["created_at", user.created_at.to_string().as_str()]);
+    builder.push_record(["updated_at", user.updated_at.to_string().as_str()]);
+    builder.push_record([
+        "last_login_at",
+        user.last_login_at.unwrap_or("".to_string()).as_str(),
+    ]);
+    // groups
+    builder.push_record(["pages_total", user.pages_total.to_string().as_str()]);
     println!("{}", builder.build().with(Style::rounded()));
     Ok(())
 }
