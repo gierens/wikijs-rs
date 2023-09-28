@@ -102,6 +102,53 @@ pub(crate) enum UserCommand {
 
     #[clap(about = "List the last logins")]
     LastLogins {},
+
+    #[clap(about = "Update a user")]
+    Update {
+        #[clap(help = "User ID")]
+        id: i64,
+
+        #[clap(short, long, help = "Email address")]
+        email: Option<String>,
+
+        #[clap(short, long, help = "Name")]
+        name: Option<String>,
+
+        #[clap(
+            short = 'N',
+            long,
+            help = "Password, required for local provider, \
+            and length might matter."
+        )]
+        new_password: Option<String>,
+
+        #[clap(short, long, help = "Group IDs")]
+        groups: Option<Vec<i64>>,
+
+        #[clap(
+            short = 'G',
+            long,
+            help = "Remove groups",
+            action,
+            conflicts_with = "groups"
+        )]
+        no_groups: bool,
+
+        #[clap(short, long, help = "Location")]
+        location: Option<String>,
+
+        #[clap(short, long, help = "Job title")]
+        job_title: Option<String>,
+
+        #[clap(short, long, help = "Timezone")]
+        timezone: Option<String>,
+
+        #[clap(short, long, help = "Date format")]
+        date_format: Option<String>,
+
+        #[clap(short, long, help = "Appearance")]
+        appearance: Option<String>,
+    },
 }
 
 impl Execute for UserCommand {
@@ -139,6 +186,32 @@ impl Execute for UserCommand {
             UserCommand::Search { query } => user_search(api, query.to_owned()),
             UserCommand::Profile {} => user_profile(api),
             UserCommand::LastLogins {} => user_last_logins(api),
+            UserCommand::Update {
+                id,
+                email,
+                name,
+                new_password,
+                groups,
+                no_groups,
+                location,
+                job_title,
+                timezone,
+                date_format,
+                appearance,
+            } => user_update(
+                api,
+                *id,
+                email.to_owned(),
+                name.to_owned(),
+                new_password.to_owned(),
+                groups.to_owned(),
+                no_groups.to_owned(),
+                location.to_owned(),
+                job_title.to_owned(),
+                timezone.to_owned(),
+                date_format.to_owned(),
+                appearance.to_owned(),
+            ),
         }
     }
 }
@@ -354,5 +427,42 @@ fn user_last_logins(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
         ]);
     }
     println!("{}", builder.build().with(Style::rounded()));
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn user_update(
+    api: wikijs::Api,
+    id: i64,
+    email: Option<String>,
+    name: Option<String>,
+    new_password: Option<String>,
+    groups: Option<Vec<i64>>,
+    no_groups: bool,
+    location: Option<String>,
+    job_title: Option<String>,
+    timezone: Option<String>,
+    date_format: Option<String>,
+    appearance: Option<String>,
+) -> Result<(), Box<dyn Error>> {
+    api.user_update(
+        id,
+        email,
+        name,
+        new_password,
+        if no_groups {
+            Some(Vec::new())
+        } else {
+            groups.map(|group| {
+                group.iter().map(|g| Some(*g)).collect::<Vec<Option<i64>>>()
+            })
+        },
+        location,
+        job_title,
+        timezone,
+        date_format,
+        appearance,
+    )?;
+    println!("{}: User updated", "success".bold().green());
     Ok(())
 }
