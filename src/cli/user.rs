@@ -149,6 +149,27 @@ pub(crate) enum UserCommand {
         #[clap(short, long, help = "Appearance")]
         appearance: Option<String>,
     },
+
+    #[clap(about = "Update your user profile")]
+    ProfileUpdate {
+        #[clap(help = "Name")]
+        name: String,
+
+        #[clap(help = "Location")]
+        location: String,
+
+        #[clap(help = "Job title")]
+        job_title: String,
+
+        #[clap(help = "Timezone")]
+        timezone: String,
+
+        #[clap(help = "Date format")]
+        date_format: String,
+
+        #[clap(help = "Appearance")]
+        appearance: String,
+    },
 }
 
 impl Execute for UserCommand {
@@ -206,6 +227,22 @@ impl Execute for UserCommand {
                 new_password.to_owned(),
                 groups.to_owned(),
                 no_groups.to_owned(),
+                location.to_owned(),
+                job_title.to_owned(),
+                timezone.to_owned(),
+                date_format.to_owned(),
+                appearance.to_owned(),
+            ),
+            UserCommand::ProfileUpdate {
+                name,
+                location,
+                job_title,
+                timezone,
+                date_format,
+                appearance,
+            } => user_profile_update(
+                api,
+                name.to_owned(),
                 location.to_owned(),
                 job_title.to_owned(),
                 timezone.to_owned(),
@@ -464,5 +501,27 @@ fn user_update(
         appearance,
     )?;
     println!("{}: User updated", "success".bold().green());
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn user_profile_update(
+    api: wikijs::Api,
+    name: String,
+    location: String,
+    job_title: String,
+    timezone: String,
+    date_format: String,
+    appearance: String,
+) -> Result<(), Box<dyn Error>> {
+    api.user_profile_update(
+        name,
+        location,
+        job_title,
+        timezone,
+        date_format,
+        appearance,
+    )?;
+    println!("{}: User profile updated", "success".bold().green());
     Ok(())
 }
