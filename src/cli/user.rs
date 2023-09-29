@@ -418,11 +418,7 @@ fn user_profile(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
 fn user_last_logins(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
     let logins = api.user_last_login_list()?;
     let mut builder = Builder::new();
-    builder.push_record([
-        "id",
-        "name",
-        "last_login_at",
-    ]);
+    builder.push_record(["id", "name", "last_login_at"]);
     for login in logins {
         builder.push_record([
             login.id.to_string().as_str(),
