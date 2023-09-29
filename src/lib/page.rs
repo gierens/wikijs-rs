@@ -2310,3 +2310,76 @@ pub fn page_history_purge(
     }
     Err(classify_response_error(response_body.errors))
 }
+
+pub(crate) mod page_get_updated_at {
+    use super::*;
+
+    pub struct PageGetUpdatedAt;
+
+    pub const OPERATION_NAME: &str = "PageGetUpdatedAt";
+    pub const QUERY : & str = "query PageGetUpdatedAt($id: Int!) {\n  pages {\n    single (id: $id) {\n      updatedAt\n    }\n  }\n}\n" ;
+
+    #[derive(Serialize)]
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        pub single: Option<Single>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Single {
+        #[serde(rename = "updatedAt")]
+        pub updated_at: Date,
+    }
+
+    impl graphql_client::GraphQLQuery for PageGetUpdatedAt {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            ::graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub(crate) fn page_get_updated_at(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<Date, PageError> {
+    let variables = page_get_updated_at::Variables { id };
+    let response = post_graphql::<page_get_updated_at::PageGetUpdatedAt, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(single) = pages.single {
+                return Ok(single.updated_at);
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
