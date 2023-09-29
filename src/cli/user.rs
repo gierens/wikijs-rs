@@ -97,9 +97,6 @@ pub(crate) enum UserCommand {
         query: String,
     },
 
-    #[clap(about = "Get your own user profile")]
-    Profile {},
-
     #[clap(about = "List the last logins")]
     LastLogins {},
 
@@ -149,9 +146,15 @@ pub(crate) enum UserCommand {
         #[clap(short, long, help = "Appearance")]
         appearance: Option<String>,
     },
+}
+
+#[derive(Subcommand)]
+pub(crate) enum ProfileCommand {
+    #[clap(about = "Get your own user profile")]
+    Get {},
 
     #[clap(about = "Update your user profile")]
-    ProfileUpdate {
+    Update {
         #[clap(help = "Name")]
         name: String,
 
@@ -205,7 +208,6 @@ impl Execute for UserCommand {
             UserCommand::Tfa { id, enabled } => user_tfa(api, *id, *enabled),
             UserCommand::Verify { id } => user_verify(api, *id),
             UserCommand::Search { query } => user_search(api, query.to_owned()),
-            UserCommand::Profile {} => user_profile(api),
             UserCommand::LastLogins {} => user_last_logins(api),
             UserCommand::Update {
                 id,
@@ -233,7 +235,15 @@ impl Execute for UserCommand {
                 date_format.to_owned(),
                 appearance.to_owned(),
             ),
-            UserCommand::ProfileUpdate {
+        }
+    }
+}
+
+impl Execute for ProfileCommand {
+    fn execute(&self, api: wikijs::Api) -> Result<(), Box<dyn Error>> {
+        match self {
+            ProfileCommand::Get {} => user_profile(api),
+            ProfileCommand::Update {
                 name,
                 location,
                 job_title,

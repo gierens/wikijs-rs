@@ -77,6 +77,12 @@ enum Command {
         command: user::UserCommand,
     },
 
+    #[clap(about = "User profile commands")]
+    Profile {
+        #[clap(subcommand)]
+        command: user::ProfileCommand,
+    },
+
     #[clap(about = "Group commands")]
     Group {
         #[clap(subcommand)]
@@ -124,6 +130,7 @@ fn main() {
         Command::AnalyticsProvider { command } => command.execute(api),
         Command::Comment { ref command } => command.execute(api),
         Command::User { ref command } => command.execute(api),
+        Command::Profile { ref command } => command.execute(api),
         Command::Group { command } => command.execute(api),
         Command::Locale { command } => command.execute(api),
         Command::Logger { command } => command.execute(api),
