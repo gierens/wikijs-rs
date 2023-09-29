@@ -185,6 +185,12 @@ pub(crate) enum PasswordCommand {
         #[clap(help = "New password")]
         new: String,
     },
+
+    #[clap(about = "Reset a user's password")]
+    Reset {
+        #[clap(help = "User ID")]
+        id: i64,
+    },
 }
 
 impl Execute for UserCommand {
@@ -281,6 +287,7 @@ impl Execute for PasswordCommand {
             PasswordCommand::Change { current, new } => {
                 user_password_change(api, current.to_owned(), new.to_owned())
             }
+            PasswordCommand::Reset { id } => user_password_reset(api, *id),
         }
     }
 }
@@ -565,5 +572,14 @@ fn user_password_change(
 ) -> Result<(), Box<dyn Error>> {
     api.user_password_change(current, new)?;
     println!("{}: User password changed", "success".bold().green());
+    Ok(())
+}
+
+fn user_password_reset(
+    api: wikijs::Api,
+    id: i64,
+) -> Result<(), Box<dyn Error>> {
+    api.user_password_reset(id)?;
+    println!("{}: User password reset", "success".bold().green());
     Ok(())
 }
