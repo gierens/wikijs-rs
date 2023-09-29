@@ -83,6 +83,12 @@ enum Command {
         command: user::ProfileCommand,
     },
 
+    #[clap(about = "Password commands")]
+    Password {
+        #[clap(subcommand)]
+        command: user::PasswordCommand,
+    },
+
     #[clap(about = "Group commands")]
     Group {
         #[clap(subcommand)]
@@ -131,6 +137,7 @@ fn main() {
         Command::Comment { ref command } => command.execute(api),
         Command::User { ref command } => command.execute(api),
         Command::Profile { ref command } => command.execute(api),
+        Command::Password { ref command } => command.execute(api),
         Command::Group { command } => command.execute(api),
         Command::Locale { command } => command.execute(api),
         Command::Logger { command } => command.execute(api),

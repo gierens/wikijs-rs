@@ -175,6 +175,18 @@ pub(crate) enum ProfileCommand {
     },
 }
 
+#[derive(Subcommand)]
+pub(crate) enum PasswordCommand {
+    #[clap(about = "Change your password")]
+    Change {
+        #[clap(help = "Current password")]
+        current: String,
+
+        #[clap(help = "New password")]
+        new: String,
+    },
+}
+
 impl Execute for UserCommand {
     fn execute(&self, api: wikijs::Api) -> Result<(), Box<dyn Error>> {
         match self {
@@ -259,6 +271,16 @@ impl Execute for ProfileCommand {
                 date_format.to_owned(),
                 appearance.to_owned(),
             ),
+        }
+    }
+}
+
+impl Execute for PasswordCommand {
+    fn execute(&self, api: wikijs::Api) -> Result<(), Box<dyn Error>> {
+        match self {
+            PasswordCommand::Change { current, new } => {
+                user_password_change(api, current.to_owned(), new.to_owned())
+            }
         }
     }
 }
@@ -533,5 +555,15 @@ fn user_profile_update(
         appearance,
     )?;
     println!("{}: User profile updated", "success".bold().green());
+    Ok(())
+}
+
+fn user_password_change(
+    api: wikijs::Api,
+    current: String,
+    new: String,
+) -> Result<(), Box<dyn Error>> {
+    api.user_password_change(current, new)?;
+    println!("{}: User password changed", "success".bold().green());
     Ok(())
 }
