@@ -141,6 +141,20 @@ pub struct Page {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
+pub(crate) struct PageMinimal {
+    pub(crate) id: Int,
+    pub(crate) path: String,
+    pub(crate) content: String,
+    #[serde(rename = "createdAt")]
+    pub(crate) created_at: Date,
+    #[serde(rename = "updatedAt")]
+    pub(crate) updated_at: Date,
+    pub(crate) editor: String,
+    pub(crate) locale: String,
+}
+
+#[derive(Deserialize, Debug)]
 pub struct PageListItem {
     pub id: Int,
     pub path: String,
@@ -2378,6 +2392,73 @@ pub(crate) fn page_get_updated_at(
         if let Some(pages) = data.pages {
             if let Some(single) = pages.single {
                 return Ok(single.updated_at);
+            }
+        }
+    }
+    Err(classify_response_error(response_body.errors))
+}
+
+pub(crate) mod page_get_minimal {
+    use super::*;
+
+    pub struct PageGetMinimal;
+
+    pub const OPERATION_NAME: &str = "PageGetMinimal";
+    pub const QUERY : & str = "query PageGetMinimal($id: Int!) {\n  pages {\n    single (id: $id) {\n      id\n      path\n      content\n      createdAt\n      updatedAt\n      editor\n      locale\n    }\n  }\n}\n" ;
+    #[derive(Serialize)]
+
+    pub struct Variables {
+        pub id: Int,
+    }
+
+    impl Variables {}
+
+    #[derive(Deserialize)]
+    pub struct ResponseData {
+        pub pages: Option<Pages>,
+    }
+
+    #[derive(Deserialize)]
+    pub struct Pages {
+        pub(crate) single: Option<PageMinimal>,
+    }
+
+    impl graphql_client::GraphQLQuery for PageGetMinimal {
+        type Variables = Variables;
+        type ResponseData = ResponseData;
+        fn build_query(
+            variables: Self::Variables,
+        ) -> ::graphql_client::QueryBody<Self::Variables> {
+            ::graphql_client::QueryBody {
+                variables,
+                query: QUERY,
+                operation_name: OPERATION_NAME,
+            }
+        }
+    }
+}
+
+pub(crate) fn page_get_minimal(
+    client: &Client,
+    url: &str,
+    id: i64,
+) -> Result<PageMinimal, PageError> {
+    let variables = page_get_minimal::Variables { id };
+    let response = post_graphql::<page_get_minimal::PageGetMinimal, _>(
+        client, url, variables,
+    );
+    if response.is_err() {
+        return Err(PageError::UnknownErrorMessage {
+            message: response.err().unwrap().to_string(),
+        });
+    }
+
+    let response_body = response.unwrap();
+
+    if let Some(data) = response_body.data {
+        if let Some(pages) = data.pages {
+            if let Some(single) = pages.single {
+                return Ok(single);
             }
         }
     }

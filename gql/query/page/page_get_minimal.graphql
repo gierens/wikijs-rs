@@ -1,0 +1,13 @@
+query PageGetMinimal($id: Int!) {
+  pages {
+    single (id: $id) {
+      id
+      path
+      content
+      createdAt
+      updatedAt
+      editor
+      locale
+    }
+  }
+}

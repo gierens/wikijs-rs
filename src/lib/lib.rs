@@ -322,6 +322,20 @@ impl Api {
         )
     }
 
+    /// Get a page's minimal information. This function is crate internal for
+    /// now.
+    #[allow(dead_code)]
+    pub(crate) fn page_get_minimal(
+        &self,
+        id: i64,
+    ) -> Result<page::PageMinimal, page::PageError> {
+        page::page_get_minimal(
+            &self.client,
+            &format!("{}/graphql", self.url),
+            id,
+        )
+    }
+
     /// Get a page by its path.
     ///
     /// # Arguments
