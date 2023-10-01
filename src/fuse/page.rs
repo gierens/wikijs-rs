@@ -13,7 +13,11 @@ impl PageCache {
         }
     }
 
-    pub(crate) fn get(&mut self, api: &Api, id: u64) -> Result<PageMinimal, PageError> {
+    pub(crate) fn get(
+        &mut self,
+        api: &Api,
+        id: u64,
+    ) -> Result<PageMinimal, PageError> {
         if let Some(page) = self.pages.get(&id) {
             let updated_at = api.page_get_updated_at(id as i64)?;
             if updated_at != page.updated_at {

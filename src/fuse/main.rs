@@ -256,7 +256,11 @@ impl Filesystem for Fs {
             if size < content.len() as u64 {
                 content.truncate(std::cmp::max(size as usize, 1));
             }
-            match self.page_cache.update_content(&self.api, page.id as u64, content) {
+            match self.page_cache.update_content(
+                &self.api,
+                page.id as u64,
+                content,
+            ) {
                 Ok(_) => {
                     debug!("setattr: updated inode {}", ino);
                     let attr = match self.get_inode(ino) {
@@ -575,7 +579,10 @@ impl Filesystem for Fs {
         }
         debug!("write: inode {} from {} to {}", ino, offset, end);
 
-        match self.page_cache.update_content(&self.api, page.id as u64, content) {
+        match self
+            .page_cache
+            .update_content(&self.api, page.id as u64, content)
+        {
             Ok(_) => {
                 debug!("write: updated inode {}", ino);
                 reply.written(data.len() as u32);
