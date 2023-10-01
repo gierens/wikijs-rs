@@ -309,7 +309,13 @@ impl Api {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
-    /// Get a page's updated at date.
+    /// Get datetime of last update of a page.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page to get the last update datetime of.
+    ///
+    /// # Returns
+    /// A Result containing either the datetime string or a page error.
     #[allow(dead_code)]
     pub fn page_get_updated_at(
         &self,
@@ -323,6 +329,12 @@ impl Api {
     }
 
     /// Get a page's minimal information.
+    ///
+    /// # Arguments
+    /// * `id` - The id of the page to get the minimal information of.
+    ///
+    /// # Returns
+    /// A Result containing either the minimal page information or a page error.
     #[allow(dead_code)]
     pub fn page_get_minimal(
         &self,
