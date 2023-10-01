@@ -112,11 +112,12 @@ impl From<u64> for InodeType {
 struct Fs {
     api: Api,
     locale: String,
+    page_cache: page::PageCache,
 }
 
 impl Fs {
     pub fn new(api: Api, locale: String) -> Self {
-        Self { api, locale }
+        Self { api, locale, page_cache: page::PageCache::new() }
     }
 
     fn get_inode(&self, ino: u64) -> Option<Inode> {
