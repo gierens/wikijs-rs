@@ -19,6 +19,8 @@ use colored::Colorize;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+mod page;
+
 #[allow(clippy::large_enum_variant)]
 enum Inode {
     Page(Page),
