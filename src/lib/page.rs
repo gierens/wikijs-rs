@@ -140,18 +140,18 @@ pub struct Page {
     pub creator_email: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[allow(dead_code)]
-pub(crate) struct PageMinimal {
-    pub(crate) id: Int,
-    pub(crate) path: String,
-    pub(crate) content: String,
+pub struct PageMinimal {
+    pub id: Int,
+    pub path: String,
+    pub content: String,
     #[serde(rename = "createdAt")]
-    pub(crate) created_at: Date,
+    pub created_at: Date,
     #[serde(rename = "updatedAt")]
-    pub(crate) updated_at: Date,
-    pub(crate) editor: String,
-    pub(crate) locale: String,
+    pub updated_at: Date,
+    pub editor: String,
+    pub locale: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -2371,7 +2371,7 @@ pub(crate) mod page_get_updated_at {
     }
 }
 
-pub(crate) fn page_get_updated_at(
+pub fn page_get_updated_at(
     client: &Client,
     url: &str,
     id: i64,
@@ -2438,7 +2438,7 @@ pub(crate) mod page_get_minimal {
     }
 }
 
-pub(crate) fn page_get_minimal(
+pub fn page_get_minimal(
     client: &Client,
     url: &str,
     id: i64,

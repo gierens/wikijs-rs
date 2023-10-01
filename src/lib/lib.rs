@@ -309,9 +309,9 @@ impl Api {
         page::page_get(&self.client, &format!("{}/graphql", self.url), id)
     }
 
-    /// Get a page's updated at date. This function is crate internal for now.
+    /// Get a page's updated at date.
     #[allow(dead_code)]
-    pub(crate) fn page_get_updated_at(
+    pub fn page_get_updated_at(
         &self,
         id: i64,
     ) -> Result<String, page::PageError> {
@@ -322,10 +322,9 @@ impl Api {
         )
     }
 
-    /// Get a page's minimal information. This function is crate internal for
-    /// now.
+    /// Get a page's minimal information.
     #[allow(dead_code)]
-    pub(crate) fn page_get_minimal(
+    pub fn page_get_minimal(
         &self,
         id: i64,
     ) -> Result<page::PageMinimal, page::PageError> {
