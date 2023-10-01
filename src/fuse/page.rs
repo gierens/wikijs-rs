@@ -34,7 +34,7 @@ impl PageCache {
         self.pages.remove(&id);
     }
 
-    fn update(&mut self, api: &Api, id: u64) -> Result<PageMinimal, PageError> {
+    fn refetch(&mut self, api: &Api, id: u64) -> Result<PageMinimal, PageError> {
         self.pages.remove(&id);
         let page = api.page_get_minimal(id as i64)?;
         self.pages.insert(id, page.clone());
