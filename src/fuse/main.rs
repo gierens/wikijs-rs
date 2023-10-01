@@ -4,7 +4,7 @@ use fuser::{
     ReplyEntry, ReplyWrite, Request, TimeOrNow,
 };
 use libc::{EINVAL, EIO, EISDIR, ENOENT, O_TRUNC};
-use wikijs::page::{Page, PageTreeItem, PageTreeMode};
+use wikijs::page::{PageMinimal, PageTreeItem, PageTreeMode};
 use wikijs::{Api, Credentials};
 
 use chrono::DateTime;
@@ -19,9 +19,11 @@ use colored::Colorize;
 #[allow(unused_imports)]
 use log::{debug, error, info, trace, warn};
 
+mod page;
+
 #[allow(clippy::large_enum_variant)]
 enum Inode {
-    Page(Page),
+    Page(PageMinimal),
     Directory(Vec<PageTreeItem>),
 }
 
@@ -110,18 +112,23 @@ impl From<u64> for InodeType {
 struct Fs {
     api: Api,
     locale: String,
+    page_cache: page::PageCache,
 }
 
 impl Fs {
     pub fn new(api: Api, locale: String) -> Self {
-        Self { api, locale }
+        Self {
+            api,
+            locale,
+            page_cache: page::PageCache::new(),
+        }
     }
 
-    fn get_inode(&self, ino: u64) -> Option<Inode> {
+    fn get_inode(&mut self, ino: u64) -> Option<Inode> {
         match InodeType::from(ino) {
             InodeType::Page(id) => {
                 debug!("get_inode: page {}", id);
-                match self.api.page_get(id) {
+                match self.page_cache.get(&self.api, id as u64) {
                     Ok(page) => Some(Inode::Page(page)),
                     Err(_) => None,
                 }
@@ -249,7 +256,11 @@ impl Filesystem for Fs {
             if size < content.len() as u64 {
                 content.truncate(std::cmp::max(size as usize, 1));
             }
-            match self.api.page_update_content(page.id, content) {
+            match self.page_cache.update_content(
+                &self.api,
+                page.id as u64,
+                content,
+            ) {
                 Ok(_) => {
                     debug!("setattr: updated inode {}", ino);
                     let attr = match self.get_inode(ino) {
@@ -568,7 +579,10 @@ impl Filesystem for Fs {
         }
         debug!("write: inode {} from {} to {}", ino, offset, end);
 
-        match self.api.page_update_content(page.id, content) {
+        match self
+            .page_cache
+            .update_content(&self.api, page.id as u64, content)
+        {
             Ok(_) => {
                 debug!("write: updated inode {}", ino);
                 reply.written(data.len() as u32);
