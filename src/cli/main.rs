@@ -123,7 +123,10 @@ enum Command {
 fn main() {
     let cli = Cli::parse();
     let credentials = Credentials::Key(cli.key.clone());
-    let api = Api::new(cli.url.clone(), credentials);
+    let api = Api::new(cli.url.clone(), credentials).unwrap_or_else(|e| {
+        eprintln!("{}: {}", "error".bold().red(), e);
+        std::process::exit(1);
+    });
 
     // TODO each command should be in its own module
     // TODO each subcommand should implement an Execute trait to call here
