@@ -9,5 +9,5 @@ lazy_static! {
             "password".to_string(),
             "local".to_string(),
         ),
-    );
+    ).unwrap_or_else(|e| panic!("Error creating API: {}", e));
 }
