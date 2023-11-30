@@ -25,7 +25,7 @@
 //! let api = Api::new(
 //!     "http://localhost:3000".to_string(),
 //!     Credentials::Key("my-api-key".to_string()),
-//! );
+//! ).unwrap();
 //! // this returns a page::Page
 //! let page = api.page_get(1).unwrap();
 //! println!("{:?}", page);
