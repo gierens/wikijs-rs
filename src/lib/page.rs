@@ -140,7 +140,7 @@ pub struct Page {
     pub creator_email: String,
 }
 
-#[derive(Clone, Deserialize, Debug, Clone)]
+#[derive(Clone, Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct PageMinimal {
     pub id: Int,
