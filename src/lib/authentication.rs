@@ -8,7 +8,7 @@ use crate::common::{
 };
 use crate::user::UserError;
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct AuthenticationLoginResponse {
     #[serde(rename = "responseResult")]
     pub response_result: Option<ResponseStatus>,
@@ -26,7 +26,7 @@ pub struct AuthenticationLoginResponse {
     pub tfa_qr_image: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct ApiKey {
     pub id: Int,
     pub name: String,
@@ -41,7 +41,7 @@ pub struct ApiKey {
     pub is_revoked: Boolean,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct AuthenticationStrategy {
     pub key: String,
     pub props: Option<Vec<Option<KeyValuePair>>>,
@@ -59,7 +59,7 @@ pub struct AuthenticationStrategy {
     pub icon: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct AuthenticationActiveStrategy {
     pub key: String,
     pub strategy: AuthenticationStrategy,
@@ -77,21 +77,21 @@ pub struct AuthenticationActiveStrategy {
     pub auto_enroll_groups: Vec<Option<Int>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct AuthenticationCreateApiKeyResponse {
     #[serde(rename = "responseResult")]
     pub response_result: Option<ResponseStatus>,
     pub key: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct AuthenticationRegisterResponse {
     #[serde(rename = "responseResult")]
     pub response_result: Option<ResponseStatus>,
     pub jwt: Option<String>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct AuthenticationStrategyInput {
     pub key: String,
     #[serde(rename = "strategyKey")]

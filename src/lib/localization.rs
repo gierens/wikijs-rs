@@ -8,7 +8,7 @@ use crate::common::{
     Int, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum LocaleError {
     #[error("An unexpected error occurred during locale operation.")]
     LocaleGenericError,
@@ -57,7 +57,7 @@ impl KnownErrorCodes for LocaleError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct Locale {
     pub availability: Int,
     pub code: String,
@@ -76,7 +76,7 @@ pub struct Locale {
     pub updated_at: Date,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct LocaleConfig {
     pub locale: String,
     #[serde(rename = "autoUpdate")]
@@ -85,7 +85,7 @@ pub struct LocaleConfig {
     pub namespaces: Vec<Option<String>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct Translation {
     pub key: String,
     pub value: String,

@@ -9,7 +9,7 @@ use crate::common::{
     UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum RenderingError {
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -50,7 +50,7 @@ impl KnownErrorCodes for RenderingError {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct Renderer {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,
@@ -65,7 +65,7 @@ pub struct Renderer {
     pub config: Option<Vec<Option<KeyValuePair>>>,
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct RendererInput {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,

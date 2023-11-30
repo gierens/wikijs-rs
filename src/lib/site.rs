@@ -8,7 +8,7 @@ use crate::common::{
     KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum SiteError {
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -49,7 +49,7 @@ impl KnownErrorCodes for SiteError {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct SiteConfig {
     pub host: Option<String>,
     pub title: Option<String>,

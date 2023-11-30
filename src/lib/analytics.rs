@@ -9,7 +9,7 @@ use crate::common::{
     UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum AnalyticsError {
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -50,7 +50,7 @@ impl KnownErrorCodes for AnalyticsError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct AnalyticsProvider {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,
@@ -65,7 +65,7 @@ pub struct AnalyticsProvider {
     pub config: Option<Vec<Option<KeyValuePair>>>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct AnalyticsProviderInput {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,

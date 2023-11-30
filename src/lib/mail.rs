@@ -8,7 +8,7 @@ use crate::common::{
     KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum MailError {
     #[error("An unexpected error occurred during mail operation.")]
     MailGenericError,
@@ -63,7 +63,7 @@ impl KnownErrorCodes for MailError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct MailConfig {
     #[serde(rename = "senderName")]
     pub sender_name: Option<String>,

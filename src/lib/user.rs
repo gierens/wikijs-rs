@@ -9,7 +9,7 @@ use crate::common::{
 };
 use crate::group::Group;
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum UserError {
     #[error("An unexpected error occurred during login.")]
     AuthGenericError,
@@ -117,14 +117,14 @@ impl KnownErrorCodes for UserError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct UserResponse {
     #[serde(rename = "responseResult")]
     pub response_result: ResponseStatus,
     pub user: Option<User>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct UserLastLogin {
     pub id: Int,
     pub name: String,
@@ -132,7 +132,7 @@ pub struct UserLastLogin {
     pub last_login_at: Date,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct UserMinimal {
     pub id: Int,
     pub name: String,
@@ -149,7 +149,7 @@ pub struct UserMinimal {
     pub last_login_at: Option<Date>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct User {
     pub id: Int,
     pub name: String,
@@ -186,7 +186,7 @@ pub struct User {
     pub groups: Vec<Option<Group>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct UserProfile {
     pub id: Int,
     pub name: String,

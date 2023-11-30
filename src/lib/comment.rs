@@ -9,7 +9,7 @@ use crate::common::{
     UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum CommentError {
     #[error("An unexpected error occurred.")]
     CommentGenericError,
@@ -70,7 +70,7 @@ impl KnownErrorCodes for CommentError {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct Comment {
     pub id: Int,
     pub content: String,
@@ -89,7 +89,7 @@ pub struct Comment {
     pub updated_at: Date,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct CommentProvider {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,
@@ -103,7 +103,7 @@ pub struct CommentProvider {
     pub config: Option<Vec<Option<KeyValuePair>>>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct CommentProviderInput {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,
@@ -111,14 +111,14 @@ pub struct CommentProviderInput {
     pub config: Option<Vec<Option<KeyValuePairInput>>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct CommentCreateResponse {
     #[serde(rename = "responseResult")]
     pub response_result: Option<ResponseStatus>,
     pub id: Option<Int>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct CommentUpdateResponse {
     #[serde(rename = "responseResult")]
     pub response_result: Option<ResponseStatus>,

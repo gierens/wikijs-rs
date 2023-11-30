@@ -8,7 +8,7 @@ use crate::common::{
     KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Clone, Error, Debug, PartialEq)]
 pub enum ThemeError {
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -49,14 +49,14 @@ impl KnownErrorCodes for ThemeError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct Theme {
     pub key: Option<String>,
     pub title: Option<String>,
     pub author: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct ThemingConfig {
     pub theme: String,
     pub iconset: String,

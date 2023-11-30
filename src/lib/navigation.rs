@@ -8,7 +8,7 @@ use crate::common::{
     KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Clone, Error, Debug, PartialEq)]
 pub enum NavigationError {
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -49,7 +49,7 @@ impl KnownErrorCodes for NavigationError {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub enum NavigationMode {
     NONE,
     TREE,
@@ -57,18 +57,18 @@ pub enum NavigationMode {
     STATIC,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct NavigationConfig {
     pub mode: NavigationMode,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct NavigationTree {
     pub locale: String,
     pub items: Vec<Option<NavigationTreeItem>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct NavigationTreeItem {
     pub id: String,
     pub kind: String,
@@ -83,13 +83,13 @@ pub struct NavigationTreeItem {
     pub visibility_groups: Option<Vec<Option<Int>>>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct NavigationTreeInput {
     pub locale: String,
     pub items: Vec<Option<NavigationItemInput>>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct NavigationItemInput {
     pub id: String,
     pub kind: String,

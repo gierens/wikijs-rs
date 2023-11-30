@@ -5,7 +5,7 @@ use thiserror::Error;
 
 use crate::common::{classify_response_error, Date, UnknownError};
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Clone, Error, Debug, PartialEq)]
 pub enum ContributeError {
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -36,7 +36,7 @@ impl UnknownError for ContributeError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct Contributor {
     pub id: String,
     pub source: String,

@@ -8,7 +8,7 @@ use crate::common::{
     Int, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum SystemError {
     #[error("An unexpected error occurred.")]
     SystemGenericError,
@@ -63,13 +63,13 @@ impl KnownErrorCodes for SystemError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct SystemFlag {
     pub key: String,
     pub value: Boolean,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct SystemInfo {
     #[serde(rename = "configFile")]
     pub config_file: Option<String>,
@@ -128,7 +128,7 @@ pub struct SystemInfo {
     pub working_directory: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct SystemExtension {
     pub key: String,
     pub title: String,
@@ -139,20 +139,20 @@ pub struct SystemExtension {
     pub is_compatible: Boolean,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct SystemFlagInput {
     pub key: String,
     pub value: Boolean,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub enum SystemImportUsersGroupMode {
     MULTI,
     SINGLE,
     NONE,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct SystemExportStatus {
     pub status: Option<String>,
     pub progress: Option<Int>,
