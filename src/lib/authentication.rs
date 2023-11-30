@@ -174,7 +174,19 @@ pub fn login(
     if let Some(data) = response_body.data {
         if let Some(authentication) = data.authentication {
             if let Some(login) = authentication.login {
-                return Ok(login);
+                // TODO we need similar error handling
+                //      for other functions here, too
+                // TODO is this clone necessary?
+                let login_copy = login.clone();
+                if let Some(response_result) = login.response_result {
+                    if response_result.succeeded {
+                        return Ok(login_copy);
+                    } else {
+                        return Err(classify_response_status_error(
+                            response_result,
+                        ));
+                    }
+                }
             }
         }
     }
