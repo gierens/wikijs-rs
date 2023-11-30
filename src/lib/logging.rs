@@ -9,7 +9,7 @@ use crate::common::{
     UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum LoggingError {
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -50,7 +50,7 @@ impl KnownErrorCodes for LoggingError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct Logger {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,
@@ -63,7 +63,7 @@ pub struct Logger {
     pub config: Option<Vec<Option<KeyValuePair>>>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct LoggerInput {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,

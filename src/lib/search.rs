@@ -9,7 +9,7 @@ use crate::common::{
     UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum SearchError {
     #[error("An unexpected error occurred during search operation.")]
     SearchGenericError,
@@ -58,7 +58,7 @@ impl KnownErrorCodes for SearchError {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct SearchEngine {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,
@@ -72,7 +72,7 @@ pub struct SearchEngine {
     pub config: Option<Vec<Option<KeyValuePair>>>,
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SearchEngineInput {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,

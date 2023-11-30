@@ -8,7 +8,7 @@ use crate::common::{
     KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Clone, Error, Debug, PartialEq)]
 pub enum AssetError {
     #[error("An unexpected error occurred during asset operation.")]
     AssetGenericError,
@@ -82,7 +82,7 @@ impl KnownErrorCodes for AssetError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct AssetItem {
     pub id: Int,
     pub filename: String,
@@ -100,14 +100,14 @@ pub struct AssetItem {
     pub author: Option<Int>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct AssetFolder {
     pub id: Int,
     pub slug: String,
     pub name: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum AssetKind {
     IMAGE,
     BINARY,

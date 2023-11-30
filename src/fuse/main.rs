@@ -699,7 +699,10 @@ fn main() {
     }
 
     let credentials = Credentials::Key(cli.key);
-    let api = Api::new(cli.url, credentials);
+    let api = Api::new(cli.url, credentials).unwrap_or_else(|error| {
+        error!("{}", error);
+        exit(1);
+    });
     let fs = Fs::new(api, cli.locale);
 
     mount2(fs, &cli.mountpoint, &[FSName("wikijs-fuse".to_string())])

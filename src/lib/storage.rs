@@ -9,7 +9,7 @@ use crate::common::{
     UnknownError,
 };
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Clone, Debug, Error, PartialEq)]
 pub enum StorageError {
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -50,7 +50,7 @@ impl KnownErrorCodes for StorageError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct StorageStatus {
     pub key: String,
     pub title: String,
@@ -60,7 +60,7 @@ pub struct StorageStatus {
     pub last_attempt: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct StorageTarget {
     #[serde(rename = "isAvailable")]
     pub is_available: Boolean,
@@ -84,7 +84,7 @@ pub struct StorageTarget {
     pub actions: Option<Vec<Option<StorageTargetAction>>>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct StorageTargetInput {
     #[serde(rename = "isEnabled")]
     pub is_enabled: Boolean,
@@ -95,7 +95,7 @@ pub struct StorageTargetInput {
     pub config: Option<Vec<Option<KeyValuePairInput>>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct StorageTargetAction {
     pub handler: String,
     pub label: String,

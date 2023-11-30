@@ -4,19 +4,19 @@ pub type Boolean = bool;
 pub type Int = i64;
 pub type Date = String;
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct KeyValuePair {
     pub key: String,
     pub value: String,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub struct KeyValuePairInput {
     pub key: String,
     pub value: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 #[allow(unused)]
 pub struct ResponseStatus {
     pub succeeded: Boolean,

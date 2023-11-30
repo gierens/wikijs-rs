@@ -25,7 +25,7 @@
 //! let api = Api::new(
 //!     "http://localhost:3000".to_string(),
 //!     Credentials::Key("my-api-key".to_string()),
-//! );
+//! ).unwrap();
 //! // this returns a page::Page
 //! let page = api.page_get(1).unwrap();
 //! println!("{:?}", page);
@@ -128,7 +128,10 @@ impl Api {
     ///
     /// # Returns
     /// A new API struct.
-    pub fn new(url: String, credentials: Credentials) -> Self {
+    pub fn new(
+        url: String,
+        credentials: Credentials,
+    ) -> Result<Self, user::UserError> {
         let key = match credentials {
             Credentials::Key(key) => key,
             Credentials::UsernamePassword(username, password, strategy) => {
@@ -142,12 +145,12 @@ impl Api {
                     username,
                     password,
                     strategy,
-                )
-                .unwrap();
+                )?;
+                println!("{:?}", auth_response);
                 auth_response.jwt.unwrap()
             }
         };
-        Self {
+        Ok(Self {
             url,
             client: Client::builder()
                 .user_agent("wikijs-rs/0.1.0")
@@ -161,7 +164,7 @@ impl Api {
                 )
                 .build()
                 .unwrap(),
-        }
+        })
     }
 
     // asset functions
@@ -302,7 +305,7 @@ impl Api {
     /// let api = Api::new(
     ///     "http://localhost:3000".to_string(),
     ///     Credentials::Key("my-api-key".to_string()),
-    /// );
+    /// ).unwrap();
     /// println!("{:?}", api.page_get(1).unwrap());
     /// ```
     pub fn page_get(&self, id: i64) -> Result<page::Page, page::PageError> {

@@ -8,7 +8,7 @@ use crate::common::{
     Int, KnownErrorCodes, ResponseStatus, UnknownError,
 };
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Clone, Error, Debug, PartialEq)]
 pub enum PageError {
     #[error("An unexpected error occurred during a page operation.")]
     PageGenericError,
@@ -93,7 +93,7 @@ impl KnownErrorCodes for PageError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct Page {
     pub id: Int,
     pub path: String,
@@ -140,7 +140,7 @@ pub struct Page {
     pub creator_email: String,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Clone, Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct PageMinimal {
     pub id: Int,
@@ -154,7 +154,7 @@ pub struct PageMinimal {
     pub locale: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageListItem {
     pub id: Int,
     pub path: String,
@@ -176,7 +176,7 @@ pub struct PageListItem {
     pub tags: Option<Vec<Option<String>>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageTreeItem {
     pub id: Int,
     pub path: String,
@@ -194,7 +194,7 @@ pub struct PageTreeItem {
     pub locale: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageTag {
     pub id: Int,
     pub tag: String,
@@ -205,14 +205,14 @@ pub struct PageTag {
     pub updated_at: Date,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub enum PageTreeMode {
     FOLDERS,
     PAGES,
     ALL,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub enum PageOrderBy {
     CREATED,
     ID,
@@ -221,19 +221,19 @@ pub enum PageOrderBy {
     UPDATED,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Serialize, Debug)]
 pub enum PageOrderByDirection {
     ASC,
     DESC,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageHistoryResult {
     pub trail: Option<Vec<Option<PageHistory>>>,
     pub total: Int,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageHistory {
     #[serde(rename = "versionId")]
     pub version_id: Int,
@@ -251,7 +251,7 @@ pub struct PageHistory {
     pub value_after: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageVersion {
     pub action: String,
     #[serde(rename = "authorId")]
@@ -285,7 +285,7 @@ pub struct PageVersion {
     pub version_id: Int,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageSearchResponse {
     pub results: Vec<Option<PageSearchResult>>,
     pub suggestions: Vec<Option<String>>,
@@ -293,7 +293,7 @@ pub struct PageSearchResponse {
     pub total_hits: Int,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageSearchResult {
     pub id: String,
     pub title: String,
@@ -302,7 +302,7 @@ pub struct PageSearchResult {
     pub locale: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageLinkItem {
     pub id: Int,
     pub path: String,
@@ -310,7 +310,7 @@ pub struct PageLinkItem {
     pub links: Vec<Option<String>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageConflictLatest {
     pub id: Int,
     #[serde(rename = "authorId")]

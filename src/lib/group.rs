@@ -9,7 +9,7 @@ use crate::common::{
 };
 use crate::user::UserMinimal;
 
-#[derive(Error, Debug, PartialEq)]
+#[derive(Clone, Error, Debug, PartialEq)]
 pub enum GroupError {
     #[error("Unknown response error code: {code}: {message}")]
     UnknownErrorCode { code: i64, message: String },
@@ -50,14 +50,14 @@ impl KnownErrorCodes for GroupError {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct GroupResponse {
     #[serde(rename = "responseResult")]
     pub response_result: ResponseStatus,
     pub group: Option<Group>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct GroupMinimal {
     pub id: Int,
     pub name: String,
@@ -71,7 +71,7 @@ pub struct GroupMinimal {
     pub updated_at: Date,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct Group {
     pub id: Int,
     pub name: String,
@@ -88,7 +88,7 @@ pub struct Group {
     pub updated_at: Date,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PageRule {
     pub id: String,
     pub deny: Boolean,
@@ -98,7 +98,7 @@ pub struct PageRule {
     pub locales: Vec<String>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct PageRuleInput {
     pub id: String,
     pub deny: Boolean,
@@ -108,7 +108,7 @@ pub struct PageRuleInput {
     pub locales: Vec<String>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub enum PageRuleMatch {
     START,
     EXACT,

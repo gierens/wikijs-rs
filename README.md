@@ -45,7 +45,7 @@ use wikijs::{Api, Credentials};
 let api = Api::new(
     "http://localhost:3000".to_string(),
     Credentials::Key("my-api-key".to_string()),
-);
+).unwrap();
 println!("{:?}", api.page_get(1).unwrap());
 
 ```
