@@ -130,7 +130,7 @@ impl Api {
     /// A new API struct.
     pub fn new(
         url: String,
-        credentials: Credentials
+        credentials: Credentials,
     ) -> Result<Self, user::UserError> {
         let key = match credentials {
             Credentials::Key(key) => key,
