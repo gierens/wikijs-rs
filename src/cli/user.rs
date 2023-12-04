@@ -4,7 +4,7 @@ use colored::Colorize;
 use std::error::Error;
 use tabled::{builder::Builder, settings::Style};
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum UserCommand {
     #[clap(about = "Get a user")]
     Get {
@@ -148,7 +148,7 @@ pub(crate) enum UserCommand {
     },
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum ProfileCommand {
     #[clap(about = "Get your own user profile")]
     Get {},
@@ -175,7 +175,7 @@ pub(crate) enum ProfileCommand {
     },
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum PasswordCommand {
     #[clap(about = "Change your password")]
     Change {

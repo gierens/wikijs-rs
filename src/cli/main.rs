@@ -17,7 +17,7 @@ mod user;
 
 use crate::common::Execute;
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[command(name = "wikijs-cli")]
 #[command(author = "Sandro-Alessio Gierens <sandro@gierens.de>")]
 #[command(version = "0.1.1")]
@@ -33,7 +33,7 @@ struct Cli {
     command: Command,
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 enum Command {
     #[clap(about = "Asset commands")]
     Asset {
