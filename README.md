@@ -36,7 +36,7 @@ via the REST API. For detailed information check the
 Add the following dependency to your `Cargo.toml`:
 ```toml
 [dependencies]
-wikijs = "0.1"
+wikijs = "0.2"
 ```
 Create an instance of `Api` and use its functions:
 ```rust
