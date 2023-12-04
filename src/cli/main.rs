@@ -57,7 +57,7 @@ struct CredentialArgs {
 #[derive(Parser, Debug)]
 #[command(name = "wikijs-cli")]
 #[command(author = "Sandro-Alessio Gierens <sandro@gierens.de>")]
-#[command(version = "0.1.1")]
+#[command(version = "0.2.0")]
 #[command(about = "Command line client for Wiki.js")]
 struct Cli {
     #[clap(short, long, help = "Wiki.js base URL", env = "WIKI_JS_BASE_URL")]
