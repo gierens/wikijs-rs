@@ -12,12 +12,16 @@ pub(crate) enum AuthenticationStrategyCommand {
 impl Execute for AuthenticationStrategyCommand {
     fn execute(&self, api: wikijs::Api) -> Result<(), Box<dyn Error>> {
         match self {
-            AuthenticationStrategyCommand::List {} => authentication_strategy_list(api),
+            AuthenticationStrategyCommand::List {} => {
+                authentication_strategy_list(api)
+            }
         }
     }
 }
 
-fn authentication_strategy_list(api: wikijs::Api) -> Result<(), Box<dyn Error>> {
+fn authentication_strategy_list(
+    api: wikijs::Api,
+) -> Result<(), Box<dyn Error>> {
     let providers = api.authentication_strategy_list()?;
     let mut builder = Builder::new();
     builder.push_record([

@@ -2,9 +2,9 @@ use clap::{Args, Parser, Subcommand};
 use colored::Colorize;
 use wikijs::{Api, Credentials};
 
-mod authentication;
 mod analytics;
 mod asset;
+mod authentication;
 mod comment;
 mod common;
 mod contribute;
@@ -24,13 +24,33 @@ struct CredentialArgs {
     #[clap(short, long, help = "Wiki.js API key", env = "WIKI_JS_API_KEY")]
     key: Option<String>,
 
-    #[clap(short = 'U', long, help = "Wiki.js username", env = "WIKI_JS_USERNAME", requires = "password", conflicts_with = "key")]
+    #[clap(
+        short = 'U',
+        long,
+        help = "Wiki.js username",
+        env = "WIKI_JS_USERNAME",
+        requires = "password",
+        conflicts_with = "key"
+    )]
     username: Option<String>,
 
-    #[clap(short = 'P', long, help = "Wiki.js password", env = "WIKI_JS_PASSWORD", requires = "username", conflicts_with = "key")]
+    #[clap(
+        short = 'P',
+        long,
+        help = "Wiki.js password",
+        env = "WIKI_JS_PASSWORD",
+        requires = "username",
+        conflicts_with = "key"
+    )]
     password: Option<String>,
 
-    #[clap(short, long, help = "Wiki.js authentication provider ID", env = "WIKI_JS_AUTH_PROVIDER", default_value = "local")]
+    #[clap(
+        short,
+        long,
+        help = "Wiki.js authentication provider ID",
+        env = "WIKI_JS_AUTH_PROVIDER",
+        default_value = "local"
+    )]
     provider: Option<String>,
 }
 
