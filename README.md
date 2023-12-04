@@ -72,8 +72,17 @@ environment variables. For the latter option use something like this:
 export WIKI_JS_BASE_URL=https://wiki.mydomain.com
 export WIKI_JS_API_KEY=MY-SUPER-SECRET-API-KEY
 ```
-Then you can for example create a page named `test`, list pages and edit
-it with:
+or for password authentication use:
+```bash
+export WIKI_JS_USERNAME="USERNAME or EMAIL"
+export WIKI_JS_PASSWORD="PASSWORD"
+```
+Note, in case you're using something else then the default authentication
+provider like LDAP, you have to set the variable `WIKI_JS_AUTH_PROVIDER` to
+its UUID.
+
+Then you can for example create a page named `test`, list pages and edit it
+with:
 ```bash
 wikijs page create test
 wikijs page list
