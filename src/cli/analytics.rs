@@ -3,7 +3,7 @@ use clap::Subcommand;
 use std::error::Error;
 use tabled::{builder::Builder, settings::Style};
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum AnalyticsProviderCommand {
     #[clap(about = "List analytics providers")]
     List {},

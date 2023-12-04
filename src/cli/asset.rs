@@ -6,7 +6,7 @@ use std::fs::File;
 use std::io::Write;
 use tabled::{builder::Builder, settings::Style};
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum AssetCommand {
     #[clap(about = "List assets")]
     List {
@@ -36,7 +36,7 @@ pub(crate) enum AssetCommand {
     },
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum AssetFolderCommand {
     #[clap(about = "List asset folders")]
     List {

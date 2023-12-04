@@ -7,7 +7,7 @@ use std::io::Write;
 use tabled::{builder::Builder, settings::Style};
 use tempfile::Builder as TempFileBuilder;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub(crate) enum PageCommand {
     #[clap(about = "Get a page")]
     Get {
