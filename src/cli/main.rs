@@ -2,6 +2,7 @@ use clap::{Parser, Subcommand};
 use colored::Colorize;
 use wikijs::{Api, Credentials};
 
+mod authentication;
 mod analytics;
 mod asset;
 mod comment;
@@ -45,6 +46,12 @@ enum Command {
     AssetFolder {
         #[clap(subcommand)]
         command: asset::AssetFolderCommand,
+    },
+
+    #[clap(about = "Authentication strategy commands")]
+    AuthenticationStrategy {
+        #[clap(subcommand)]
+        command: authentication::AuthenticationStrategyCommand,
     },
 
     #[clap(about = "Page commands")]
@@ -134,6 +141,7 @@ fn main() {
     match match cli.command {
         Command::Asset { ref command } => command.execute(api),
         Command::AssetFolder { ref command } => command.execute(api),
+        Command::AuthenticationStrategy { ref command } => command.execute(api),
         Command::Page { ref command } => command.execute(api),
         Command::Contributor { ref command } => command.execute(api),
         Command::AnalyticsProvider { command } => command.execute(api),
