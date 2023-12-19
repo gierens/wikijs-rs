@@ -1,17 +1,23 @@
-"lib":
-  - src/lib/*
+lib:
+- changed-files:
+  - any-glob-to-any-file: src/lib/*
 
-"cli":
-  - src/cli/*
+cli:
+- changed-files: 
+  - any-glob-to-any-file: src/cli/*
 
-"fuse":
-  - src/fuse/*
+fuse:
+- changed-files:
+  - any-glob-to-any-file: src/fuse/*
 
-"tests":
-  - tests/*
+tests:
+- changed-files:
+  - any-glob-to-any-file: tests/*
 
-"dependency":
-  - Cargo.*
+dependency:
+- changed-files:
+  - any-glob-to-any-file: Cargo.*
 
-"ci":
-  - .github/**/*
+ci:
+- changed-files:
+  - any-glob-to-any-file: .github/**/*
