@@ -57,4 +57,4 @@ tempfile = { version = "3.8", optional = true }
 lazy_static = "1.4"
 serial_test = "3.0"
 # cli
-trycmd = "0.14"
+trycmd = "0.15"
