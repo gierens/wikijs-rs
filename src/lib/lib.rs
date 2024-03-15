@@ -146,7 +146,6 @@ impl Api {
                     password,
                     strategy,
                 )?;
-                println!("{:?}", auth_response);
                 auth_response.jwt.unwrap()
             }
         };
