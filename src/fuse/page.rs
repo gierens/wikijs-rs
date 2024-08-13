@@ -5,7 +5,7 @@ pub(crate) struct PageCache {
     pages: HashMap<u64, PageMinimal>,
 }
 
-#[allow(dead_code)]
+#[allow(unused)]
 impl PageCache {
     pub(crate) fn new() -> Self {
         Self {
