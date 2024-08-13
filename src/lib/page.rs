@@ -141,7 +141,7 @@ pub struct Page {
 }
 
 #[derive(Clone, Deserialize, Debug)]
-#[allow(dead_code)]
+#[allow(unused)]
 pub struct PageMinimal {
     pub id: Int,
     pub path: String,
@@ -821,6 +821,7 @@ pub(crate) mod page_create {
     pub struct Create {
         #[serde(rename = "responseResult")]
         pub response_result: ResponseStatus,
+        #[allow(unused)]
         pub page: Option<Page>,
     }
 
@@ -1014,6 +1015,7 @@ pub(crate) mod page_update {
     pub struct Update {
         #[serde(rename = "responseResult")]
         pub response_result: ResponseStatus,
+        #[allow(unused)]
         pub page: Option<Page>,
     }
 

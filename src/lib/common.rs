@@ -33,6 +33,7 @@ pub(crate) trait UnknownError {
 }
 
 pub(crate) trait KnownErrorCodes {
+    #[allow(unused)]
     fn known_error_codes() -> Vec<i64>;
     fn is_known_error_code(code: i64) -> bool;
 }

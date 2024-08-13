@@ -318,7 +318,7 @@ impl Api {
     ///
     /// # Returns
     /// A Result containing either the datetime string or a page error.
-    #[allow(dead_code)]
+    #[allow(unused)]
     pub fn page_get_updated_at(
         &self,
         id: i64,
@@ -337,7 +337,7 @@ impl Api {
     ///
     /// # Returns
     /// A Result containing either the minimal page information or a page error.
-    #[allow(dead_code)]
+    #[allow(unused)]
     pub fn page_get_minimal(
         &self,
         id: i64,

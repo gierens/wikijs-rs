@@ -1,6 +1,7 @@
 use graphql_client::reqwest::post_graphql_blocking as post_graphql;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 use thiserror::Error;
 
 use crate::common::{
@@ -114,12 +115,12 @@ pub enum AssetKind {
     ALL,
 }
 
-impl ToString for AssetKind {
-    fn to_string(&self) -> String {
+impl Display for AssetKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            AssetKind::IMAGE => "IMAGE".to_string(),
-            AssetKind::BINARY => "BINARY".to_string(),
-            AssetKind::ALL => "ALL".to_string(),
+            AssetKind::IMAGE => Display::fmt("IMAGE", f),
+            AssetKind::BINARY => Display::fmt("BINARY", f),
+            AssetKind::ALL => Display::fmt("ALL", f),
         }
     }
 }
