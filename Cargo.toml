@@ -37,7 +37,7 @@ vendored-tls = ["reqwest/native-tls-vendored"]
 graphql_client = { version = "0.14", features = ["reqwest-blocking"] }
 serde = "1.0"
 reqwest = { version = "0.11", features = ["json", "blocking", "multipart"] }
-thiserror = "1.0"
+thiserror = "2.0"
 # cli and fuse
 clap = { version = "4.4", features = ["derive", "env"], optional = true }
 colored = { version = "3.0", optional = true }
