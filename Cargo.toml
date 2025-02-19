@@ -40,7 +40,7 @@ reqwest = { version = "0.11", features = ["json", "blocking", "multipart"] }
 thiserror = "1.0"
 # cli and fuse
 clap = { version = "4.4", features = ["derive", "env"], optional = true }
-colored = { version = "2.0", optional = true }
+colored = { version = "3.0", optional = true }
 # fuse
 fuser = { version = "0.14", optional = true }
 clap-verbosity-flag = { version = "3.0", optional = true }
