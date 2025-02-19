@@ -76,8 +76,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: install rust cache
         uses: Swatinem/rust-cache@v2
-      - name: run coverage check
-        uses: actions-rs/tarpaulin@v0.1
-        with:
-          version: '0.15.0'
-          args: '--workspace --fail-under 5 --exclude-files src/cli/* --exclude-files src/fuse/* --exclude-files tests/* --exclude-files gql/*'
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+      - name: Generate code coverage
+        run: |
+          cargo tarpaulin --workspace --fail-under 5 --exclude-files src/cli/* --exclude-files src/fuse/* --exclude-files tests/* --exclude-files gql/*
