@@ -594,16 +594,16 @@ impl Filesystem for Fs {
         }
     }
 
-    /// Open a file.
-    ///
-    /// # Arguments
-    /// * `req` - The request.
-    /// * `ino` - The inode number.
-    /// * `flags` - The flags of the file.
-    /// * `reply` - The reply.
-    ///
-    /// # Returns
-    /// Nothing.
+    // /// Open a file.
+    // ///
+    // /// # Arguments
+    // /// * `req` - The request.
+    // /// * `ino` - The inode number.
+    // /// * `flags` - The flags of the file.
+    // /// * `reply` - The reply.
+    // ///
+    // /// # Returns
+    // /// Nothing.
     // fn open(
     //     &mut self,
     //     _req: &Request<'_>,
