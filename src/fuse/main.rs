@@ -159,7 +159,13 @@ impl Filesystem for Fs {
     ///
     /// # Returns
     /// Nothing.
-    fn getattr(&mut self, _req: &Request, ino: u64, reply: ReplyAttr) {
+    fn getattr(
+        &mut self,
+        _req: &Request,
+        ino: u64,
+        _fh: Option<u64>,
+        reply: ReplyAttr,
+    ) {
         let start = SystemTime::now();
         info!("getattr(ino={})", ino);
 
