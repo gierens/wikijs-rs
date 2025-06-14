@@ -415,7 +415,7 @@ fn page_create(
         None,
         None,
         tags.iter().map(|s| Some(s.clone())).collect(),
-        title.unwrap_or(path.split('/').last().unwrap().to_string()),
+        title.unwrap_or(path.split('/').next_back().unwrap().to_string()),
     )?;
     println!("{}: Page created", "success".bold().green());
     Ok(())
@@ -494,8 +494,7 @@ fn page_edit(
         .spawn()?;
     let status = child.wait()?;
     if !status.success() {
-        return Err(Box::new(IoError::new(
-            std::io::ErrorKind::Other,
+        return Err(Box::new(IoError::other(
             "Editor exited with non-zero status code",
         )));
     }
