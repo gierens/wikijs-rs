@@ -348,7 +348,7 @@ impl Filesystem for Fs {
             if i + 2 <= offset as usize {
                 continue;
             }
-            let basename = pti.path.split('/').last().unwrap();
+            let basename = pti.path.split('/').next_back().unwrap();
             if pti.is_folder {
                 if reply.add(
                     pti.id as u64 + 1,
@@ -419,7 +419,7 @@ impl Filesystem for Fs {
         };
 
         for pti in page_tree {
-            if pti.path.split('/').last().unwrap() == name_str {
+            if pti.path.split('/').next_back().unwrap() == name_str {
                 let ino = if is_dir {
                     pti.id as u64 + 1
                 } else {
