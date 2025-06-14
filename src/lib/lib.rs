@@ -190,7 +190,7 @@ impl Api {
     ///
     /// # Arguments
     /// * `parent_id` - The id of the parent folder to list asset folders from.
-    ///                 Use 0 to list all root folders.
+    ///   Use 0 to list all root folders.
     pub fn asset_folder_list(
         &self,
         parent_id: i64,
@@ -206,7 +206,7 @@ impl Api {
     ///
     /// # Arguments
     /// * `parent_folder_id` - The id of the parent folder to create the new
-    ///                        folder in. Use 0 to create a root folder.
+    ///   folder in. Use 0 to create a root folder.
     /// * `slug` - The slug of the new folder.
     /// * `name` - The name of the new folder.
     pub fn asset_folder_create(
@@ -830,7 +830,7 @@ impl Api {
     /// * `username` - The username to login with.
     /// * `password` - The password to login with.
     /// * `strategy` - The authentication strategy to use, for example "local".
-    ///                Use [`authentication_strategy_list`](#method.authentication_strategy_list)
+    ///   Use [`authentication_strategy_list`](#method.authentication_strategy_list)
     pub fn login(
         &self,
         username: String,
@@ -1155,10 +1155,8 @@ impl Api {
     /// * `page_id` - The id of the page to create the comment for.
     /// * `reply_to` - The id of the comment to reply to.
     /// * `content` - The content of the comment.
-    /// * `guest_name` - The name of the guest if the comment is created
-    ///                  by a guest.
-    /// * `guest_email` - The email of the guest if the comment is created
-    ///                   by a guest.
+    /// * `guest_name` - The name of the guest if the comment is created by a guest.
+    /// * `guest_email` - The email of the guest if the comment is created by a guest.
     pub fn comment_create(
         &self,
         page_id: i64,
