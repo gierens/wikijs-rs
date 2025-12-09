@@ -34,7 +34,7 @@ vendored-tls = ["reqwest/native-tls-vendored"]
 
 [dependencies]
 # lib
-graphql_client = { version = "0.14", features = ["reqwest-blocking"] }
+graphql_client = { version = "0.15", features = ["reqwest-blocking"] }
 serde = "1.0"
 reqwest = { version = "0.11", default-features = false, features = ["json", "blocking", "multipart", "rustls-tls"] }
 thiserror = "2.0"
